@@ -1,0 +1,74 @@
+[metadata]
+format.version = "1.1"
+
+[versions]
+edc = "0.15.0-SNAPSHOT"
+edc-build = "1.1.1"
+
+[libraries]
+# upstream EDC dependencies
+edc-did-core = { module = "org.eclipse.edc:identity-did-core", version.ref = "edc" }
+edc-did-web = { module = "org.eclipse.edc:identity-did-web", version.ref = "edc" }
+edc-core-connector = { module = "org.eclipse.edc:connector-core", version.ref = "edc" }
+edc-core-controlplane = { module = "org.eclipse.edc:control-plane-core", version.ref = "edc" }
+edc-core-jersey = { module = "org.eclipse.edc:jersey-core", version.ref = "edc" }
+edc-core-jetty = { module = "org.eclipse.edc:jetty-core", version.ref = "edc" }
+edc-core-token = { module = "org.eclipse.edc:token-core", version.ref = "edc" }
+edc-core-runtime = { module = "org.eclipse.edc:runtime-core", version.ref = "edc" }
+edc-dcp = { module = "org.eclipse.edc:identity-trust-service", version.ref = "edc" }
+edc-api-observability = { module = "org.eclipse.edc:api-observability", version.ref = "edc" }
+edc-dataplane-v2 = { module = "org.eclipse.edc:data-plane-public-api-v2", version.ref = "edc" }
+edc-core-dataplane-selector = { module = "org.eclipse.edc:data-plane-selector-core", version.ref = "edc" }
+edc-core-dataplane-signaling-client = { module = "org.eclipse.edc:data-plane-signaling-client", version.ref = "edc" }
+edc-core-dataplane-signaling-transfer = { module = "org.eclipse.edc:transfer-data-plane-signaling", version.ref = "edc" }
+edc-dcp-core = { module = "org.eclipse.edc:identity-trust-core", version.ref = "edc" }
+edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
+edc-spi-identity-did = { module = "org.eclipse.edc:identity-did-spi", version.ref = "edc" }
+
+# EDC-V dependencies
+edcv-core-connector = { module = "org.eclipse.edc.virtualized:v-connector-core", version.ref = "edc" }
+edcv-core-negotiationmanager = { module = "org.eclipse.edc.virtualized:negotiation-manager", version.ref = "edc" }
+edcv-core-transfermanager = { module = "org.eclipse.edc.virtualized:transfer-process-manager", version.ref = "edc" }
+edcv-banner = { module = "org.eclipse.edc.virtualized:banner-extension", version.ref = "edc" }
+edcv-protocols-dsp = { module = "org.eclipse.edc.virtualized:dsp", version.ref = "edc" }
+
+# EDC lib dependencies
+edc-lib-crypto = { module = "org.eclipse.edc:crypto-common-lib", version.ref = "edc" }
+edc-lib-keys = { module = "org.eclipse.edc:keys-lib", version.ref = "edc" }
+
+
+# identityhub SPI modules
+edc-ih-spi-credentials = { module = "org.eclipse.edc:verifiable-credential-spi", version.ref = "edc" }
+edc-ih-spi = { module = "org.eclipse.edc:identity-hub-spi", version.ref = "edc" }
+
+# identityhub API modules
+edc-oauth2-client = { module = "org.eclipse.edc:oauth2-client", version.ref = "edc" }
+edc-ih-api-did = { module = "org.eclipse.edc:did-api", version.ref = "edc" }
+edc-ih-api-participants = { module = "org.eclipse.edc:participant-context-api", version.ref = "edc" }
+
+# issuerservice SPI module
+edc-issuance-spi = { module = "org.eclipse.edc:issuerservice-issuance-spi", version.ref = "edc" }
+
+# BOM modules
+edc-bom-dataplane = { module = "org.eclipse.edc:dataplane-base-bom", version.ref = "edc" }
+edc-bom-controlplane-sql = { module = "org.eclipse.edc:controlplane-feature-sql-bom", version.ref = "edc" }
+edc-bom-dataplane-sql = { module = "org.eclipse.edc:dataplane-feature-sql-bom", version.ref = "edc" }
+edc-bom-identityhub = { module = "org.eclipse.edc:identityhub-bom", version.ref = "edc" }
+edc-bom-identityhub-sql = { module = "org.eclipse.edc:identityhub-feature-sql-bom", version.ref = "edc" }
+edc-bom-issuerservice = { module = "org.eclipse.edc:issuerservice-bom", version.ref = "edc" }
+edc-bom-issuerservice-sql = { module = "org.eclipse.edc:issuerservice-feature-sql-bom", version.ref = "edc" }
+
+[bundles]
+
+dcp = [
+    "edc-dcp",
+    "edc-did-core",
+    "edc-did-web",
+    "edc-oauth2-client",
+    "edc-dcp-core",
+]
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version = "8.3.6" }
+edc-build = { id = "org.eclipse.edc.edc-build", version.ref = "edc-build" }
+docker = { id = "com.bmuschko.docker-remote-api", version = "9.4.0" }
