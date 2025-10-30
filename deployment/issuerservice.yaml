@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: issuerservice
+  namespace: edc-v
+  labels:
+    app: issuerservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: issuerservice
+  template:
+    metadata:
+      name: issuerservice
+      labels:
+        app: issuerservice
+    spec:
+      containers:
+        - name: issuerservice
+          image: issuerservice:0.15.0-SNAPSHOT
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          envFrom:
+            - configMapRef: { name: issuerservice-config }
+      restartPolicy: Always
+      
