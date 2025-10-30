@@ -25,6 +25,13 @@ spec:
           value: "cp"
         - name: POSTGRES_PASSWORD
           value: "cp"
+        volumeMounts:
+        - name: init-script
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: init-script
+        configMap:
+          name: postgres-init
 ---
 apiVersion: v1
 kind: Service
@@ -37,3 +44,17 @@ spec:
   ports:
   - port: 5432
     targetPort: 5432
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: edc-v
+data:
+  init.sql: |
+    CREATE DATABASE identityhub;
+    CREATE USER ih WITH PASSWORD 'ih';
+    GRANT ALL PRIVILEGES ON DATABASE identityhub TO ih;
+    \c identityhub
+    GRANT ALL ON SCHEMA public TO ih;
