@@ -26,4 +26,91 @@ spec:
           envFrom:
             - configMapRef: { name: issuerservice-config }
       restartPolicy: Always
-      
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: issuerservice
+  namespace: edc-v
+spec:
+  type: NodePort
+  selector:
+    app: issuerservice
+  ports:
+    - port: 10010
+      targetPort: 10010
+      name: web
+    - port : 10011
+      targetPort: 10011
+      name: sts
+    - port : 10012
+      targetPort: 10012
+      name: issuance
+    - port : 10013
+      targetPort: 10013
+      name: issueradmin
+    - port : 10015
+      targetPort: 10015
+      name: identity
+    - port : 10016
+      targetPort: 10016
+      name: did
+    - port: 9999
+      targetPort: 9999
+      name: statuslist
+
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: issuerservice
+  namespace: edc-v
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /issuer/cs(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: issuerservice
+                port:
+                  number: 10015
+
+          - path: /issuer/admin(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: issuerservice
+                port:
+                  number: 10013
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: issuer-did
+  namespace: edc-v
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/issuer/$2"
+
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /issuer(/|&)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: issuerservice
+                port:
+                  number: 10016

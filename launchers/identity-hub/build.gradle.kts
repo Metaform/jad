@@ -20,15 +20,11 @@ plugins {
 
 dependencies {
     runtimeOnly(project(":extensions:superuser-seed"))
-    runtimeOnly(project(":extensions:did-example-resolver"))
 
     runtimeOnly(libs.edc.bom.identityhub)
     runtimeOnly(libs.edc.vault.hashicorp)
     runtimeOnly(libs.edc.bom.identityhub.sql)
 
-    testImplementation(libs.edc.spi.identity.did)
-    testImplementation(libs.edc.lib.crypto)
-    testImplementation(libs.edc.lib.keys)
 }
 
 application {
