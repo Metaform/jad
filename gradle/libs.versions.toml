@@ -23,7 +23,8 @@ edc-core-dataplane-signaling-client = { module = "org.eclipse.edc:data-plane-sig
 edc-core-dataplane-signaling-transfer = { module = "org.eclipse.edc:transfer-data-plane-signaling", version.ref = "edc" }
 edc-dcp-core = { module = "org.eclipse.edc:identity-trust-core", version.ref = "edc" }
 edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
-edc-spi-identity-did = { module = "org.eclipse.edc:identity-did-spi", version.ref = "edc" }
+edc-store-participantcontext-sql = { module = "org.eclipse.edc:participantcontext-store-sql", version.ref = "edc" }
+edc-store-participantcontext-config-sql = { module = "org.eclipse.edc:participantcontext-config-store-sql", version.ref = "edc" }
 
 # EDC-V dependencies
 edcv-core-connector = { module = "org.eclipse.edc.virtualized:v-connector-core", version.ref = "edc" }
@@ -32,10 +33,9 @@ edcv-core-transfermanager = { module = "org.eclipse.edc.virtualized:transfer-pro
 edcv-banner = { module = "org.eclipse.edc.virtualized:banner-extension", version.ref = "edc" }
 edcv-protocols-dsp = { module = "org.eclipse.edc.virtualized:dsp", version.ref = "edc" }
 
-# EDC lib dependencies
-edc-lib-crypto = { module = "org.eclipse.edc:crypto-common-lib", version.ref = "edc" }
-edc-lib-keys = { module = "org.eclipse.edc:keys-lib", version.ref = "edc" }
-
+# EDC spi dependencies
+edc-spi-participantcontext = { module = "org.eclipse.edc:connector-participant-context-spi", version.ref = "edc" }
+edc-spi-web = { module = "org.eclipse.edc:web-spi", version.ref = "edc" }
 
 # identityhub SPI modules
 edc-ih-spi-credentials = { module = "org.eclipse.edc:verifiable-credential-spi", version.ref = "edc" }

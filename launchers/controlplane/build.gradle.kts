@@ -12,18 +12,19 @@
  *
  */
 
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin
-import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
-
 plugins {
     id("application")
     alias(libs.plugins.shadow)
     alias(libs.plugins.docker)
+    id("io.swagger.core.v3.swagger-gradle-plugin")
 }
 
 dependencies {
-    runtimeOnly(libs.edcv.core.connector)
+    implementation(libs.edc.did.core)
+    implementation(libs.edc.spi.participantcontext )
+    implementation(libs.edcv.core.connector)
+    implementation(libs.edc.spi.web)
+
     runtimeOnly(libs.edcv.core.negotiationmanager)
     runtimeOnly(libs.edcv.core.transfermanager)
     runtimeOnly(libs.edcv.banner)
@@ -45,6 +46,8 @@ dependencies {
 
     runtimeOnly(libs.edc.vault.hashicorp)
     runtimeOnly(libs.edc.bom.controlplane.sql)
+    runtimeOnly(libs.edc.store.participantcontext.sql)
+    runtimeOnly(libs.edc.store.participantcontext.config.sql)
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {

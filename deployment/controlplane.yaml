@@ -25,16 +25,15 @@ spec:
       restartPolicy: Always
 
 ---
----
 apiVersion: v1
 kind: Service
 metadata:
   name: controlplane
   namespace: edc-v
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
-    App: controlplane
+    app: controlplane
   ports:
     - name: health
       port: 8080
@@ -48,3 +47,25 @@ spec:
     - name: debug
       port: 1044
       targetPort: 1044
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: controlplane
+  namespace: edc-v
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /cp(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: controlplane
+                port:
+                  number: 8081
