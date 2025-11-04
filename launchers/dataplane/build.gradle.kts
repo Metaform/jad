@@ -19,14 +19,13 @@ plugins {
 }
 
 dependencies {
-    runtimeOnly(libs.edc.bom.dataplane)
+    runtimeOnly(libs.edc.bom.dataplane){
+        exclude("org.eclipse.edc", "data-plane-self-registration")
+    }
     runtimeOnly(libs.edc.dataplane.v2)
 
-    if (project.properties.getOrDefault("persistence", "false") == "true") {
-        runtimeOnly(libs.edc.vault.hashicorp)
-        runtimeOnly(libs.edc.bom.dataplane.sql)
-        println("This runtime compiles with a remote STS client, Hashicorp Vault and PostgreSQL. You will need properly configured Postgres and HCV instances.")
-    }
+    runtimeOnly(libs.edc.vault.hashicorp)
+    runtimeOnly(libs.edc.bom.dataplane.sql)
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {

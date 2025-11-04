@@ -25,6 +25,7 @@ dependencies {
     implementation(libs.edc.spi.web)
     implementation(libs.edc.spi.controlplane)
     implementation(libs.edc.spi.participantcontext.config)
+    implementation(libs.edc.spi.dataplane.selector)
 
     implementation(libs.edc.did.core)
 }

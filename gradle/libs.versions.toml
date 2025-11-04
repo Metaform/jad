@@ -36,10 +36,12 @@ edcv-banner = { module = "org.eclipse.edc.virtualized:banner-extension", version
 edcv-protocols-dsp = { module = "org.eclipse.edc.virtualized:dsp", version.ref = "edc" }
 
 # EDC spi dependencies
+edc-spi-asset = { module = "org.eclipse.edc:asset-spi", version.ref = "edc" }
 edc-spi-participantcontext = { module = "org.eclipse.edc:connector-participant-context-spi", version.ref = "edc" }
 edc-spi-participantcontext-config = { module = "org.eclipse.edc:participant-context-config-spi", version.ref = "edc" }
 edc-spi-web = { module = "org.eclipse.edc:web-spi", version.ref = "edc" }
-edc-spi-controlplane = {module = "org.eclipse.edc:control-plane-spi", version.ref = "edc"}
+edc-spi-controlplane = { module = "org.eclipse.edc:control-plane-spi", version.ref = "edc" }
+edc-spi-dataplane-selector = { module = "org.eclipse.edc:data-plane-selector-spi", version.ref = "edc" }
 edc-spi-identity-trust = { module = "org.eclipse.edc:identity-trust-spi", version.ref = "edc" }
 edc-spi-transform = { module = "org.eclipse.edc:transform-spi", version.ref = "edc" }
 edc-spi-catalog = { module = "org.eclipse.edc:catalog-spi", version.ref = "edc" }

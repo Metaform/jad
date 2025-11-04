@@ -64,3 +64,9 @@ data:
     GRANT ALL PRIVILEGES ON DATABASE issuerservice TO issuer;
     \c issuerservice
     GRANT ALL ON SCHEMA public TO issuer;
+    
+    CREATE DATABASE dataplane;
+    CREATE USER dp WITH PASSWORD 'dp';
+    GRANT ALL PRIVILEGES ON DATABASE dataplane TO dp;
+    \c dataplane
+    GRANT ALL ON SCHEMA public TO dp;

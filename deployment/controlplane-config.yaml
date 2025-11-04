@@ -17,6 +17,8 @@ data:
   web.http.protocol.path: "/api/dsp"
   web.http.management.port: "8081"
   web.http.management.path: "/api/mgmt"
+  web.http.control.port: "8083"
+  web.http.control.path: "/api/control"
 
   # dataplane config
   edc.datasource.default.url: "jdbc:postgresql://postgres.edc-v.svc.cluster.local:5432/controlplane"

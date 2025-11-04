@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dataplane-config
+  namespace: edc-v
+data:
+  edc.hostname: "dataplane.edc-v.svc.cluster.local"
+
+  edc.transfer.proxy.token.verifier.publickey.alias: "replace-me#key-1"
+  edc.transfer.proxy.token.signer.privatekey.alias: "replace-me#key-1"
+
+  edc.dpf.selector.url: "http://controlplane.edc-v.svc.cluster.local:8083/api/control/v1/dataplanes"
+
+  web.http.port: "8080"
+  web.http.path: "/api"
+  web.http.control.port: "8083"
+  web.http.control.path: "/api/control"
+  web.http.public.port: "11002"
+  web.http.public.path: "/api/public"
+
+  edc.vault.hashicorp.url: "http://vault.edc-v.svc.cluster.local:8200"
+  edc.vault.hashicorp.token: "root"
+
+  JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044"
+
+  edc.datasource.default.url: "jdbc:postgresql://postgres.edc-v.svc.cluster.local:5432/dataplane"
+  edc.datasource.default.user: "dp"
+  edc.datasource.default.password: "dp"
+  edc.sql.schema.autocreate: "true"
+
+#  EDC_IAM_STS_OAUTH_TOKEN_URL: "http://foobar/token"
+#  EDC_IAM_STS_OAUTH_CLIENT_ID: "${PARTICIPANT_ID}"
+#  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: "${PARTICIPANT_ID}-sts-client-secret"

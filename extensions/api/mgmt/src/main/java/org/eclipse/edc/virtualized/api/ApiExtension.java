@@ -1,6 +1,10 @@
 package org.eclipse.edc.virtualized.api;
 
+import org.eclipse.edc.connector.controlplane.services.spi.asset.AssetService;
 import org.eclipse.edc.connector.controlplane.services.spi.catalog.CatalogService;
+import org.eclipse.edc.connector.controlplane.services.spi.contractdefinition.ContractDefinitionService;
+import org.eclipse.edc.connector.controlplane.services.spi.policydefinition.PolicyDefinitionService;
+import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
 import org.eclipse.edc.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.edc.participantcontext.spi.config.service.ParticipantContextConfigService;
 import org.eclipse.edc.participantcontext.spi.service.ParticipantContextService;
@@ -39,6 +43,14 @@ public class ApiExtension implements ServiceExtension {
     private DidResolverRegistry didResolverRegistry;
     @Inject
     private ParticipantContextService participantContextService;
+    @Inject
+    private DataPlaneSelectorService selectorService;
+    @Inject
+    private AssetService assetService;
+    @Inject
+    private PolicyDefinitionService policyService;
+    @Inject
+    private ContractDefinitionService contractDefinitionService;
 
     @Override
     public void initialize(ServiceExtensionContext context) {
@@ -46,7 +58,7 @@ public class ApiExtension implements ServiceExtension {
         portMappingRegistry.register(portMapping);
 
 
-        webService.registerResource(ApiContext.MANAGEMENT, new ParticipantContextApiController(service, configService, vault));
+        webService.registerResource(ApiContext.MANAGEMENT, new ParticipantContextApiController(service, configService, vault, selectorService, assetService, policyService, contractDefinitionService));
         webService.registerResource(ApiContext.MANAGEMENT, new WrapperApiController(catalogService, didResolverRegistry, participantContextService));
 
     }

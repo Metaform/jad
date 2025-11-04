@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dataplane
+  namespace: edc-v
+  labels:
+    app: dataplane
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dataplane
+  template:
+    metadata:
+      labels:
+        app: dataplane
+    spec:
+      containers:
+        - name: dataplane
+          image: dataplane:0.15.0-SNAPSHOT
+          imagePullPolicy: Never
+          envFrom:
+            - configMapRef:
+                name: dataplane-config
+          ports:
+            - containerPort: 11002
+              name: public-port
+            - containerPort: 1044
+              name: debug-port
+          livenessProbe:
+            httpGet:
+              path: /api/check/liveness
+              port: 8080
+            failureThreshold: 10
+            periodSeconds: 5
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/check/readiness
+              port: 8080
+            failureThreshold: 10
+            periodSeconds: 5
+            timeoutSeconds: 30
+          startupProbe:
+            httpGet:
+              path: /api/check/startup
+              port: 8080
+            failureThreshold: 10
+            periodSeconds: 5
+            timeoutSeconds: 30
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dataplane
+  namespace: edc-v
+spec:
+  type: NodePort
+  selector:
+    App: dataplane
+  ports:
+    - name: control
+      port: 8083
+      targetPort: 8083
+    - name: public
+      port: 11002
+      targetPort: 11002
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-dataplane
+  namespace: edc-v
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /dp/public(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: dataplane
+                port:
+                  number: 11002
