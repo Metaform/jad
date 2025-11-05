@@ -25,7 +25,8 @@ pluginManagement {
 }
 
 rootProject.name = "edcv-demonstrator"
-include(":extensions:superuser-seed")
+include(":extensions:seed:superuser")
+include(":extensions:seed:nats")
 include(":extensions:api:mgmt")
 include(":extensions:dcp-impl")
 //include(":tests:performance")
