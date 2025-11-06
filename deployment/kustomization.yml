@@ -3,6 +3,7 @@ resources:
   - vault.yaml
   - postgres.yaml
   - nats.yaml
+  - keycloak.yaml
   - controlplane-config.yaml
   - controlplane.yaml
   - dataplane-config.yaml

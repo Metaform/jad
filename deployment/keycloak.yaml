@@ -1,0 +1,158 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: edc-v
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:latest
+        args:
+        - "start-dev"
+        - "--health-enabled=true"
+        - "--import-realm"
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 9000
+          name: health
+        env:
+        - name: KEYCLOAK_ADMIN
+          value: "admin"
+        - name: KC_BOOTSTRAP_ADMIN_USERNAME
+          value: "admin"
+        - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+          value: "admin"
+        - name: KC_HTTP_ENABLED
+          value: "true"
+        - name: KC_HOSTNAME_STRICT
+          value: "false"
+        - name: KC_HEALTH_ENABLED
+          value: "true"
+        volumeMounts:
+        - name: realm-config
+          mountPath: /opt/keycloak/data/import
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 9000
+          initialDelaySeconds: 3
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 9000
+          initialDelaySeconds: 3
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+      volumes:
+      - name: realm-config
+        configMap:
+          name: keycloak-realm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-realm
+  namespace: edc-v
+data:
+  edcv-realm.json: |
+    {
+      "realm": "edcv",
+      "enabled": true,
+      "roles": {
+        "realm": [
+          {
+            "name": "admin",
+            "description": "Administrator with full access rights",
+            "composite": false,
+            "clientRole": false
+          },
+          {
+            "name": "provisioner",
+            "description": "Can provision and manage resources",
+            "composite": false,
+            "clientRole": false
+          },
+          {
+            "name": "user",
+            "description": "Regular user with limited access",
+            "composite": false,
+            "clientRole": false
+          }
+        ]
+      },
+      "clients": [
+        {
+          "clientId": "edcv-service",
+          "name": "EDCV Service Client",
+          "description": "Service account client for client_credentials flow",
+          "enabled": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "edcv-service",
+          "serviceAccountsEnabled": true,
+          "standardFlowEnabled": false,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "publicClient": false,
+          "protocol": "openid-connect",
+          "attributes": {
+            "access.token.lifespan": "3600"
+          }
+        },
+        {
+          "clientId": "edcv-provisioner",
+          "name": "EDCV Provisioner Client",
+          "description": "Client for provisioning and management tasks",
+          "enabled": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "edcv-provisioner",
+          "serviceAccountsEnabled": true,
+          "standardFlowEnabled": false,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "publicClient": false,
+          "protocol": "openid-connect",
+          "attributes": {
+            "access.token.lifespan": "3600"
+          }
+        }
+      ],
+      "users": [
+        {
+          "username": "service-account-edcv-provisioner",
+          "enabled": true,
+          "serviceAccountClientId": "edcv-provisioner",
+          "clientRoles": {
+            "realm-management": ["manage-clients", "view-clients", "create-client"]
+          }
+        }
+      ],
+      "groups": [],
+      "eventsEnabled": false
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: edc-v
+spec:
+  selector:
+    app: keycloak
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
