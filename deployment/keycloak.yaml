@@ -72,74 +72,138 @@ data:
     {
       "realm": "edcv",
       "enabled": true,
+      "displayName": "EDCV Realm",
       "roles": {
         "realm": [
           {
             "name": "admin",
-            "description": "Administrator with full access rights",
-            "composite": false,
-            "clientRole": false
-          },
+            "description": "Administrator with full access to all tenants and their resources"},
           {
             "name": "provisioner",
-            "description": "Can provision and manage resources",
-            "composite": false,
-            "clientRole": false
-          },
+            "description": "Can create and delete tenants but cannot access their resources"},
           {
-            "name": "user",
-            "description": "Regular user with limited access",
-            "composite": false,
-            "clientRole": false
-          }
+            "name": "participant",
+            "description": "Regular participant context access role, can access their own resources"}
         ]
       },
-      "clients": [
+      "clientScopes": [
         {
-          "clientId": "edcv-service",
-          "name": "EDCV Service Client",
-          "description": "Service account client for client_credentials flow",
-          "enabled": true,
-          "clientAuthenticatorType": "client-secret",
-          "secret": "edcv-service",
-          "serviceAccountsEnabled": true,
-          "standardFlowEnabled": false,
-          "implicitFlowEnabled": false,
-          "directAccessGrantsEnabled": false,
-          "publicClient": false,
+          "name": "identity-api-read",
+          "description": "Read access to Identity API",
           "protocol": "openid-connect",
           "attributes": {
-            "access.token.lifespan": "3600"
+            "include.in.token.scope": "true",
+            "display.on.consent.screen": "true"
           }
         },
         {
-          "clientId": "edcv-provisioner",
-          "name": "EDCV Provisioner Client",
-          "description": "Client for provisioning and management tasks",
-          "enabled": true,
-          "clientAuthenticatorType": "client-secret",
-          "secret": "edcv-provisioner",
-          "serviceAccountsEnabled": true,
-          "standardFlowEnabled": false,
-          "implicitFlowEnabled": false,
-          "directAccessGrantsEnabled": false,
-          "publicClient": false,
+          "name": "identity-api-write",
+          "description": "Create, update delete objects in the Identity API",
           "protocol": "openid-connect",
           "attributes": {
-            "access.token.lifespan": "3600"
+            "include.in.token.scope": "true",
+            "display.on.consent.screen": "true"
           }
-        }
-      ],
-      "users": [
+        },
         {
-          "username": "service-account-edcv-provisioner",
-          "enabled": true,
-          "serviceAccountClientId": "edcv-provisioner",
-          "clientRoles": {
-            "realm-management": ["manage-clients", "view-clients", "create-client"]
+          "name": "management-api-read",
+          "description": "Read access to the Management API of the EDC Control Plane",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "true",
+            "display.on.consent.screen": "true"
+          }
+        },
+        {
+          "name": "management-api-write",
+          "description": "Create, update and delete objects in the Management API of the EDC Control Plane",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "true",
+            "display.on.consent.screen": "true"
+          }
+        },
+        {
+          "name": "issuer-admin-api",
+          "description": "full access to the Issuer Admin API",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "true",
+            "display.on.consent.screen": "true"
           }
         }
       ],
+      "defaultOptionalClientScopes": [
+        "offline_access",
+        "management-api-read",
+        "management-api-write",
+        "identity-api-read",
+        "identity-api-write"
+      ],
+      "clients": [
+        {
+          "clientId": "edcv-admin",
+          "name": "EDC-V Admin User",
+          "description": "Global admin client with full access",
+          "enabled": true,
+          "protocol": "openid-connect",
+          "publicClient": false,
+          "serviceAccountsEnabled": true,
+          "secret": "edc-v-admin-secret",
+          "standardFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "fullScopeAllowed": true,
+          "protocolMappers": [
+            {
+              "name": "role",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-hardcoded-claim-mapper",
+              "consentRequired": false,
+              "config": {
+                "claim.name": "role",
+                "claim.value": "edcv-admin",
+                "jsonType.label": "String",
+                "access.token.claim": "true",
+                "id.token.claim": "true",
+                "userinfo.token.claim": "true"
+              }
+            }
+          ]
+        },
+        {
+          "clientId": "edcv-provisioner",
+          "name": "Provisioner User",
+          "description": "Can create and delete tenants",
+          "enabled": true,
+          "protocol": "openid-connect",
+          "publicClient": false,
+          "serviceAccountsEnabled": true,
+          "secret": "provisioner-secret",
+          "standardFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "fullScopeAllowed": true,
+          "protocolMappers": [
+            {
+              "name": "role",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-hardcoded-claim-mapper",
+              "consentRequired": false,
+              "config": {
+                "claim.name": "role",
+                "claim.value": "provisioner",
+                "jsonType.label": "String",
+                "access.token.claim": "true",
+                "id.token.claim": "true",
+                "userinfo.token.claim": "true"
+              }
+            }
+          ],
+          "defaultClientScopes": [
+            "issuer-admin-api"
+          ]
+        }
+      ],
+      "users": [],
       "groups": [],
       "eventsEnabled": false
     }
