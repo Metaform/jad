@@ -25,6 +25,9 @@ import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.sql.bootstrapper.SqlSchemaBootstrapper;
 
+/**
+ * This extension creates NATS streams and consumers. If the streams already exist, they will be deleted and recreated.
+ */
 public class NatsSeedExtension implements ServiceExtension {
     public static final String NAME = "NATS Stream Seed Extension";
     private JetStreamManagement jsm;
@@ -58,8 +61,8 @@ public class NatsSeedExtension implements ServiceExtension {
                     jsm.deleteConsumer("state_machine", "tp-subscriber");
                     deleteStream("state_machine");
                 }
-            } catch (Exception ignored) {
-
+            } catch (Exception e) {
+                context.getMonitor().warning("Could not delete stream 'state_machine': %s", e);
             }
 
             createStream("state_machine", "negotiations.>", "transfers.>");

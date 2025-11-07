@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.edc.virtualized.api.participant;
+package org.eclipse.edc.virtualized.api.management;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

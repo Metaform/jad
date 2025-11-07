@@ -19,18 +19,20 @@ import org.eclipse.edc.spi.EdcException;
 import org.eclipse.edc.spi.result.Result;
 import org.eclipse.edc.spi.result.ServiceResult;
 import org.eclipse.edc.spi.types.domain.DataAddress;
-import org.eclipse.edc.virtualized.api.management.DataRequest;
+import org.eclipse.edc.virtualized.api.data.DataRequest;
 
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static java.net.http.HttpClient.newHttpClient;
 import static java.util.Optional.ofNullable;
 
+/**
+ * this is a wrapper service that initiates the contract negotiation and the transfer process, waits for its completion, and then downloads the data.
+ * I implemented this because there is no multi-tenant management API yet that.
+ */
 public class DataRequestService {
 
     private final ContractNegotiationService contractNegotiationService;
@@ -138,7 +140,7 @@ public class DataRequestService {
             } while (state != TransferProcessStates.STARTED && state != TransferProcessStates.TERMINATED);
 
             var tp = transferProcessService.findById(transferProcess.getId());
-            if(state == TransferProcessStates.TERMINATED){
+            if (state == TransferProcessStates.TERMINATED) {
                 return CompletableFuture.failedFuture(new EdcException("Transfer process terminated: %s".formatted(ofNullable(tp).map(TransferProcess::getErrorDetail).orElse("provider terminated"))));
             }
             return CompletableFuture.completedFuture(tp);
@@ -149,8 +151,8 @@ public class DataRequestService {
     }
 
     private CompletableFuture<DataAddress> getEdr(String transferProcessId) {
-        var edr= edrStore.resolveByTransferProcess(transferProcessId);
-        if(edr.failed()){
+        var edr = edrStore.resolveByTransferProcess(transferProcessId);
+        if (edr.failed()) {
             return CompletableFuture.failedFuture(new EdcException("Could not resolve EDR for transfer process: %s".formatted(edr.getFailureDetail())));
         }
         return CompletableFuture.completedFuture(edr.getContent());
@@ -159,13 +161,13 @@ public class DataRequestService {
     private CompletableFuture<String> downloadData(DataAddress edr) {
 
         // make HTTP request
-        if(edr.getType().equals("https://w3id.org/idsa/v4.1/HTTP")){
+        if (edr.getType().equals("https://w3id.org/idsa/v4.1/HTTP")) {
 
             var endpoint = edr.getStringProperty("https://w3id.org/edc/v0.0.1/ns/endpoint");
             var token = edr.getStringProperty("https://w3id.org/edc/v0.0.1/ns/authorization");
             var authType = edr.getStringProperty("https://w3id.org/edc/v0.0.1/ns/authType");
 
-            if(endpoint == null){
+            if (endpoint == null) {
                 return CompletableFuture.failedFuture(new EdcException("Endpoint not found in EDR"));
             }
 
@@ -175,7 +177,7 @@ public class DataRequestService {
                     .build();
             return newHttpClient().sendAsync(request, HttpResponse.BodyHandlers.ofString())
                     .thenCompose(response -> {
-                        if(response.statusCode() >= 200 && response.statusCode() < 300){
+                        if (response.statusCode() >= 200 && response.statusCode() < 300) {
                             return CompletableFuture.completedFuture(response.body());
                         }
                         return CompletableFuture.failedFuture(new EdcException("Dataplane request failed: HTTP Status code: %s, message: %s".formatted(response.statusCode(), response.body())));

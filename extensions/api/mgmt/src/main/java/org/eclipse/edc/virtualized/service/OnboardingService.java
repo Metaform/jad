@@ -19,12 +19,22 @@ import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.system.configuration.ConfigFactory;
 import org.eclipse.edc.spi.types.domain.DataAddress;
 import org.eclipse.edc.transaction.spi.TransactionContext;
-import org.eclipse.edc.virtualized.api.participant.ParticipantManifest;
+import org.eclipse.edc.virtualized.api.management.ParticipantManifest;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * This service is a quick-n-dirty onboarding agent, that performs all necessary tasks required to onboard a new participant into the control plane:
+ * <ul>
+ *     <li>creates a participant context in the database</li>
+ *     <li>creates participant configuration</li>
+ *     <li>stores all the participant's secrets in the vault</li>
+ *     <li>"creates" a data plane for this participant</li>
+ *     <li>creates an asset, a policy, and a contract definition</li>
+ * </ul>
+ */
 public class OnboardingService {
     private static final String TOKEN_URL = "edc.iam.sts.oauth.token.url";
     private static final String CLIENT_ID = "edc.iam.sts.oauth.client.id";

@@ -1,4 +1,4 @@
-package org.eclipse.edc.virtualized.api.participant;
+package org.eclipse.edc.virtualized.api.management;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;

@@ -20,8 +20,8 @@ import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.transaction.spi.TransactionContext;
-import org.eclipse.edc.virtualized.api.management.WrapperApiController;
-import org.eclipse.edc.virtualized.api.participant.ParticipantContextApiController;
+import org.eclipse.edc.virtualized.api.data.DataApiController;
+import org.eclipse.edc.virtualized.api.management.ParticipantContextApiController;
 import org.eclipse.edc.virtualized.service.DataRequestService;
 import org.eclipse.edc.virtualized.service.OnboardingService;
 import org.eclipse.edc.web.spi.WebService;
@@ -82,7 +82,7 @@ public class ApiExtension implements ServiceExtension {
         var onboardingService = new OnboardingService(transactionContext, service, configService, vault, selectorService, assetService, policyService, contractDefinitionService);
         webService.registerResource(ApiContext.MANAGEMENT, new ParticipantContextApiController(onboardingService));
         var dataRequestService = new DataRequestService(contractNegotiationService, transferProcessService, didResolverRegistry, edrStore);
-        webService.registerResource(ApiContext.MANAGEMENT, new WrapperApiController(catalogService, didResolverRegistry, participantContextService, dataRequestService));
+        webService.registerResource(ApiContext.MANAGEMENT, new DataApiController(catalogService, didResolverRegistry, participantContextService, dataRequestService));
 
     }
 
