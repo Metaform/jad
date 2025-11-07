@@ -38,6 +38,20 @@ spec:
           value: "false"
         - name: KC_HEALTH_ENABLED
           value: "true"
+        - name: KC_METRICS_ENABLED
+          value: "true"
+        - name: KC_LOG_LEVEL
+          value: INFO
+        - name: KC_DB
+          value: postgres
+        - name: POSTGRES_DB
+          value: keycloak
+        - name: KC_DB_URL
+          value: jdbc:postgresql://postgres.edc-v.svc.cluster.local:5432/keycloak
+        - name: KC_DB_USERNAME
+          value: "kc"
+        - name: KC_DB_PASSWORD
+          value: "kc"
         volumeMounts:
         - name: realm-config
           mountPath: /opt/keycloak/data/import
@@ -88,7 +102,7 @@ data:
       },
       "clientScopes": [
         {
-          "name": "identity-api-read",
+          "name": "identity-api:read",
           "description": "Read access to Identity API",
           "protocol": "openid-connect",
           "attributes": {
@@ -97,7 +111,7 @@ data:
           }
         },
         {
-          "name": "identity-api-write",
+          "name": "identity-api:write",
           "description": "Create, update delete objects in the Identity API",
           "protocol": "openid-connect",
           "attributes": {
@@ -106,7 +120,7 @@ data:
           }
         },
         {
-          "name": "management-api-read",
+          "name": "management-api:read",
           "description": "Read access to the Management API of the EDC Control Plane",
           "protocol": "openid-connect",
           "attributes": {
@@ -115,7 +129,7 @@ data:
           }
         },
         {
-          "name": "management-api-write",
+          "name": "management-api:write",
           "description": "Create, update and delete objects in the Management API of the EDC Control Plane",
           "protocol": "openid-connect",
           "attributes": {
@@ -135,10 +149,10 @@ data:
       ],
       "defaultOptionalClientScopes": [
         "offline_access",
-        "management-api-read",
-        "management-api-write",
-        "identity-api-read",
-        "identity-api-write"
+        "management-api:read",
+        "management-api:write",
+        "identity-api:read",
+        "identity-api:write"
       ],
       "clients": [
         {
@@ -220,3 +234,22 @@ spec:
   - port: 8080
     targetPort: 8080
     name: http
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak
+  namespace: edc-v
+spec:
+  rules:
+    - host: keycloak.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 8080

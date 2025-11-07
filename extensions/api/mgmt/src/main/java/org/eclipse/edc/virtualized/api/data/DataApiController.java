@@ -1,4 +1,4 @@
-package org.eclipse.edc.virtualized.api.management;
+package org.eclipse.edc.virtualized.api.data;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -18,17 +18,21 @@ import org.eclipse.edc.web.spi.exception.BadGatewayException;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
+/**
+ * This controller is a quick workaround so that we are able to get a catalog from a counter-party, and to trigger the all-in-one data transfer.
+ * see {@link DataRequestService} for more details.
+ */
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
 @Path("/v1alpha/participants/{participantContextId}/")
-public class WrapperApiController {
+public class DataApiController {
 
     private final CatalogService service;
     private final DidResolverRegistry didResolverRegistry;
     private final ParticipantContextService participantContextService;
     private final DataRequestService dataRequestService;
 
-    public WrapperApiController(CatalogService service, DidResolverRegistry didResolverRegistry, ParticipantContextService participantContextService, DataRequestService dataRequestService) {
+    public DataApiController(CatalogService service, DidResolverRegistry didResolverRegistry, ParticipantContextService participantContextService, DataRequestService dataRequestService) {
         this.service = service;
         this.didResolverRegistry = didResolverRegistry;
         this.participantContextService = participantContextService;

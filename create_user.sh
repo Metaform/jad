@@ -4,14 +4,14 @@ set -euo pipefail
 # -----------------------------
 # CONFIGURATION
 # -----------------------------
-KC_HOST="${KC_HOST:-http://localhost:8080}"      # Keycloak base URL
+KC_HOST="${KC_HOST:-http://keycloak.localhost}" # Keycloak base URL
 REALM="${REALM:-edcv}"                          # Target realm
 ADMIN_USER="${ADMIN_USER:-admin}"               # Keycloak Admin user for REST API
 ADMIN_PASS="${ADMIN_PASS:-admin}"               # Keycloak Admin password
 TENANT_CLIENT_ID="${1:-tenant-new}"             # ClientId for new tenant
 TENANT_NAME="${2:-Tenant New}"                  # Client Name / display name
-#TENANT_ROLE="${3:-participant}"                 # Realm role to assign
-PARTICIPANT_CONTEXT_ID="$(uuidgen | tr '[:upper:]' '[:lower:]')"  # Generate UUID for participant context
+TENANT_ROLE="${3:-participant}"                 # Realm role to assign
+PARTICIPANT_CONTEXT_ID=$TENANT_CLIENT_ID
 
 # -----------------------------
 # Get admin access token
@@ -65,7 +65,7 @@ curl -s -X POST "$KC_HOST/admin/realms/$REALM/clients" \
                       \"consentRequired\": false,
                       \"config\": {
                         \"claim.name\": \"role\",
-                        \"claim.value\": \"participant\",
+                        \"claim.value\": \"edcv-participant\",
                         \"jsonType.label\": \"String\",
                         \"access.token.claim\": \"true\",
                         \"id.token.claim\": \"true\",
@@ -90,27 +90,27 @@ SECRET=$(curl -s -X POST "$KC_HOST/admin/realms/$REALM/clients/$CLIENT_UUID/clie
 
 echo "Client secret for $TENANT_CLIENT_ID: $SECRET"
 
-## -----------------------------
-## Get service account user ID
-## -----------------------------
-#SERVICE_ACCOUNT_ID=$(curl -s -X GET "$KC_HOST/admin/realms/$REALM/clients/$CLIENT_UUID/service-account-user" \
-#  -H "Authorization: Bearer $TOKEN" | jq -r .id)
-#
-## -----------------------------
-## Get realm role ID
-## -----------------------------
-#ROLE_ID=$(curl -s -X GET "$KC_HOST/admin/realms/$REALM/roles/$TENANT_ROLE" \
-#  -H "Authorization: Bearer $TOKEN" | jq -r .id)
-#
-## -----------------------------
-## Assign realm role to service account
-## -----------------------------
-#curl -s -X POST "$KC_HOST/admin/realms/$REALM/users/$SERVICE_ACCOUNT_ID/role-mappings/realm" \
-#  -H "Authorization: Bearer $TOKEN" \
-#  -H "Content-Type: application/json" \
-#  -d "[{\"id\":\"$ROLE_ID\",\"name\":\"$TENANT_ROLE\"}]"
-#
-#echo "Assigned realm role '$TENANT_ROLE' to service account for $TENANT_CLIENT_ID"
+# -----------------------------
+# Get service account user ID
+# -----------------------------
+SERVICE_ACCOUNT_ID=$(curl -s -X GET "$KC_HOST/admin/realms/$REALM/clients/$CLIENT_UUID/service-account-user" \
+  -H "Authorization: Bearer $TOKEN" | jq -r .id)
+
+# -----------------------------
+# Get realm role ID
+# -----------------------------
+ROLE_ID=$(curl -s -X GET "$KC_HOST/admin/realms/$REALM/roles/$TENANT_ROLE" \
+  -H "Authorization: Bearer $TOKEN" | jq -r .id)
+
+# -----------------------------
+# Assign realm role to service account
+# -----------------------------
+curl -s -X POST "$KC_HOST/admin/realms/$REALM/users/$SERVICE_ACCOUNT_ID/role-mappings/realm" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "[{\"id\":\"$ROLE_ID\",\"name\":\"$TENANT_ROLE\"}]"
+
+echo "Assigned realm role '$TENANT_ROLE' to service account for $TENANT_CLIENT_ID"
 
 # -----------------------------
 # Add all client scopes to the new client as optional
@@ -129,7 +129,12 @@ echo "Client scopes added to $TENANT_CLIENT_ID as optional"
 # -----------------------------
 # Optional: add tenant_id claim
 # -----------------------------
+
+# **************************
 # we are setting protocol mappers directly when creating the user, see above.
+# this snippet could be used to set more claims in the future
+# **************************
+
 
 #if [ -n "$TENANT_ID_CLAIM" ]; then
 #  echo "Adding protocol mapper for tenant_id claim..."

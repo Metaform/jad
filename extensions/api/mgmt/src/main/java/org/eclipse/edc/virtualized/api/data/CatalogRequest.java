@@ -1,4 +1,4 @@
-package org.eclipse.edc.virtualized.api.management;
+package org.eclipse.edc.virtualized.api.data;
 
 import org.eclipse.edc.spi.query.QuerySpec;
 

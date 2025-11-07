@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "ff41b042-89e0-43f6-b94d-68d4c0b20a9d",
+		"_postman_id": "bf0242db-792a-4431-bf85-4e80ca9cc2f3",
 		"name": "EDC-V Onboarding",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "647585",
-		"_collection_link": "https://galactic-star-228409.postman.co/workspace/EDC-V~63c4389d-b024-4df9-a3e9-bf93de272251/collection/647585-ff41b042-89e0-43f6-b94d-68d4c0b20a9d?action=share&source=collection_link&creator=647585"
+		"_collection_link": "https://galactic-star-228409.postman.co/workspace/EDC-V~63c4389d-b024-4df9-a3e9-bf93de272251/collection/647585-bf0242db-792a-4431-bf85-4e80ca9cc2f3?action=share&source=collection_link&creator=647585"
 	},
 	"item": [
 		{
@@ -297,7 +297,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"roles\": [],\n    \"serviceEndpoints\": [\n        {\n            \"type\": \"CredentialService\",\n            \"serviceEndpoint\": \"http://identityhub.edc-v.svc.cluster.local:7082/api/credentials/v1/participants/Y29uc3VtZXI=\",\n            \"id\": \"consumer-credentialservice-1\"\n        },\n        {\n            \"type\": \"ProtocolEndpoint\",\n            \"serviceEndpoint\": \"http://controlplane:8082/api/dsp/consumer/2025-1\",\n            \"id\": \"consumer-dsp\"\n        }\n    ],\n    \"active\": true,\n    \"participantContextId\": \"consumer\",\n    \"did\": \"did:web:identityhub.edc-v.svc.cluster.local%3A7083:consumer\",\n    \"key\": {\n        \"keyId\": \"did:web:identityhub.edc-v.svc.cluster.local%3A7083:consumer#key-1\",\n        \"privateKeyAlias\": \"did:web:identityhub.edc-v.svc.cluster.local%3A7083:consumer#key-1\",\n        \"keyGeneratorParams\": {\n            \"algorithm\": \"EC\"\n        }\n    }\n}",
+							"raw": "{\n    \"roles\": [],\n    \"serviceEndpoints\": [\n        {\n            \"type\": \"CredentialService\",\n            \"serviceEndpoint\": \"http://identityhub.edc-v.svc.cluster.local:7082/api/credentials/v1/participants/Y29uc3VtZXI=\",\n            \"id\": \"consumer-credentialservice-1\"\n        },\n        {\n            \"type\": \"ProtocolEndpoint\",\n            \"serviceEndpoint\": \"http://controlplane.edc-v.svc.cluster.local:8082/api/dsp/consumer/2025-1\",\n            \"id\": \"consumer-dsp\"\n        }\n    ],\n    \"active\": true,\n    \"participantContextId\": \"consumer\",\n    \"did\": \"did:web:identityhub.edc-v.svc.cluster.local%3A7083:consumer\",\n    \"key\": {\n        \"keyId\": \"did:web:identityhub.edc-v.svc.cluster.local%3A7083:consumer#key-1\",\n        \"privateKeyAlias\": \"did:web:identityhub.edc-v.svc.cluster.local%3A7083:consumer#key-1\",\n        \"keyGeneratorParams\": {\n            \"algorithm\": \"EC\"\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -369,7 +369,7 @@
 					"response": []
 				},
 				{
-					"name": "Create Tenant in Control Plane",
+					"name": "Create Consumer in Control Plane",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -660,108 +660,256 @@
 			]
 		},
 		{
-			"name": "Get Catalog",
-			"event": [
+			"name": "Data Transfer",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"try {",
-							"    const json = pm.response.json();",
-							"",
-							"    // Navigate the expected structure: Catalog -> dataset[0] -> hasPolicy[0] -> @id",
-							"    const datasets = json.dataset || [];",
-							"    const firstDataset = datasets[0] || {};",
-							"    const policies = firstDataset.hasPolicy || [];",
-							"    const firstPolicy = policies[0] || {};",
-							"    const policyId = firstPolicy['@id'];",
-							"",
-							"    if (policyId && typeof policyId === 'string') {",
-							"        pm.collectionVariables.set('POLICY_ID', policyId);",
-							"        console.log('POLICY_ID set to:', policyId);",
-							"    } else {",
-							"        console.warn('Policy ID not found in response at dataset[0].hasPolicy[0][\"@id\"]');",
-							"    }",
-							"",
-							"    // Optional: assertion to ensure it exists",
-							"    pm.test('Policy ID is present and stored', function () {",
-							"        pm.expect(policyId, 'Policy ID should exist').to.be.a('string').and.not.empty;",
-							"    });",
-							"",
-							"} catch (e) {",
-							"    console.error('Failed to parse response or set POLICY_ID:', e);",
-							"    pm.test('Response is valid JSON', function () {",
-							"        throw e;",
-							"    });",
-							"}"
-						],
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\"counterPartyDid\":\"did:web:identityhub.edc-v.svc.cluster.local%3A7083:provider\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"name": "Get Catalog",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"try {",
+									"    const json = pm.response.json();",
+									"",
+									"    // Navigate the expected structure: Catalog -> dataset[0] -> hasPolicy[0] -> @id",
+									"    const datasets = json.dataset || [];",
+									"    const firstDataset = datasets[0] || {};",
+									"    const policies = firstDataset.hasPolicy || [];",
+									"    const firstPolicy = policies[0] || {};",
+									"    const policyId = firstPolicy['@id'];",
+									"",
+									"    if (policyId && typeof policyId === 'string') {",
+									"        pm.collectionVariables.set('POLICY_ID', policyId);",
+									"        console.log('POLICY_ID set to:', policyId);",
+									"    } else {",
+									"        console.warn('Policy ID not found in response at dataset[0].hasPolicy[0][\"@id\"]');",
+									"    }",
+									"",
+									"    // Optional: assertion to ensure it exists",
+									"    pm.test('Policy ID is present and stored', function () {",
+									"        pm.expect(policyId, 'Policy ID should exist').to.be.a('string').and.not.empty;",
+									"    });",
+									"",
+									"} catch (e) {",
+									"    console.error('Failed to parse response or set POLICY_ID:', e);",
+									"    pm.test('Response is valid JSON', function () {",
+									"        throw e;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
 						}
-					}
-				},
-				"url": {
-					"raw": "{{baseURL}}/cp/api/mgmt/v1alpha/participants/consumer/catalog",
-					"host": [
-						"{{baseURL}}"
 					],
-					"path": [
-						"cp",
-						"api",
-						"mgmt",
-						"v1alpha",
-						"participants",
-						"consumer",
-						"catalog"
-					]
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"counterPartyDid\":\"did:web:identityhub.edc-v.svc.cluster.local%3A7083:provider\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/cp/api/mgmt/v1alpha/participants/consumer/catalog",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"cp",
+								"api",
+								"mgmt",
+								"v1alpha",
+								"participants",
+								"consumer",
+								"catalog"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Data",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"providerId\":\"did:web:identityhub.edc-v.svc.cluster.local%3A7083:provider\",\n    \"policyId\": \"{{POLICY_ID}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/cp/api/mgmt/v1alpha/participants/consumer/data",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"cp",
+								"api",
+								"mgmt",
+								"v1alpha",
+								"participants",
+								"consumer",
+								"data"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Get Data",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"providerId\":\"did:web:identityhub.edc-v.svc.cluster.local%3A7083:provider\",\n    \"policyId\": \"{{POLICY_ID}}\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Experimental",
+			"item": [
+				{
+					"name": "Get Asset (using new Mgmt API)",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "clientSecret",
+									"value": "JjG3hNm99h7b3JBxbAyqn8kPiCPiVkvQ",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "http://keycloak.localhost/realms/edcv/protocol/openid-connect/token",
+									"type": "string"
+								},
+								{
+									"key": "scope",
+									"value": "management-api:write management-api:read",
+									"type": "string"
+								},
+								{
+									"key": "clientId",
+									"value": "consumer",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "string"
+								},
+								{
+									"key": "tokenName",
+									"value": "edc-v-access",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/api/mgmt/v4alpha/participants/consumer/assets/asset-1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"mgmt",
+								"v4alpha",
+								"participants",
+								"consumer",
+								"assets",
+								"asset-1"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{baseURL}}/cp/api/mgmt/v1alpha/participants/consumer/data",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"cp",
-						"api",
-						"mgmt",
-						"v1alpha",
-						"participants",
-						"consumer",
-						"data"
-					]
+				{
+					"name": "Create Asset (using new Mgmt API)",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessTokenUrl",
+									"value": "http://keycloak.localhost/realms/edcv/protocol/openid-connect/token",
+									"type": "string"
+								},
+								{
+									"key": "clientSecret",
+									"value": "1KjSm7GixsOp4PDG4fyqGNbFJKiiuisH",
+									"type": "string"
+								},
+								{
+									"key": "scope",
+									"value": "management-api:write management-api:read",
+									"type": "string"
+								},
+								{
+									"key": "clientId",
+									"value": "consumer",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "string"
+								},
+								{
+									"key": "tokenName",
+									"value": "edc-v-access",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"@context\": [\n    \"https://w3id.org/edc/connector/management/v0.0.1\"\n  ],\n  \"@id\": \"asset-1\",\n  \"@type\": \"Asset\",\n  \"properties\": {\n    \"description\": \"This asset requires Membership to view and negotiate.\"\n  },\n  \"dataAddress\": {\n    \"@type\": \"DataAddress\",\n    \"type\": \"HttpData\",\n    \"baseUrl\": \"https://jsonplaceholder.typicode.com/todos\",\n    \"proxyPath\": \"true\",\n    \"proxyQueryParams\": \"true\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/mgmt/v4alpha/participants/consumer/assets",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"mgmt",
+								"v4alpha",
+								"participants",
+								"consumer",
+								"assets"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		}
 	],
 	"event": [
