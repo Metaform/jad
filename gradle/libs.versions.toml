@@ -36,6 +36,7 @@ edc-edrstore-receiver = { module = "org.eclipse.edc:edr-store-receiver", version
 edcv-core-connector = { module = "org.eclipse.edc.virtualized:v-connector-core", version.ref = "edc" }
 edcv-core-negotiationmanager = { module = "org.eclipse.edc.virtualized:negotiation-manager", version.ref = "edc" }
 edcv-core-transfermanager = { module = "org.eclipse.edc.virtualized:transfer-process-manager", version.ref = "edc" }
+edcv-api-management = { module = "org.eclipse.edc.virtualized:management-api", version.ref = "edc" }
 edcv-banner = { module = "org.eclipse.edc.virtualized:banner-extension", version.ref = "edc" }
 edcv-protocols-dsp = { module = "org.eclipse.edc.virtualized:dsp", version.ref = "edc" }
 edcv-cdc-postgres = { module = "org.eclipse.edc.virtualized:postgres-cdc", version.ref = "edc" }

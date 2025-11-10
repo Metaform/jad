@@ -26,8 +26,6 @@ import org.eclipse.edc.virtualized.service.DataRequestService;
 import org.eclipse.edc.virtualized.service.OnboardingService;
 import org.eclipse.edc.web.spi.WebService;
 import org.eclipse.edc.web.spi.configuration.ApiContext;
-import org.eclipse.edc.web.spi.configuration.PortMapping;
-import org.eclipse.edc.web.spi.configuration.PortMappingRegistry;
 import org.eclipse.edc.web.spi.configuration.context.ControlApiUrl;
 
 import java.net.URI;
@@ -38,14 +36,8 @@ public class ApiExtension implements ServiceExtension {
     private WebService webService;
     @Inject
     private ParticipantContextService service;
-
-    @Configuration
-    private ManagementApiConfiguration apiConfiguration;
-
     @Configuration
     private ControlApiConfiguration controlApiConfiguration;
-    @Inject
-    private PortMappingRegistry portMappingRegistry;
     @Inject
     private ParticipantContextConfigService configService;
     @Inject
@@ -75,10 +67,6 @@ public class ApiExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        var portMapping = new PortMapping(ApiContext.MANAGEMENT, apiConfiguration.port(), apiConfiguration.path());
-        portMappingRegistry.register(portMapping);
-
-
         var onboardingService = new OnboardingService(transactionContext, service, configService, vault, selectorService, assetService, policyService, contractDefinitionService);
         webService.registerResource(ApiContext.MANAGEMENT, new ParticipantContextApiController(onboardingService));
         var dataRequestService = new DataRequestService(contractNegotiationService, transferProcessService, didResolverRegistry, edrStore);
@@ -92,19 +80,10 @@ public class ApiExtension implements ServiceExtension {
     }
 }
 
-@Settings
-record ManagementApiConfiguration(
-        @Setting(key = "web.http." + ApiContext.MANAGEMENT + ".port", description = "Port for " + ApiContext.MANAGEMENT + " api context", defaultValue = "8081")
-        int port,
-        @Setting(key = "web.http." + ApiContext.MANAGEMENT + ".path", description = "Path for " + ApiContext.MANAGEMENT + " api context", defaultValue = "/api/mgmt")
-        String path
-) {
-
-}
 
 @Settings
 record ControlApiConfiguration(
-        @Setting(key = "web.http." + ApiContext.CONTROL + ".port", description = "Port for " + ApiContext.CONTROL + " api context" )
+        @Setting(key = "web.http." + ApiContext.CONTROL + ".port", description = "Port for " + ApiContext.CONTROL + " api context")
         int port,
         @Setting(key = "web.http." + ApiContext.CONTROL + ".path", description = "Path for " + ApiContext.CONTROL + " api context")
         String path

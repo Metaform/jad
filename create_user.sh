@@ -112,19 +112,19 @@ curl -s -X POST "$KC_HOST/admin/realms/$REALM/users/$SERVICE_ACCOUNT_ID/role-map
 
 echo "Assigned realm role '$TENANT_ROLE' to service account for $TENANT_CLIENT_ID"
 
-# -----------------------------
-# Add all client scopes to the new client as optional
-# -----------------------------
-echo "Adding client scopes to $TENANT_CLIENT_ID as optional..."
-CLIENT_SCOPES=$(curl -s -X GET "$KC_HOST/admin/realms/$REALM/client-scopes" \
-  -H "Authorization: Bearer $TOKEN" | jq -r '.[].id')
-
-for SCOPE_ID in $CLIENT_SCOPES; do
-  curl -s -X PUT "$KC_HOST/admin/realms/$REALM/clients/$CLIENT_UUID/optional-client-scopes/$SCOPE_ID" \
-    -H "Authorization: Bearer $TOKEN"
-done
-
-echo "Client scopes added to $TENANT_CLIENT_ID as optional"
+## -----------------------------
+## Add all client scopes to the new client as optional
+## -----------------------------
+#echo "Adding client scopes to $TENANT_CLIENT_ID as optional..."
+#CLIENT_SCOPES=$(curl -s -X GET "$KC_HOST/admin/realms/$REALM/client-scopes" \
+#  -H "Authorization: Bearer $TOKEN" | jq -r '.[].id')
+#
+#for SCOPE_ID in $CLIENT_SCOPES; do
+#  curl -s -X PUT "$KC_HOST/admin/realms/$REALM/clients/$CLIENT_UUID/optional-client-scopes/$SCOPE_ID" \
+#    -H "Authorization: Bearer $TOKEN"
+#done
+#
+#echo "Client scopes added to $TENANT_CLIENT_ID as optional"
 
 # -----------------------------
 # Optional: add tenant_id claim

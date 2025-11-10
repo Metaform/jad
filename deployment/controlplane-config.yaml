@@ -38,4 +38,13 @@ data:
   edc.datasource.default.password: "cp"
   edc.sql.schema.autocreate: "true"
 
+
+  # Oauth2 config
+  # KeyCloak takes the `iss` claim's host from the request URL. For now, this is the URL defined in the ingress route.
+  # to do this properly, we should probably configure the following properties on the ingress route:
+  #    proxy_set_header Host $host;
+  #    proxy_set_header X-Forwarded-Proto $scheme;
+  edc.iam.oauth2.issuer: "http://keycloak.localhost/realms/edcv"
+  edc.iam.oauth2.jwks.url: "http://keycloak.edc-v.svc.cluster.local:8080/realms/edcv/protocol/openid-connect/certs"
+
   JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044"

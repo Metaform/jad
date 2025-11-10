@@ -23,6 +23,7 @@ dependencies {
     runtimeOnly(libs.edcv.core.negotiationmanager)
     runtimeOnly(libs.edcv.core.transfermanager)
     runtimeOnly(libs.edcv.banner)
+    runtimeOnly(libs.edcv.api.management)
     runtimeOnly(libs.edcv.protocols.dsp)
     runtimeOnly(libs.edcv.cdc.postgres)
     runtimeOnly(libs.edcv.nats.publisher.cn)

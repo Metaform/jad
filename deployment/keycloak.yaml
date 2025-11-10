@@ -241,6 +241,9 @@ kind: Ingress
 metadata:
   name: keycloak
   namespace: edc-v
+  annotations:
+    nginx.ingress.kubernetes.io/preserve-host: "true"
+    nginx.ingress.kubernetes.io/upstream-vhost: $host
 spec:
   rules:
     - host: keycloak.localhost

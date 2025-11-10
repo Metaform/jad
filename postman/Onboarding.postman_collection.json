@@ -17,29 +17,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// Parse JSON response and store clientId and clientSecret as collection variables",
-									"let jsonData;",
-									"",
-									"pm.test(\"Response is valid JSON\", function () {",
-									"    try {",
-									"        jsonData = pm.response.json();",
-									"        pm.expect(jsonData).to.be.an(\"object\");",
-									"    } catch (e) {",
-									"        throw new Error(\"Response body is not valid JSON\");",
-									"    }",
-									"});",
-									"",
-									"pm.test(\"Response contains apiKey, clientId and clientSecret\", function () {",
-									"    pm.expect(jsonData).to.have.property(\"clientId\");",
-									"    pm.expect(jsonData).to.have.property(\"clientSecret\");",
-									"    pm.expect(jsonData).to.have.property(\"apiKey\");",
-									"});",
-									"",
-									"if (jsonData && jsonData.clientId && jsonData.clientSecret) {",
-									"    pm.collectionVariables.set(\"issuer_apiKey\", jsonData.apiKey);",
-									"    pm.collectionVariables.set(\"issuer_clientId\", jsonData.clientId);",
-									"    pm.collectionVariables.set(\"issuer_clientSecret\", jsonData.clientSecret);",
-									"} "
+									""
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -193,7 +171,124 @@
 			"name": "Create Consumer Tenant",
 			"item": [
 				{
+					"name": "Create Consumer Client in KeyCloak",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "accessToken",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHX29YUWE3dVNmRkZLZmdpMmtCNV9nTUF6OW5HNTRJLUpBSVZLa0cxMmpNIn0.eyJleHAiOjE3NjI1MjI4ODUsImlhdCI6MTc2MjUyMjgyNSwianRpIjoib25sdHJ0OjExODk0NDhlLWNlNzMtZTk4MC02NmVlLTJmYzRlNjJhYmQ0OSIsImlzcyI6Imh0dHA6Ly9rZXljbG9hay5sb2NhbGhvc3QvcmVhbG1zL21hc3RlciIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFkbWluLWNsaSIsInNpZCI6IjA2N2Y2MzAyLTJhNmItY2MwZS1lOTYwLTQ1MDcyMWEwZTViZiIsInNjb3BlIjoicHJvZmlsZSBlbWFpbCJ9.KdX2D4ibX2xHsTJX48ai-6Shi8_74_zbUAJ2zSZ4y3MvxNUn9JBGGkMy-GNV6xFWe1GpWr0_7RVtQIz9jc9g66xncpT_ktu05ZN8N-dm6PU_SJNpJVSEi8EU2cc1iThya2vgawJqi8R8Vy3uluiIMkAez5m7CVvdpKDnlCtBS3QBEiAvdXsGGCtpjEadhUnq-iBlBNeY5pAH4yapxM3wF01GWskbIUbU93M8xzupsoaPKa8AnA561eIWvZ6kN0X-R5n8L6z5Fh9JGHpR2HqcfcLfddGgxuZDkXCTGHQdVEAfswKrZ9ea3217wG9WUTY-6G6lDs95RiesipiXMq-xhg",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "http://keycloak.localhost/realms/master/protocol/openid-connect/token",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "password_credentials",
+									"type": "string"
+								},
+								{
+									"key": "scope",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "clientId",
+									"value": "admin-cli",
+									"type": "string"
+								},
+								{
+									"key": "clientSecret",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "tokenName",
+									"value": "admin-access",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clientId\": \"consumer\",\n    \"name\": \"Consumer Client\",\n    \"description\": \"Tenant client for API access\",\n    \"enabled\": true,\n    \"secret\": \"consumer-secret\",\n    \"protocol\": \"openid-connect\",\n    \"publicClient\": false,\n    \"serviceAccountsEnabled\": true,\n    \"standardFlowEnabled\": false,\n    \"directAccessGrantsEnabled\": false,\n    \"fullScopeAllowed\": true,\n    \"protocolMappers\": [\n        {\n            \"name\": \"participantContextId\",\n            \"protocol\": \"openid-connect\",\n            \"protocolMapper\": \"oidc-hardcoded-claim-mapper\",\n            \"consentRequired\": false,\n            \"config\": {\n                \"claim.name\": \"participant_context_id\",\n                \"claim.value\": \"consumer\",\n                \"jsonType.label\": \"String\",\n                \"access.token.claim\": \"true\",\n                \"id.token.claim\": \"true\",\n                \"userinfo.token.claim\": \"true\"\n            }\n        },\n        {\n            \"name\": \"role\",\n            \"protocol\": \"openid-connect\",\n            \"protocolMapper\": \"oidc-hardcoded-claim-mapper\",\n            \"consentRequired\": false,\n            \"config\": {\n                \"claim.name\": \"role\",\n                \"claim.value\": \"edcv-participant\",\n                \"jsonType.label\": \"String\",\n                \"access.token.claim\": \"true\",\n                \"id.token.claim\": \"true\",\n                \"userinfo.token.claim\": \"true\"\n            }\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://keycloak.localhost/admin/realms/edcv/clients",
+							"protocol": "http",
+							"host": [
+								"keycloak",
+								"localhost"
+							],
+							"path": [
+								"admin",
+								"realms",
+								"edcv",
+								"clients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Create Consumer Holder in IssuerService",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "apikey",
@@ -322,6 +417,19 @@
 				},
 				{
 					"name": "Request Credentials",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "apikey",
@@ -370,6 +478,19 @@
 				},
 				{
 					"name": "Create Consumer in Control Plane",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -428,7 +549,122 @@
 			"name": "Create Provider Tenant",
 			"item": [
 				{
+					"name": "Create Provider Client in KeyCloak",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "accessToken",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHX29YUWE3dVNmRkZLZmdpMmtCNV9nTUF6OW5HNTRJLUpBSVZLa0cxMmpNIn0.eyJleHAiOjE3NjI1MjI4OTcsImlhdCI6MTc2MjUyMjgzNywianRpIjoib25sdHJ0OmQ2Mjg1MWIzLWY2MDUtOWYwMy0xY2FhLWY1N2M5YzdmNTNhOSIsImlzcyI6Imh0dHA6Ly9rZXljbG9hay5sb2NhbGhvc3QvcmVhbG1zL21hc3RlciIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFkbWluLWNsaSIsInNpZCI6IjA2N2Y2MzAyLTJhNmItY2MwZS1lOTYwLTQ1MDcyMWEwZTViZiIsInNjb3BlIjoicHJvZmlsZSBlbWFpbCJ9.AakkB2FmoWHTsoxIWFZgkRx3o-RXtsIPXW662gJ3_AjQNIh9RV8x2IqgT8weWfzNlm04OsKNLLc2dQy0fBS6raFkl7-7dgImIN2pG7iriAwbGSBhQ5a86eXoawGnoM_fiTSXcLbwLICJI7c7IqS4sZPcYy1HolckpEkaVHW8CBIgFL4W0oD15O4tZLZiHFK9vpTxfi6BoY2ZsHgbtVvAdwgOjAIbq6WQpsK5mQNclnRCEOtUMgQJ3K_aPbL_yF1IBUo9GuijRnkYWjFLa3hm6zICPv_rCwTVe65VFBql7_pRFOfugBlSXotltn4qyGvxzP0GabTEEn_wvqa2JI-iUQ",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "http://keycloak.localhost/realms/master/protocol/openid-connect/token",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "password_credentials",
+									"type": "string"
+								},
+								{
+									"key": "scope",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "clientId",
+									"value": "admin-cli",
+									"type": "string"
+								},
+								{
+									"key": "clientSecret",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "tokenName",
+									"value": "admin-access",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clientId\": \"provider\",\n    \"name\": \"Provider Client\",\n    \"description\": \"Tenant client for API access\",\n    \"enabled\": true,\n    \"secret\": \"provider-secret\",\n    \"protocol\": \"openid-connect\",\n    \"publicClient\": false,\n    \"serviceAccountsEnabled\": true,\n    \"standardFlowEnabled\": false,\n    \"directAccessGrantsEnabled\": false,\n    \"fullScopeAllowed\": true,\n    \"protocolMappers\": [\n        {\n            \"name\": \"participantContextId\",\n            \"protocol\": \"openid-connect\",\n            \"protocolMapper\": \"oidc-hardcoded-claim-mapper\",\n            \"consentRequired\": false,\n            \"config\": {\n                \"claim.name\": \"participant_context_id\",\n                \"claim.value\": \"provider\",\n                \"jsonType.label\": \"String\",\n                \"access.token.claim\": \"true\",\n                \"id.token.claim\": \"true\",\n                \"userinfo.token.claim\": \"true\"\n            }\n        },\n        {\n            \"name\": \"role\",\n            \"protocol\": \"openid-connect\",\n            \"protocolMapper\": \"oidc-hardcoded-claim-mapper\",\n            \"consentRequired\": false,\n            \"config\": {\n                \"claim.name\": \"role\",\n                \"claim.value\": \"edcv-participant\",\n                \"jsonType.label\": \"String\",\n                \"access.token.claim\": \"true\",\n                \"id.token.claim\": \"true\",\n                \"userinfo.token.claim\": \"true\"\n            }\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{KC_HOST}}/admin/realms/edcv/clients",
+							"host": [
+								"{{KC_HOST}}"
+							],
+							"path": [
+								"admin",
+								"realms",
+								"edcv",
+								"clients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Create Provider Holder in IssuerService",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "apikey",
@@ -557,6 +793,19 @@
 				},
 				{
 					"name": "Request Credentials",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "apikey",
@@ -605,6 +854,19 @@
 				},
 				{
 					"name": "Create Provider in Control Plane",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -736,6 +998,19 @@
 				},
 				{
 					"name": "Get Data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -773,13 +1048,36 @@
 			"item": [
 				{
 					"name": "Get Asset (using new Mgmt API)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "oauth2",
 							"oauth2": [
 								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "accessToken",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI0WWtQM0dTdGVvV0xpNzdlTmdzWHJsNlZDd1dUUFBBUXhkMjdPQnQxQUxJIn0.eyJleHAiOjE3NjI1MTk1OTEsImlhdCI6MTc2MjUxOTUzMSwianRpIjoib25sdHJ0OjRiMmVkODViLTIzZmYtMGUxNC0yODFmLTMyNWUxZmQ1NmQ0OSIsImlzcyI6Imh0dHA6Ly9rZXljbG9hay5sb2NhbGhvc3QvcmVhbG1zL21hc3RlciIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFkbWluLWNsaSIsInNpZCI6IjQ1NDljMWJmLWIxM2ItMDVjMy1mNDkwLWRlNmUyYmJjNmFkNSIsInNjb3BlIjoiZW1haWwgcHJvZmlsZSJ9.S8GPWfWyudk0Zh0orHk8LOutDXmL1hhUWcOAG7jzcYjko8eMAEtBqoqTivNUVyorIfk-J1ohwrlNuBE_dQzm9QzlS01UEyERkZmksBEyHmzMauA9IF3SyDMqeuIDpyTWU0zuWZtnOgaatsrETVqPHifMXbB5E1XkGQtHLIbxiukBSwG8aydA_jKkgC2A53Gu6lIgYGwZAiergO_nliWkXily_GvZZY3GY6KOKAM_gZwTPR8ppkeABZP0xNAeW-K_RnkhvfTQs0bHTyCZ910z21sM1kJTKGSCbSi7ejPMprZnqIqVogKSo2gvCp40pmKWs6cE-aK0BxvmNHSgsi-wyg",
+									"type": "string"
+								},
+								{
 									"key": "clientSecret",
-									"value": "JjG3hNm99h7b3JBxbAyqn8kPiCPiVkvQ",
+									"value": "consumer-secret",
 									"type": "string"
 								},
 								{
@@ -817,20 +1115,19 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8081/api/mgmt/v4alpha/participants/consumer/assets/asset-1",
-							"protocol": "http",
+							"raw": "{{baseURL}}/cp/api/mgmt/v4alpha/participants/consumer/assets/c3321be7-d0f9-4e13-9275-afac7ae1f49f",
 							"host": [
-								"localhost"
+								"{{baseURL}}"
 							],
-							"port": "8081",
 							"path": [
+								"cp",
 								"api",
 								"mgmt",
 								"v4alpha",
 								"participants",
 								"consumer",
 								"assets",
-								"asset-1"
+								"c3321be7-d0f9-4e13-9275-afac7ae1f49f"
 							]
 						}
 					},
@@ -838,6 +1135,19 @@
 				},
 				{
 					"name": "Create Asset (using new Mgmt API)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "oauth2",
@@ -891,13 +1201,12 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8081/api/mgmt/v4alpha/participants/consumer/assets",
-							"protocol": "http",
+							"raw": "{{baseURL}}/cp/api/mgmt/v4alpha/participants/consumer/assets",
 							"host": [
-								"localhost"
+								"{{baseURL}}"
 							],
-							"port": "8081",
 							"path": [
+								"cp",
 								"api",
 								"mgmt",
 								"v4alpha",
@@ -931,7 +1240,15 @@
 				"packages": {},
 				"requests": {},
 				"exec": [
-					""
+					"// Append-only: status code is any 2xx or 409, considering numeric and string descriptions",
+					"pm.test(\"Status code is 2xx or 409\", function () {",
+					"    const code = pm.response.code; // numeric",
+					"",
+					"    const is2xx = code >= 200 && code < 300;",
+					"    const is409 = code === 409;",
+					"",
+					"    pm.expect(is2xx || is409, `Expected 2xx or 409. Got ${code} ${pm.response.status}`).to.be.true;",
+					"});"
 				]
 			}
 		}
@@ -939,7 +1256,7 @@
 	"variable": [
 		{
 			"key": "baseURL",
-			"value": ""
+			"value": "http://localhost"
 		},
 		{
 			"key": "issuer_apiKey",
@@ -968,6 +1285,10 @@
 		{
 			"key": "POLICY_ID",
 			"value": ""
+		},
+		{
+			"key": "KC_HOST",
+			"value": "http://keycloak.localhost"
 		}
 	]
 }
