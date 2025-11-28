@@ -52,7 +52,7 @@ jobs:
           echo "repo_lowercase=${repo_lowercase}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push custom Postgres image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: launchers/postgres
           file: launchers/postgres/Dockerfile
@@ -114,7 +114,7 @@ jobs:
           ./gradlew -p ${{ matrix.context }} shadowJar
 
       - name: Build and push image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           build-args:
             JAR=build/libs/${{ matrix.name }}.jar
