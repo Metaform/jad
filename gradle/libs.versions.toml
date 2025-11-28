@@ -85,7 +85,7 @@ edc-bom-issuerservice-sql = { module = "org.eclipse.edc:issuerservice-feature-sq
 
 # Third party deps
 bouncyCastle-bcprovJdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncyCastle-jdk18on" }
-nats-client = { module = "io.nats:jnats", version = "2.23.0" }
+nats-client = { module = "io.nats:jnats", version = "2.24.1" }
 tink = { module = "com.google.crypto.tink:tink", version = "1.7.0" }
 
 [bundles]
