@@ -1,0 +1,82 @@
+#
+# Copyright (c) 2025 Metaform Systems, Inc.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Contributors:
+#      Metaform Systems, Inc. - initial API and implementation
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cfm-participant-manager
+  namespace: edc-v
+  labels:
+    app: participant-manager
+    platform: edcv
+    type: edcv-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: participant-manager
+  template:
+    metadata:
+      labels:
+        app: participant-manager
+        platform: edcv
+        type: edcv-app
+    spec:
+      containers:
+        - name: participant-manager
+          image: ghcr.io/metaform/connector-fabric-manager/pmanager:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: config
+              mountPath: /etc/appname
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: pm-config
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: participant-manager
+  namespace: edc-v
+spec:
+  type: NodePort
+  selector:
+    app: participant-manager
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: participant-manager
+  namespace: edc-v
+spec:
+  rules:
+    - host: pm.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: participant-manager
+                port:
+                  number: 8080

@@ -1,0 +1,133 @@
+meta {
+  name: Deploy Participant Profile
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{tmBaseUrl}}/api/v1alpha1/tenants/{{tenant_id}}/participant-profiles
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "identifier": "{{participant_did}}",
+    "properties": {
+      "name": "{{participant_name}}"
+    },
+    "version": 0,
+    "vpas": [
+      {
+        "cell": {
+          "id": "{{cell_id}}",
+          "properties": {},
+          "state": "active",
+          "stateTimestamp": "{{$isoTimestamp}}",
+          "version": 0
+        },
+        "id": "",
+        "properties": {},
+        "state": "",
+        "stateTimestamp": "",
+        "type": "",
+        "version": 0
+      }
+    ]
+  }
+}
+
+script:post-response {
+  let body = res.getBody()
+  test("Response contains id", function () {
+      expect(body).to.have.property("id");
+  });
+  
+  if (body && body.id) {
+      bru.setVar("participant_profile_id", body.id);
+  } 
+}
+
+example {
+  name: 201 Response
+  description: Created
+  
+  request: {
+    url: {{baseUrl}}/api/v1alpha1/tenants/:id/participants
+    method: POST
+    mode: json
+    params:path: {
+      id: 
+    }
+  
+    body:json: {
+      {
+        "error": false,
+        "errorDetail": "",
+        "id": "",
+        "identifier": "",
+        "properties": {},
+        "version": 0,
+        "vpas": [
+          {
+            "cell": {
+              "id": "",
+              "properties": {},
+              "state": "",
+              "stateTimestamp": "",
+              "version": 0
+            },
+            "id": "",
+            "properties": {},
+            "state": "",
+            "stateTimestamp": "",
+            "type": "",
+            "version": 0
+          }
+        ]
+      }
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 201
+      text: Created
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "error": false,
+          "errorDetail": "",
+          "id": "",
+          "identifier": "",
+          "properties": {},
+          "version": 0,
+          "vpas": [
+            {
+              "cell": {
+                "id": "",
+                "properties": {},
+                "state": "",
+                "stateTimestamp": "",
+                "version": 0
+              },
+              "id": "",
+              "properties": {},
+              "state": "",
+              "stateTimestamp": "",
+              "type": "",
+              "version": 0
+            }
+          ]
+        }
+      '''
+    }
+  }
+}

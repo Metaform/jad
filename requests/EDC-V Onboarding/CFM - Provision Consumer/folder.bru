@@ -1,0 +1,28 @@
+meta {
+  name: CFM - Provision Consumer
+  seq: 5
+}
+
+auth {
+  mode: inherit
+}
+
+vars:pre-request {
+  participant_name: consumer
+  participant_did: did:web:identityhub.edc-v.svc.cluster.local%3A7083:consumer
+}
+
+script:post-response {
+  let jsonData;
+  
+  test("Response is valid JSON", function () {
+      try {
+          jsonData = res.getBody();
+        if(jsonData != null && jsonData != ''){
+          expect(jsonData).to.be.an("object");
+        }
+      } catch (e) {
+          throw new Error("Response body is not valid JSON");
+      }
+  });
+}

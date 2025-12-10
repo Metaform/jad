@@ -96,7 +96,7 @@ spec:
               done
               echo "Keycloak is ready!"
               
-  
+              
               # Enable JWT auth method
               vault auth enable jwt || true
 
@@ -143,6 +143,68 @@ spec:
               EOF
 
               echo "Vault bootstrap completed successfully!"
+      restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-bootstrap-cfm
+  namespace: edc-v
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      labels:
+        type: edcv-infra
+    spec:
+      serviceAccountName: vault-auth
+      containers:
+        - name: vault-cli
+          image: hashicorp/vault:latest
+          env:
+            - name: VAULT_ADDR
+              value: "http://vault.edc-v.svc.cluster.local:8200"
+            - name: VAULT_TOKEN
+              value: "root"
+          command: [ "sh", "-ec" ]
+          args:
+            - |
+              # Wait for vault to be ready
+              echo "Waiting for Vault to be ready..."
+              until vault status > /dev/null 2>&1; do
+                echo "Vault not ready yet, retrying in 2 seconds..."
+                sleep 2
+              done
+              echo "Vault is ready!"
+              
+              # enable approle auth method -- will be changed!
+              vault auth enable approle
+              
+              cat <<EOF | vault policy write cfm-policy - || { echo "Failed to write policy"; exit 1; }
+              path "*" {
+                capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+              }
+              path "sys/*" {
+                capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+              }
+              EOF
+              
+              # create AppRole
+              vault write auth/approle/role/cfm-approle \
+                role_id="cfm-approle" \
+                token_policies="cfm-policy" \
+                token_ttl=48h \
+                token_max_ttl=192h
+              
+              # get role-ID
+              ROLE_ID=$(vault read -field role_id auth/approle/role/cfm-approle/role-id)
+              echo "ROLE_ID: $ROLE_ID"
+              # get secret-ID
+              SECRET_ID=$(vault write -f -field secret_id auth/approle/role/cfm-approle/secret-id)
+              echo "SECRET_ID: $SECRET_ID"
+              
+              echo "Vault CFM bootstrap completed successfully!"
       restartPolicy: OnFailure
 
 ---

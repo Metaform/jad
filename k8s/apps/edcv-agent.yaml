@@ -1,0 +1,47 @@
+#
+# Copyright (c) 2025 Metaform Systems, Inc.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Contributors:
+#      Metaform Systems, Inc. - initial API and implementation
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cfm-edcv-agent
+  namespace: edc-v
+  labels:
+    app: cfm-edcv-agent
+    platform: edcv
+    type: edcv-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cfm-edcv-agent
+  template:
+    metadata:
+      labels:
+        app: cfm-edcv-agent
+        platform: edcv
+        type: edcv-app
+    spec:
+      containers:
+        - name: tenant-manager
+          image: ghcr.io/metaform/connector-fabric-manager/edcvagent:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: config
+              mountPath: /etc/appname
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: edcv-agent-config
+      restartPolicy: Always

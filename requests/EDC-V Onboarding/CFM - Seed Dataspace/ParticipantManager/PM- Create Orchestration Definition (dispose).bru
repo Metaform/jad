@@ -1,0 +1,97 @@
+meta {
+  name: PM: Create Orchestration Definition (dispose)
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{pmBaseUrl}}/api/v1alpha1/orchestration-definitions
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "activities": [
+      {
+        "dependsOn": [],
+        "discriminator": "dispose",
+        "inputs": [],
+        "type": "network-activity",
+        "id": "dns-provisioner"
+      },
+      {
+        "id": "kc-client-provisioner",
+        "type": "keycloak-activity",
+        "discriminator": "dispose",
+        "dependsOn": []
+      },
+      {
+        "id": "connector-provisioner",
+        "type": "edcv-activity",
+        "discriminator": "dispose",
+        "dependsOn": [
+          "kc-client-provisioner"
+        ]
+      },
+      {
+        "id": "onboarder",
+        "type": "onboard-service-activity",
+        "discriminator": "dispose",
+        "dependsOn": [
+          "connector-provisioner"
+        ]
+      }
+    ],
+    "description": "Orchestrates the Disposal of a new dataspace member",
+    "schema": {},
+    "type": "cfm.orchestration.vpa.dispose",
+    "id": "{{$randomUUID}}"
+  }
+}
+
+example {
+  name: 201 Response
+  description: Created
+  
+  request: {
+    url: {{baseUrl}}/api/v1alpha1/orchestration-definitions
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "activities": [
+          {
+            "dependsOn omitempty": [],
+            "discriminator": "",
+            "id": "",
+            "inputs omitempty": [
+              {
+                "source": "",
+                "target": ""
+              }
+            ],
+            "type": ""
+          }
+        ],
+        "description omitempty": "",
+        "schema omitempty": {},
+        "type": ""
+      }
+    }
+  }
+  
+  response: {
+    status: {
+      code: 201
+      text: Created
+    }
+  
+    body: {
+      type: text
+      content: '''
+  
+      '''
+    }
+  }
+}

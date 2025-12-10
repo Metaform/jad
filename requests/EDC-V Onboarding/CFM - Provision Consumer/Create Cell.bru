@@ -1,0 +1,74 @@
+meta {
+  name: Create Cell
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{tmBaseUrl}}/api/v1alpha1/cells
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "properties": {
+      "newCellKey": "newCellValue"
+    },
+    "state": "active",
+    "stateTimestamp": "{{$isoTimestamp}}"
+  }
+}
+
+script:post-response {
+  let body = res.getBody()
+  test("Response contains id", function () {
+      expect(body).to.have.property("id");
+  });
+  
+  if (body && body.id) {
+      bru.setVar("cell_id", body.id);
+  } 
+}
+
+example {
+  name: 201 Response
+  description: Created
+  
+  request: {
+    url: {{baseUrl}}/api/v1alpha1/cells
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "properties": {},
+        "state": "",
+        "stateTimestamp": ""
+      }
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 201
+      text: Created
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "id": "",
+          "properties": {},
+          "state": "",
+          "stateTimestamp": "",
+          "version": 0
+        }
+      '''
+    }
+  }
+}

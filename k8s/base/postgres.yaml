@@ -32,24 +32,24 @@ spec:
         type: edcv-infra
     spec:
       containers:
-      - name: postgres
-        image: ghcr.io/metaform/jad/postgres:wal2json
-        ports:
-        - containerPort: 5432
-        env:
-        - name: POSTGRES_DB
-          value: "controlplane"
-        - name: POSTGRES_USER
-          value: "cp"
-        - name: POSTGRES_PASSWORD
-          value: "cp"
-        volumeMounts:
-        - name: init-script
-          mountPath: /docker-entrypoint-initdb.d
+        - name: postgres
+          image: ghcr.io/metaform/jad/postgres:wal2json
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "controlplane"
+            - name: POSTGRES_USER
+              value: "cp"
+            - name: POSTGRES_PASSWORD
+              value: "cp"
+          volumeMounts:
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d
       volumes:
-      - name: init-script
-        configMap:
-          name: postgres-init
+        - name: init-script
+          configMap:
+            name: postgres-init
 ---
 apiVersion: v1
 kind: Service
@@ -60,8 +60,8 @@ spec:
   selector:
     app: postgres
   ports:
-  - port: 5432
-    targetPort: 5432
+    - port: 5432
+      targetPort: 5432
 
 ---
 ---
@@ -95,7 +95,7 @@ data:
     GRANT ALL PRIVILEGES ON DATABASE identityhub TO ih;
     \c identityhub
     GRANT ALL ON SCHEMA public TO ih;
-        
+    
     CREATE DATABASE issuerservice;
     CREATE USER issuer WITH PASSWORD 'issuer';
     GRANT ALL PRIVILEGES ON DATABASE issuerservice TO issuer;
@@ -113,3 +113,9 @@ data:
     GRANT ALL PRIVILEGES ON DATABASE keycloak TO kc;
     \c keycloak
     GRANT ALL ON SCHEMA public TO kc;
+    
+    CREATE DATABASE cfm;
+    CREATE USER cfm WITH PASSWORD 'cfm';
+    GRANT ALL PRIVILEGES ON DATABASE cfm TO cfm;
+    \c cfm
+    GRANT ALL ON SCHEMA public TO cfm;

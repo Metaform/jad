@@ -1,0 +1,69 @@
+meta {
+  name: Create a new Tenant
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{tmBaseUrl}}/api/v1alpha1/tenants
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "properties": {
+      "name": "{{participant_name}} tenant",
+      "location": "eu"
+    }
+  }
+}
+
+script:post-response {
+  let body = res.getBody()
+  test("Response contains id", function () {
+      expect(body).to.have.property("id");
+  });
+  
+  if (body && body.id) {
+      bru.setVar("tenant_id", body.id);
+  } 
+}
+
+example {
+  name: 201 Response
+  description: Created
+  
+  request: {
+    url: {{baseUrl}}/api/v1alpha1/tenants
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "properties": {}
+      }
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 201
+      text: Created
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "id": "",
+          "properties": {},
+          "version": 0
+        }
+      '''
+    }
+  }
+}
