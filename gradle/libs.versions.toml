@@ -16,49 +16,17 @@ swagger = "2.2.40"
 [libraries]
 # upstream EDC dependencies
 edc-did-core = { module = "org.eclipse.edc:identity-did-core", version.ref = "edc" }
-edc-did-web = { module = "org.eclipse.edc:identity-did-web", version.ref = "edc" }
-edc-core-connector = { module = "org.eclipse.edc:connector-core", version.ref = "edc" }
-edc-core-controlplane = { module = "org.eclipse.edc:control-plane-core", version.ref = "edc" }
 edc-core-jersey = { module = "org.eclipse.edc:jersey-core", version.ref = "edc" }
 edc-core-jetty = { module = "org.eclipse.edc:jetty-core", version.ref = "edc" }
-edc-core-token = { module = "org.eclipse.edc:token-core", version.ref = "edc" }
-edc-core-runtime = { module = "org.eclipse.edc:runtime-core", version.ref = "edc" }
 edc-core-participantcontext-config = { module = "org.eclipse.edc:participant-context-config-core", version.ref = "edc" }
-edc-core-edrstore = { module = "org.eclipse.edc:edr-store-core", version.ref = "edc" }
-edc-dcp = { module = "org.eclipse.edc:decentralized-claims-service", version.ref = "edc" }
-edc-dcp-trustedissuers = { module = "org.eclipse.edc:decentralized-claims-issuers-configuration", version.ref = "edc" }
-edc-api-observability = { module = "org.eclipse.edc:api-observability", version.ref = "edc" }
 edc-junit = { module = "org.eclipse.edc:junit", version.ref = "edc" }
-edc-core-dataplane-selector = { module = "org.eclipse.edc:data-plane-selector-core", version.ref = "edc" }
-edc-core-dataplane-signaling-client = { module = "org.eclipse.edc:data-plane-signaling-client", version.ref = "edc" }
-edc-core-dataplane-signaling-transfer = { module = "org.eclipse.edc:transfer-data-plane-signaling", version.ref = "edc" }
-edc-dcp-core = { module = "org.eclipse.edc:decentralized-claims-core", version.ref = "edc" }
 edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
-edc-store-participantcontext-sql = { module = "org.eclipse.edc:participantcontext-store-sql", version.ref = "edc" }
 edc-store-participantcontext-config-sql = { module = "org.eclipse.edc:participantcontext-config-store-sql", version.ref = "edc" }
-edc-lib-jws2020 = { module = "org.eclipse.edc:jws2020-lib", version.ref = "edc" }
-edc-lib-transform = { module = "org.eclipse.edc:transform-lib", version.ref = "edc" }
 edc-lib-http = { module = "org.eclipse.edc:http-lib", version.ref = "edc" }
 edc-lib-util = { module = "org.eclipse.edc:util-lib", version.ref = "edc" }
 edc-lib-util-dataplane = { module = "org.eclipse.edc:data-plane-util", version.ref = "edc" }
-edc-sql-bootstrapper = { module = "org.eclipse.edc:sql-bootstrapper", version.ref = "edc" }
+edc-core-edrstore = { module = "org.eclipse.edc:edr-store-core", version.ref = "edc" }
 edc-edrstore-receiver = { module = "org.eclipse.edc:edr-store-receiver", version.ref = "edc" }
-
-# EDC-V dependencies
-edcv-core-connector = { module = "org.eclipse.edc.virtualized:v-connector-core", version.ref = "edc" }
-edcv-core-negotiationmanager = { module = "org.eclipse.edc.virtualized:negotiation-manager", version.ref = "edc" }
-edcv-core-transfermanager = { module = "org.eclipse.edc.virtualized:transfer-process-manager", version.ref = "edc" }
-edcv-api-management = { module = "org.eclipse.edc.virtualized:management-api", version.ref = "edc" }
-edcv-banner = { module = "org.eclipse.edc.virtualized:banner-extension", version.ref = "edc" }
-edcv-protocols-dsp = { module = "org.eclipse.edc.virtualized:dsp", version.ref = "edc" }
-edcv-cdc-postgres = { module = "org.eclipse.edc.virtualized:postgres-cdc", version.ref = "edc" }
-edcv-nats-subscriber-tp = { module = "org.eclipse.edc.virtualized:transfer-process-subscriber-nats", version.ref = "edc" }
-edcv-nats-subscriber-cn = { module = "org.eclipse.edc.virtualized:negotiation-subscriber-nats", version.ref = "edc" }
-edcv-nats-publisher-tp = { module = "org.eclipse.edc.virtualized:transfer-process-cdc-publisher-nats", version.ref = "edc" }
-edcv-nats-publisher-cn = { module = "org.eclipse.edc.virtualized:negotiation-cdc-publisher-nats", version.ref = "edc" }
-edcv-cel-extension = { module = "org.eclipse.edc.virtualized:cel-extension", version.ref = "edc" }
-edcv-cel-store-sql = { module = "org.eclipse.edc.virtualized:cel-store-sql", version.ref = "edc" }
-edcv-core-dcp-scope = { module = "org.eclipse.edc.virtualized:dcp-scope-core", version.ref = "edc" }
 
 # EDC spi dependencies
 edc-spi-participantcontext = { module = "org.eclipse.edc:connector-participant-context-spi", version.ref = "edc" }
@@ -67,19 +35,14 @@ edc-spi-web = { module = "org.eclipse.edc:web-spi", version.ref = "edc" }
 edc-spi-controlplane = { module = "org.eclipse.edc:control-plane-spi", version.ref = "edc" }
 edc-spi-dataplane-selector = { module = "org.eclipse.edc:data-plane-selector-spi", version.ref = "edc" }
 edc-spi-dataplane = { module = "org.eclipse.edc:data-plane-spi", version.ref = "edc" }
-edc-spi-dcp = { module = "org.eclipse.edc:decentralized-claims-spi", version.ref = "edc" }
 edc-spi-http = { module = "org.eclipse.edc:http-spi", version.ref = "edc" }
-edc-spi-transform = { module = "org.eclipse.edc:transform-spi", version.ref = "edc" }
 edc-spi-catalog = { module = "org.eclipse.edc:catalog-spi", version.ref = "edc" }
-edc-spi-identity-did = { module = "org.eclipse.edc:identity-did-spi", version.ref = "edc" }
 edc-spi-transaction = { module = "org.eclipse.edc:transaction-spi", version.ref = "edc" }
 edc-spi-edrstore = { module = "org.eclipse.edc:edr-store-spi", version.ref = "edc" }
-
 
 # identityhub SPI modules
 edc-ih-spi-credentials = { module = "org.eclipse.edc:verifiable-credential-spi", version.ref = "edc" }
 edc-ih-spi-participantcontext = { module = "org.eclipse.edc:participant-context-spi", version.ref = "edc" }
-edc-ih-spi = { module = "org.eclipse.edc:identity-hub-spi", version.ref = "edc" }
 
 # identityhub API modules
 edc-oauth2-client = { module = "org.eclipse.edc:oauth2-client", version.ref = "edc" }
@@ -91,12 +54,16 @@ edc-issuance-spi = { module = "org.eclipse.edc:issuerservice-issuance-spi", vers
 
 # BOM modules
 edc-bom-dataplane = { module = "org.eclipse.edc:dataplane-base-bom", version.ref = "edc" }
-edc-bom-controlplane-sql = { module = "org.eclipse.edc:controlplane-feature-sql-bom", version.ref = "edc" }
 edc-bom-dataplane-sql = { module = "org.eclipse.edc:dataplane-feature-sql-bom", version.ref = "edc" }
 edc-bom-identityhub = { module = "org.eclipse.edc:identityhub-oauth2-bom", version.ref = "edc" }
 edc-bom-identityhub-sql = { module = "org.eclipse.edc:identityhub-feature-sql-bom", version.ref = "edc" }
 edc-bom-issuerservice = { module = "org.eclipse.edc:issuerservice-oauth2-bom", version.ref = "edc" }
 edc-bom-issuerservice-sql = { module = "org.eclipse.edc:issuerservice-feature-sql-bom", version.ref = "edc" }
+edcv-bom-controlplane = { module = "org.eclipse.edc.virtualized:virtual-controlplane-base-bom", version.ref = "edc" }
+edcv-bom-controlplane-sql = { module = "org.eclipse.edc.virtualized:virtual-controlplane-feature-sql-bom", version.ref = "edc" }
+edcv-bom-controlplane-nats = { module = "org.eclipse.edc.virtualized:virtual-controlplane-feature-nats-bom", version.ref = "edc" }
+edcv-bom-controlplane-dcp = { module = "org.eclipse.edc.virtualized:virtual-controlplane-feature-dcp-bom", version.ref = "edc" }
+edcv-bom-controlplane-nats-cdc = { module = "org.eclipse.edc.virtualized:virtual-controlplane-feature-nats-cdc-bom", version.ref = "edc" }
 
 # Third party deps
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
@@ -104,20 +71,8 @@ bouncyCastle-bcprovJdk18on = { module = "org.bouncycastle:bcprov-jdk18on", versi
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson-annotations" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 tink = { module = "com.google.crypto.tink:tink", version = "1.19.0" }
-nats-client = { module = "io.nats:jnats", version = "2.24.1" }
 restAssured = { module = "io.rest-assured:rest-assured", version.ref = "restAssured" }
 jakarta-rsApi = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "rsApi" }
-
-[bundles]
-dcp = [
-    "edc-dcp",
-    "edc-did-core",
-    "edc-did-web",
-    "edc-oauth2-client",
-    "edc-dcp-core",
-    "edcv-core-dcp-scope",
-    "edc-dcp-trustedissuers"
-]
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version = "8.3.6" }

@@ -19,42 +19,16 @@ plugins {
 }
 
 dependencies {
-    runtimeOnly(libs.edcv.core.connector)
-    runtimeOnly(libs.edcv.core.negotiationmanager)
-    runtimeOnly(libs.edcv.core.transfermanager)
-    runtimeOnly(libs.edcv.banner)
-    runtimeOnly(libs.edcv.api.management)
-    runtimeOnly(libs.edcv.protocols.dsp)
-    runtimeOnly(libs.edcv.cdc.postgres)
-    runtimeOnly(libs.edcv.nats.publisher.cn)
-    runtimeOnly(libs.edcv.nats.publisher.tp)
-    runtimeOnly(libs.edcv.nats.subscriber.tp)
-    runtimeOnly(libs.edcv.nats.subscriber.cn)
-    runtimeOnly(libs.edcv.cel.extension)
-    runtimeOnly(libs.edcv.cel.store.sql)
 
-    runtimeOnly(libs.edc.core.connector)
-    runtimeOnly(libs.edc.core.runtime)
-    runtimeOnly(libs.edc.core.token)
-    runtimeOnly(libs.edc.core.jersey)
-    runtimeOnly(libs.edc.core.jetty)
+    runtimeOnly(libs.edcv.bom.controlplane)
+    runtimeOnly(libs.edcv.bom.controlplane.sql)
+    runtimeOnly(libs.edcv.bom.controlplane.nats)
+    runtimeOnly(libs.edcv.bom.controlplane.nats.cdc)
+    runtimeOnly(libs.edcv.bom.controlplane.dcp)
+
     runtimeOnly(libs.edc.core.edrstore)
     runtimeOnly(libs.edc.vault.hashicorp)
     runtimeOnly(libs.edc.edrstore.receiver)
-    runtimeOnly(libs.edc.api.observability)
-    runtimeOnly(libs.bundles.dcp)
-    runtimeOnly(libs.edc.core.controlplane) {
-        exclude("org.eclipse.edc", "control-plane-contract-manager")
-        exclude("org.eclipse.edc", "control-plane-transfer-manager")
-    }
-    runtimeOnly(libs.edc.core.dataplane.selector)
-    runtimeOnly(libs.edc.core.dataplane.signaling.client)
-    runtimeOnly(libs.edc.core.dataplane.signaling.transfer)
-
-    runtimeOnly(libs.edc.vault.hashicorp)
-    runtimeOnly(libs.edc.bom.controlplane.sql)
-    runtimeOnly(libs.edc.store.participantcontext.sql)
-    runtimeOnly(libs.edc.store.participantcontext.config.sql)
 
     runtimeOnly(libs.bouncyCastle.bcprovJdk18on)
 
