@@ -70,7 +70,7 @@ awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" 
 bouncyCastle-bcprovJdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncyCastle-jdk18on" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson-annotations" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
-tink = { module = "com.google.crypto.tink:tink", version = "1.19.0" }
+tink = { module = "com.google.crypto.tink:tink", version = "1.20.0" }
 restAssured = { module = "io.rest-assured:rest-assured", version.ref = "restAssured" }
 jakarta-rsApi = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "rsApi" }
 
