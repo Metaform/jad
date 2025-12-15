@@ -6,5 +6,10 @@
   "@type": "CelExpression",
   "leftOperand": "MembershipCredential",
   "description": "Expression for evaluating membership credential",
+  "scopes": [
+    "catalog",
+    "contract.negotiation",
+    "transfer.process"
+  ],
   "expression": "ctx.agent.claims.vc.filter(c, c.type.exists(t, t == 'MembershipCredential')).exists(c, c.credentialSubject.exists(cs, timestamp(cs.membershipStartDate) < now))"
 }
