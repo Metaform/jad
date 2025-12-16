@@ -27,19 +27,20 @@ body:json {
         "dependsOn": []
       },
       {
-        "id": "holder-entry-creator",
-        "type": "registration-activity",
+        "id": "connector-provisioner",
+        "type": "edcv-activity",
         "discriminator": "deploy",
         "dependsOn": [
           "kc-client-provisioner"
         ]
       },
       {
-        "id": "connector-provisioner",
-        "type": "edcv-activity",
+        "id": "holder-entry-creator",
+        "type": "registration-activity",
         "discriminator": "deploy",
         "dependsOn": [
-          "kc-client-provisioner"
+          "kc-client-provisioner",
+          "connector-provisioner"
         ]
       },
       {

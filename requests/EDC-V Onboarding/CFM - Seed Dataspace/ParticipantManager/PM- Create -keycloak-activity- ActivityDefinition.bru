@@ -1,15 +1,11 @@
 meta {
   name: PM: Create "keycloak-activity" ActivityDefinition
   type: http
-  seq: 5
+  seq: 4
 }
 
 post {
-  url: '''
-    clientIDKey        = "keycloak.clientID"
-    	clientSecretKey    = "keycloak.clientSecret"
-    	tokenURLKey        = "keycloak.tokenUrl"{{pmBaseUrl}}/api/v1alpha1/activity-definitions
-'''
+  url: {{pmBaseUrl}}/api/v1alpha1/activity-definitions
   body: json
   auth: inherit
 }

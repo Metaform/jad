@@ -1,0 +1,200 @@
+#
+# Copyright (c) 2025 Metaform Systems, Inc.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Contributors:
+#      Metaform Systems, Inc. - initial API and implementation
+#
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: participant-manager-seed
+  namespace: edc-v
+  labels:
+    app: participant-manager-seed
+    platform: edcv
+    type: edcv-job
+spec:
+  backoffLimit: 5
+  template:
+    metadata:
+      labels:
+        app: participant-manager-seed
+        platform: edcv
+        type: edcv-job
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+        # Wait for participant-manager to be ready
+        - name: wait-for-participant-manager
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              until curl -sf http://participant-manager.edc-v.svc.cluster.local:8080/api/v1alpha1/activity-definitions; do
+                echo "Waiting for participant-manager to be ready..."
+                sleep 5
+              done
+              echo "Participant Manager is ready!"
+      containers:
+        - name: seed-participant-manager
+          image: curlimages/curl:latest
+          env:
+            - name: PM_BASE_URL
+              value: "http://participant-manager.edc-v.svc.cluster.local:8080"
+            - name: TM_BASE_URL
+              value: "http://tenant-manager.edc-v.svc.cluster.local:8080"
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+
+              echo "================================================"
+              echo "ParticipantManager & TenantManager Seeding"
+              echo "================================================"
+
+              echo ""
+              echo "Step 1: Create network-activity ActivityDefinition"
+              echo "---------------------------------------------------"
+
+              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+                -H "Content-Type: application/json" \
+                -d '{ 
+                  "description": "Provisions DNS entries",
+                  "inputSchema": {},
+                  "outputSchema": {},
+                  "type": "network-activity"
+                }'
+
+              echo "✓ network-activity created"
+
+              echo ""
+              echo "Step 2: Create edcv-activity ActivityDefinition"
+              echo "------------------------------------------------"
+
+              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "description": "Provisions EDC-V Control plane entries",
+                  "inputSchema": {},
+                  "outputSchema": {},
+                  "type": "edcv-activity"
+                }'
+
+              echo "✓ edcv-activity created"
+
+              echo ""
+              echo "Step 3: Create registration-activity ActivityDefinition"
+              echo "--------------------------------------------------------"
+
+              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "description": "Creates Holder entries on the IssuerService",
+                  "inputSchema": {},
+                  "outputSchema": {},
+                  "type": "registration-activity"
+                }'
+
+              echo "✓ registration-activity created"
+
+              echo ""
+              echo "Step 4: Create keycloak-activity ActivityDefinition"
+              echo "----------------------------------------------------"
+
+              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "description": "Provisions Keycloak clients",
+                  "inputSchema": {},
+                  "outputSchema": {},
+                  "type": "keycloak-activity"
+                }'
+
+              echo "✓ keycloak-activity created"
+
+              echo ""
+              echo "Step 5: Create onboarding-activity ActivityDefinition"
+              echo "------------------------------------------------------"
+
+              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "description": "Onboards participants (= requests credentials)",
+                  "inputSchema": {},
+                  "outputSchema": {},
+                  "type": "onboarding-activity"
+                }'
+
+              echo "✓ onboarding-activity created"
+
+              echo ""
+              echo "Step 6: Create Orchestration Definition (deploy)"
+              echo "------------------------------------------------"
+
+              DEPLOY_ORCH_ID=$(cat /proc/sys/kernel/random/uuid)
+
+              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/orchestration-definitions" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "activities": [
+                    {
+                      "dependsOn": [],
+                      "discriminator": "deploy",
+                      "inputs": [],
+                      "type": "network-activity",
+                      "id": "dns-provisioner"
+                    },
+                    {
+                      "id": "kc-client-provisioner",
+                      "type": "keycloak-activity",
+                      "discriminator": "deploy",
+                      "dependsOn": []
+                    },
+                    {
+                      "id": "holder-entry-creator",
+                      "type": "registration-activity",
+                      "discriminator": "deploy",
+                      "dependsOn": [
+                        "kc-client-provisioner"
+                      ]
+                    },
+                    {
+                      "id": "connector-provisioner",
+                      "type": "edcv-activity",
+                      "discriminator": "deploy",
+                      "dependsOn": [
+                        "kc-client-provisioner"
+                      ]
+                    },
+                    {
+                      "id": "onboarder",
+                      "type": "onboarding-activity",
+                      "discriminator": "deploy",
+                      "dependsOn": [
+                        "connector-provisioner",
+                        "holder-entry-creator"
+                      ]
+                    }
+                  ],
+                  "description": "Orchestrates the deployment of a new dataspace member",
+                  "schema": {},
+                  "type": "cfm.orchestration.vpa.deploy",
+                  "id": "'"${DEPLOY_ORCH_ID}"'"
+                }'
+
+              echo "✓ Deploy orchestration definition created (ID: ${DEPLOY_ORCH_ID})"
+              
+              
+              echo ""
+              echo "================================================"
+              echo "ParticipantManager seeding completed!"
+              echo "================================================"

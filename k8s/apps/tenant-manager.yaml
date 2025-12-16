@@ -17,18 +17,18 @@ metadata:
   name: cfm-tenant-manager
   namespace: edc-v
   labels:
-    app: participant-manager
+    app: tenant-manager
     platform: edcv
     type: edcv-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: participant-manager
+      app: tenant-manager
   template:
     metadata:
       labels:
-        app: participant-manager
+        app: tenant-manager
         platform: edcv
         type: edcv-app
     spec:
@@ -57,7 +57,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: participant-manager
+    app: tenant-manager
   ports:
     - port: 8080
       targetPort: 8080
