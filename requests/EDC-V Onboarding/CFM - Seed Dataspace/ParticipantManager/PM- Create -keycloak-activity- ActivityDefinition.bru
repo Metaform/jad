@@ -5,7 +5,11 @@ meta {
 }
 
 post {
-  url: {{pmBaseUrl}}/api/v1alpha1/activity-definitions
+  url: '''
+    clientIDKey        = "keycloak.clientID"
+    	clientSecretKey    = "keycloak.clientSecret"
+    	tokenURLKey        = "keycloak.tokenUrl"{{pmBaseUrl}}/api/v1alpha1/activity-definitions
+'''
   body: json
   auth: inherit
 }
