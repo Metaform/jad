@@ -270,7 +270,7 @@ Next, in the [controlplane-config.yaml](k8s/apps/controlplane-config.yaml) chang
 DNS:
 
 ```yaml
-edc.iam.oauth2.issuer: "http://keycloak.localhost/realms/edcv" # change to "http://auth.yourdomain.com/realms/edcv"
+edc.iam.oauth2.issuer: "http://keycloak.edc-v.svc.cluster.local/realms/edcv" # change to "http://auth.yourdomain.com/realms/edcv"
 ```
 
 ### Tune readiness probes

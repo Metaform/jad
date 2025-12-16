@@ -51,8 +51,14 @@ spec:
               value: "admin"
             - name: KC_HTTP_ENABLED
               value: "true"
+            - name: KC_HOSTNAME
+              value: http://keycloak.edc-v.svc.cluster.local:8080
             - name: KC_HOSTNAME_STRICT
               value: "false"
+            - name: KC_HOSTNAME_URL
+              value: "http://keycloak.edc-v.svc.cluster.local:8080"
+            - name: KC_PROXY
+              value: "edge"
             - name: KC_HEALTH_ENABLED
               value: "true"
             - name: KC_METRICS_ENABLED

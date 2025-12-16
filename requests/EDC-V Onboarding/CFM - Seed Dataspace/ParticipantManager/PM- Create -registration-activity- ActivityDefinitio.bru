@@ -1,7 +1,7 @@
 meta {
-  name: PM: Create "keycloak-activity" ActivityDefinition
+  name: PM: Create "registration-activity" ActivityDefinitio
   type: http
-  seq: 5
+  seq: 4
 }
 
 post {
@@ -12,10 +12,10 @@ post {
 
 body:json {
   {
-    "description": "Provisions Keycloak clients",
+    "description": "Creates Holder entries on the IssuerService",
     "inputSchema": {},
     "outputSchema": {},
-    "type": "keycloak-activity"
+    "type": "registration-activity"
   }
 }
 

@@ -1,6 +1,6 @@
 meta {
-  name: CFM - Provision Consumer
-  seq: 3
+  name: CFM - Provision Provider
+  seq: 4
 }
 
 auth {
@@ -8,8 +8,8 @@ auth {
 }
 
 vars:pre-request {
-  participant_name: consumer
-  participant_did: did:web:identityhub.edc-v.svc.cluster.local%3A7083:consumer
+  participant_name: provider
+  participant_did: did:web:identityhub.edc-v.svc.cluster.local%3A7083:provider
 }
 
 script:post-response {
