@@ -13,7 +13,23 @@ post {
 body:json {
   {
     "artifacts": [],
-    "properties": {}
+    "properties": {
+      "credentials": [
+        {
+          "issuer": "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer",
+          "format": "VC1_0_JWT",
+          "type": "MembershipCredential",
+          "id": "membership-credential-def",
+          "idDefault": true
+        },
+        {
+          "issuer": "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer",
+          "format": "VC1_0_JWT",
+          "type": "DataProcessorCredential",
+          "id": "data-processor-def"
+        }
+      ]
+    }
   }
 }
 

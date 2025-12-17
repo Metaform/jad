@@ -29,7 +29,7 @@ script:post-response {
   
       if (policyId && typeof policyId === 'string') {
           bru.setVar('POLICY_ID', policyId);
-          console.log('POLICY_ID set to:', policyId);
+          console.log('Offer ID (POLICY_ID) is:', policyId);
       } else {
           console.warn('Policy ID not found in response at dataset[0].hasPolicy[0]["@id"]');
       }

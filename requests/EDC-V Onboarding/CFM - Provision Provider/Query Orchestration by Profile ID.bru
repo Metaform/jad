@@ -1,36 +1,27 @@
 meta {
-  name: Deploy Participant Profile
+  name: Query Orchestration by Profile ID
   type: http
-  seq: 4
+  seq: 5
 }
 
 post {
-  url: {{tmBaseUrl}}/api/v1alpha1/tenants/{{tenant_id}}/participant-profiles
+  url: {{pmBaseUrl}}/api/v1alpha1/orchestrations/query
   body: json
   auth: inherit
 }
 
 body:json {
   {
-    "id": "{{$randomAlphaNumeric}}",
-    "identifier": "{{participant_did}}",
-    "properties": {
-    },
-    "cellId": "{{cell_id}}",
-    "version": 0,
-    "vpaProperties": {}
+    "predicate": "correlationId = '{{participant_profile_id}}'"
   }
 }
 
 script:post-response {
   let body = res.getBody()
-  test("Response contains id", function () {
-      expect(body).to.have.property("id");
+  test("Response contains ID", function () {
+      expect(body[0]).to.have.property("id");
   });
-  
-  if (body && body.id) {
-      bru.setVar("participant_profile_id", body.id);
-  } 
+  bru.setVar("orchestration_id", body[0].id); 
 }
 
 example {

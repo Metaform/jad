@@ -22,8 +22,8 @@ auth:oauth2 {
 }
 
 vars:pre-request {
-  consumer_id: a29402338b9a4c82a7365884093efddc-api
-  consumer_secret: 960fa59c9ff7b44db2791b0c57a251197c159016b7bc889f31e42437ca7e415f
-  provider_id: 0256e3e548034401ae8334345910001a-api
-  provider_secret: 1c3f60e13f1b9c727ea4d4c23fef640626971aa7862381e52e7ff77f0910e0a3
+  consumer_id: {{consumer_context_id}}
+  consumer_secret: {{consumer_secret}}
+  provider_id: {{provider_context_id}}
+  provider_secret: {{provider_secret}}
 }

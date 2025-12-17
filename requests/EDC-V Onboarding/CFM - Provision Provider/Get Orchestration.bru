@@ -1,35 +1,26 @@
 meta {
-  name: Deploy Participant Profile
+  name: Get Orchestration
   type: http
-  seq: 4
+  seq: 6
 }
 
-post {
-  url: {{tmBaseUrl}}/api/v1alpha1/tenants/{{tenant_id}}/participant-profiles
+get {
+  url: {{pmBaseUrl}}/api/v1alpha1/orchestrations/{{orchestration_id}}
   body: json
   auth: inherit
 }
 
-body:json {
-  {
-    "id": "{{$randomAlphaNumeric}}",
-    "identifier": "{{participant_did}}",
-    "properties": {
-    },
-    "cellId": "{{cell_id}}",
-    "version": 0,
-    "vpaProperties": {}
-  }
-}
-
 script:post-response {
   let body = res.getBody()
-  test("Response contains id", function () {
-      expect(body).to.have.property("id");
+  test("Response contains participant context ID", function () {
+      expect(body).to.have.property("outputData")
+      expect(body.outputData).to.have.property("participantContextId");
   });
   
-  if (body && body.id) {
-      bru.setVar("participant_profile_id", body.id);
+  if (body && body.outputData) {
+      bru.setVar("provider_context_id", body.outputData.participantContextId);
+      console.log("provider context ID: "+body.outputData.participantContextId)
+  
   } 
 }
 
