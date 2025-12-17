@@ -45,28 +45,36 @@ kind create cluster -n edcv --config kind.config.yaml --kubeconfig ~/.kube/edcv-
 ln -sf ~/.kube/edcv-kind.conf ~/.kube/config # to use KinD's kubeconfig
 ```
 
-There are pre-built images for JAD available for all components and it is recommended to use these. However, if you want
-to build them from source, for example, because you modified the code and want to see it in action, you can do so by
-following the following steps:
+#### 1.1 Option 1: Use pre-built images
+
+There are pre-built images for all JAD apps available from [GHCR](https://github.com/Metaform/jad/packages). Those are
+tested and we strongly recommend using them.
+
+#### 1.2 Option 2: Build images from source
+
+However, for the adventurous among us who want to build them from source, for example, because they've modified the code
+and now want to see it in action, please follow the following steps:
 
 - build Docker images:
+
   ```shell
   ./gradlew dockerize
   ```
+
   This will build the Docker images for all components and store them in the local Docker registry. JAD requires a
-  special version of PostgreSQL. In particular, it install the `wal2json` extension. You can create this
-  special postgres version by running
+  special version of PostgreSQL,n particular, it installs the `wal2json` extension. You can create this special Postgres
+  version by running
 
   ```shell
   docker buildx build -f launchers/postgres/Dockerfile --platform linux/amd64,linux/arm64 -t ghcr.io/metaform/jad/postgres:wal2json launchers/postgres
   ```
 
-  this will create the image `postgres:wal2json` for both amd64 and arm64 (e.g. Apple Silicon) architectures.
+  this will create the image `postgres:wal2json` for both amd64 and arm64 (e.g., Apple Silicon) architectures Add
+  platforms as needed.
 
-- load images into KinD
-
-  KinD has no access to the host's docker context, so we need to load the images into KinD. Verify that all images are
-  there by running `docker images`. Then run:
+- load images into KinD: KinD has no access to the host's docker context, so we need to load the images into KinD. Note
+  that other Kubernetes runtimes such as Minikube do things differently. Verify that all images are there by running
+  `docker images`. Then run:
 
   ```shell
   kind load docker-image \
@@ -76,7 +84,9 @@ following the following steps:
       ghcr.io/metaform/jad/dataplane:latest \
       ghcr.io/metaform/jad/postgres:wal2json -n edcv
   ```
-  or if you're a bash god:
+
+  or if you're a bash God:
+
   ```shell
   kind load docker-image -n edcv $(docker images --format "{{.Repository}}:{{.Tag}}" | grep '^ghcr.io/metaform/jad/')
   ```
@@ -86,10 +96,9 @@ following the following steps:
 
 ### 2. Deploy the services
 
-JAD uses plain Kubernetes manifests to deploy the services and Kustomize to configure the order. All the manifests are
-located in the [k8s](./k8s) folder. While it is possible to just use the Kustomize plugin and running
-`kubectl apply -k k8s/`, you may experience nasty race conditions because some services depend on others to be fully
-operational before they can start properly.
+JAD uses plain Kubernetes manifests to deploy the services. All the manifests are located in the [k8s](./k8s) folder.
+While it is possible to just use the Kustomize plugin and running `kubectl apply -k k8s/`, you may experience nasty race
+conditions because some services depend on others to be fully operational before they can start properly.
 
 The recommended way is to deploy infrastructure services first, and application services second. This can be done
 by running:
@@ -102,7 +111,7 @@ kubectl wait --namespace edc-v \
             --for=condition=ready pod \
             --selector=type=edcv-infra \
             --timeout=90s
-            
+
 kubectl apply -k k8s/apps/
 
 # Wait for applications to be ready:
@@ -116,15 +125,18 @@ This deploys all the services in the correct order. The services are deployed in
 that everything got deployed correctly by running `kubectl get deployments -n edcv`. This should output something like:
 
 ```text
-NAME            READY   UP-TO-DATE   AVAILABLE   AGE
-controlplane    1/1     1            1           66m
-dataplane       1/1     1            1           66m
-identityhub     1/1     1            1           66m
-issuerservice   1/1     1            1           66m
-keycloak        1/1     1            1           66m
-nats            1/1     1            1           66m
-postgres        1/1     1            1           66m
-vault           1/1     1            1           66m
+NAME            READY   UP-TO-DATE   AVAILABLE             AGE
+cfm-agents                1/1     1            1           117m
+cfm-participant-manager   1/1     1            1           117m
+cfm-tenant-manager        1/1     1            1           117m
+controlplane              1/1     1            1           117m
+dataplane                 1/1     1            1           117m
+identityhub               1/1     1            1           117m
+issuerservice             1/1     1            1           117m
+keycloak                  1/1     1            1           110m
+nats                      1/1     1            1           110m
+postgres                  1/1     1            1           110m
+vault                     1/1     1            1           110m
 ```
 
 ### 3. Inspect your deployment
@@ -136,24 +148,41 @@ vault           1/1     1            1           66m
 
 **Caution: these are security-relevant credentials and must not be used in production! EVER!!**
 
+In addition, you should see the following Kubernetes jobs (`k get jobs -n edcv`) running:
+
+```text
+NAME                       STATUS     COMPLETIONS   DURATION   AGE
+issuerservice-seed         Complete   1/1           13s        119m
+participant-manager-seed   Complete   1/1           15s        119m
+vault-bootstrap            Complete   1/1           19s        120m
+```
+
+Those are needed to populate the databases and the vault with initial data.
+
 ### 4. Prepare the data space
 
-On the dataspace level, a few bits and pieces are required for it to become operational. These can be put in
-place by running the REST requests in the `Setup Issuer` folder in
-the [Bruno collection](./requests/EDC-V%20Onboarding). Be sure to select the `"KinD Local"` environment in Bruno.
+In addition to the initial seed data, a few bits and pieces are required for it to become fully operational. These can
+be put in place by running the REST requests in the `CFM - Provision Consumer` folder and in the `CFM - Provision Provider`
+in the [Bruno collection](./requests/EDC-V%20Onboarding). Be sure to select the `"KinD Local"` environment in
+Bruno.
 
-![img.png](docs/images/bruno.png)
+![bruno.png](docs/images/bruno.png)
 
 Those requests can be run manually, one after the other, or via Bruno's "Run" feature. It may be necessary to manually
 refresh the access token in the `"Auth*"` tab.
 
-Next, we need to create a consumer and a provider participant. For this, we can also use Bruno, using the
-`"Create EDC-V ParticipantContext [Consumer|Provider]` folders in the same collection. Again, make sure to select the
-`"KinD Local"` environment.
+This creates a consumer and a provider participant using the Connector Fabric Manager's (CFM) REST API. CFM does a lot
+of the heavy lifting by doing the following:
 
-This sets up accounts in the IssuerService, the IdentityHub and the ControlPlane, plus it issues the
-`MembershipCredential` to each new participant. It also seeds dummy data to each participant, specifically an Asset, a
-Policy and a ContractDefinition.
+- creates access credentials for both the Vault and the Administration APIs
+- creates a `ParticipantContext` in the control plane
+- creates a `ParticipantContext` in IdentityHub
+- registers the new `ParticipantContext` with the IssuerService
+- requests VerifiableCredentials from the IssuerService
+
+One word of caution: the `Query Orchestration by Profile ID` will only yield a result after the onboarding is complete.
+If it returns an empty response (i.e., the onboarding is still ongoing), simply wait a bit and try again. Do run all
+requests - each one is needed!
 
 ## Seeding EDC-V CEL Expressions
 
@@ -161,19 +190,21 @@ For evaluating policies EDC-V makes usage of the CEL (Common Expression Language
 will create a simple CEL expression that allows data access only to participants that possess a valid Membership
 Credential.
 
-Run the requests in the `Create CEL expression` request in folder `EDC-V Management` in the same Bruno collection
-to create the CEL expression in the ControlPlane.
+Run the requests in the `Create CEL expression` request in folder `EDC-V Management/Prepare consumer participant` in the
+same Bruno collection to create the CEL expression in the ControlPlane.
 
 ![img.png](docs/images/bruno_cel_expr.png)
 
 ## Seeding the Provider
 
 Before we can transfer data, we need to seed the Provider with an asset, a policy and a contract definition. This is
-done by running the requests in the `EDC-V Management (Provider)` folder in the same Bruno collection. Again, make sure
+done by running the requests in the `EDC-V Management/Provider` folder in the same Bruno collection. Again, make sure
 to select the
 `"KinD Local"` environment.
 
 ![img.png](docs/images/bruno_provider_seed.png)
+
+**If all requests ran successfully, you should now have access credentials for both the consumer and the provider!**
 
 ## Transfer Data
 
@@ -202,7 +233,7 @@ from https://jsonplaceholder.typicode.com/todos, something like:
     "id": 2,
     "title": "quis ut nam facilis et officia qui",
     "completed": false
-  },
+  }
   //...
 ]
 ```
@@ -303,5 +334,3 @@ livenessProbe:
   successThreshold: 1
   failureThreshold: 15 # changed
 ```
-
-
