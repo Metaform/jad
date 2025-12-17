@@ -1,6 +1,5 @@
 meta {
   name: EDC-V Management
-  seq: 5
 }
 
 auth {
@@ -24,7 +23,5 @@ auth:oauth2 {
 
 vars:pre-request {
   consumer_id: {{consumer_context_id}}
-  consumer_secret: {{consumer_secret}}
   provider_id: {{provider_context_id}}
-  provider_secret: {{provider_secret}}
 }

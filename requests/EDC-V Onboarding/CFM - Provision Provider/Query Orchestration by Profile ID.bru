@@ -16,6 +16,10 @@ body:json {
   }
 }
 
+vars:pre-request {
+  participant_profile_id: a22cd7343cec47438d25c2d45e292a14-api
+}
+
 script:post-response {
   let body = res.getBody()
   test("Response contains ID", function () {

@@ -1,0 +1,28 @@
+meta {
+  name: Prepare Dataplane
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseURL}}/cp/api/mgmt/v1alpha/dataplanes/{{provider_id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "allowedSourceTypes": [
+      "HttpData"
+    ],
+    "allowedTransferTypes": [
+      "HttpData-PULL"
+    ],
+    "url": "http://dataplane.edc-v.svc.cluster.local:8083/api/control/v1/dataflows"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
