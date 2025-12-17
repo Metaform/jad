@@ -218,6 +218,14 @@ data:
                 "userinfo.token.claim": "true"
               }
             }
+          ],
+          "defaultClientScopes": [
+            "issuer-admin-api:write",
+            "issuer-admin-api:read",
+            "identity-api:write",
+            "identity-api:read",
+            "management-api:write",
+            "management-api:read"
           ]
         },
         {
