@@ -35,28 +35,28 @@ spec:
       containers:
         - name: keycloak-agent
           image: ghcr.io/metaform/connector-fabric-manager/kcagent:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           volumeMounts:
             - name: keycloak-agent-config
               mountPath: /etc/appname
               readOnly: true
         - name: edcv-agent
           image: ghcr.io/metaform/connector-fabric-manager/edcvagent:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           volumeMounts:
             - name: edcv-agent-config
               mountPath: /etc/appname
               readOnly: true
         - name: registration-agent
           image: ghcr.io/metaform/connector-fabric-manager/regagent:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           volumeMounts:
             - name: registration-agent-config
               mountPath: /etc/appname
               readOnly: true
         - name: onboarding-agent
           image: ghcr.io/metaform/connector-fabric-manager/obagent:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           volumeMounts:
             - name: onboarding-agent-config
               mountPath: /etc/appname

@@ -12,28 +12,15 @@ post {
 
 body:json {
   {
+    "id": "{{$randomAlphaNumeric}}",
     "identifier": "{{participant_did}}",
     "properties": {
-      "name": "{{participant_name}}"
+      "name": "{{participant_name}}",
+      "cfm.participant.holdername": "Holder {{participant_name}}"
     },
+    "cellId": "{{cell_id}}",
     "version": 0,
-    "vpas": [
-      {
-        "cell": {
-          "id": "{{cell_id}}",
-          "properties": {},
-          "state": "active",
-          "stateTimestamp": "{{$isoTimestamp}}",
-          "version": 0
-        },
-        "id": "",
-        "properties": {},
-        "state": "",
-        "stateTimestamp": "",
-        "type": "",
-        "version": 0
-      }
-    ]
+    "vpaProperties": {}
   }
 }
 

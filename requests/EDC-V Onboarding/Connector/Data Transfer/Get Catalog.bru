@@ -5,24 +5,9 @@ meta {
 }
 
 post {
-  url: {{baseURL}}/cp/api/mgmt/v1alpha/participants/2aacb7f43df44050b41e3ff15eb22698-api/catalog
+  url: {{baseURL}}/cp/api/mgmt/v1alpha/participants/{{consumer_id}}/catalog
   body: json
-  auth: oauth2
-}
-
-auth:oauth2 {
-  grant_type: client_credentials
-  access_token_url: {{KC_HOST}}/realms/edcv/protocol/openid-connect/token
-  refresh_token_url: 
-  client_id: 2aacb7f43df44050b41e3ff15eb22698-api
-  client_secret: 4683bd0f4999eec04368ed0aace7087fc3ffb9fb4b80bfb09aedbbd4476b9011
-  scope: management-api:read
-  credentials_placement: body
-  credentials_id: credentials
-  token_placement: header
-  token_header_prefix: Bearer
-  auto_fetch_token: true
-  auto_refresh_token: false
+  auth: inherit
 }
 
 body:json {
