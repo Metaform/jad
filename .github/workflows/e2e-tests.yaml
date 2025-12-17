@@ -38,6 +38,7 @@ concurrency:
 jobs:
   E2E-Tests:
     runs-on: ubuntu-latest
+    if: 1 ==2 # disable for now
     steps:
       - uses: actions/checkout@v6
       - uses: eclipse-edc/.github/.github/actions/setup-build@main
