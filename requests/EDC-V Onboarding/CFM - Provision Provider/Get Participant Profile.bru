@@ -1,27 +1,38 @@
 meta {
-  name: Get Orchestration
+  name: Get Participant Profile
   type: http
-  seq: 5
+  seq: 4
 }
 
 get {
-  url: {{pmBaseUrl}}/api/v1alpha1/orchestrations/{{orchestration_id}}
+  url: {{tmBaseUrl}}/api/v1alpha1/tenants/{{tenant_id}}/participant-profiles/{{participant_profile_id}}
   body: json
   auth: inherit
 }
 
+vars:pre-request {
+  test_tenant_id: 3fa9401d-6f47-459d-a4ea-3c6d606633c5
+}
+
 script:post-response {
   let body = res.getBody()
-  test("Response contains participant context ID", function () {
-      expect(body).to.have.property("outputData")
-      expect(body.outputData).to.have.property("participantContextId");
+  
+  
+  
+  test("Should have VPA state", function () {
+    expect(body).to.have.property("properties");
+    expect(body.properties).to.have.property("cfm.vpa.state") 
+    expect(body.properties["cfm.vpa.state"]).to.have.property("participantContextId")
+    expect(body.properties["cfm.vpa.state"]).to.have.property("holderPid")
+    expect(body.properties["cfm.vpa.state"]).to.have.property("credentialRequest")
   });
   
-  if (body && body.outputData) {
-      bru.setVar("provider_context_id", body.outputData.participantContextId);
-      console.log("provider context ID: "+body.outputData.participantContextId)
-  
-  } 
+  let props = body.properties
+  if( props && props["cfm.vpa.state"]){
+    state = props["cfm.vpa.state"]
+    
+    bru.setVar("provider_context_id", state.participantContextId)
+  }
 }
 
 example {

@@ -38,11 +38,50 @@ spec:
           image: nats:latest
           imagePullPolicy: IfNotPresent
           args:
-            - "-js"
+            - "-c"
+            - "/etc/nats/nats.conf"
           ports:
             - containerPort: 4222
               protocol: TCP
+              name: client
+            - containerPort: 8222
+              protocol: TCP
+              name: monitor
+          volumeMounts:
+            - name: nats-config
+              mountPath: /etc/nats
+            - name: jetstream-storage
+              mountPath: /tmp/jetstream
+      volumes:
+        - name: nats-config
+          configMap:
+            name: nats-config
+        - name: jetstream-storage
+          emptyDir: { }
       restartPolicy: Always
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nats-config
+  namespace: edc-v
+data:
+  nats.conf: |
+    # Basic server configuration
+    port: 4222
+    monitor_port: 8222
+
+    # JetStream configuration
+    jetstream {
+        store_dir: "/tmp/jetstream"
+        max_memory_store: 64MB
+        max_file_store: 512MB
+    }
+
+    # Enable debug/trace
+    debug: true
+    trace: false
 
 ---
 apiVersion: v1
@@ -55,9 +94,12 @@ spec:
   selector:
     app: nats
   ports:
-    - name: nats
+    - name: client
       port: 4222
       targetPort: 4222
+    - name: monitor
+      port: 8222
+      targetPort: 8222
 
 ---
 apiVersion: networking.k8s.io/v1

@@ -15,10 +15,11 @@
 package org.eclipse.edc.jad.tests;
 
 import org.eclipse.edc.jad.tests.model.ClientCredentials;
-import org.eclipse.edc.jad.tests.model.Orchestration;
+import org.eclipse.edc.jad.tests.model.ParticipantProfile;
 import org.eclipse.edc.spi.monitor.Monitor;
 
 import java.util.Base64;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.restassured.RestAssured.given;
@@ -39,6 +40,7 @@ import static org.eclipse.edc.jad.tests.KeycloakApi.createKeycloakToken;
 public record ParticipantOnboarding(String participantName, String participantContextDid,
                                     String vaultToken, Monitor monitor) {
 
+    @SuppressWarnings("unchecked")
     public ClientCredentials execute(String cellId) {
 
         monitor.info("Creating tenant for %s".formatted(participantName));
@@ -47,22 +49,31 @@ public record ParticipantOnboarding(String participantName, String participantCo
         monitor.info("Deploy participant profile");
         var profileId = deployParticipantProfile(tenantId, cellId, participantContextDid);
 
-        monitor.info("Waiting for orchestration to complete");
-        var orchestrationId = queryOrchestrationByProfileId(profileId);
-        var orchestration = getOrchestrationById(orchestrationId);
-        monitor.info("Orchestration completed. Reading participant access credentials");
-        var participantContextId = orchestration.getOutputData().get("participantContextId").toString();
+        monitor.info("Waiting for dataspace profile to become active");
+        await().atMost(20, SECONDS)
+                .until(() -> {
+                    var participantProfile = getParticipantProfile(tenantId, profileId);
+                    return participantProfile.getVpas().stream().allMatch(vpa -> vpa.getState().equalsIgnoreCase("active"));
+                });
+
+        monitor.info("Participant Profile is active. Verifying state properties");
+
+        var profile = getParticipantProfile(tenantId, profileId);
+        var state = (Map<String, Object>) profile.getProperties().get("cfm.vpa.state");
+
+        assertThat(state)
+                .hasFieldOrProperty("holderPid")
+                .hasFieldOrProperty("participantContextId")
+                .hasFieldOrProperty("credentialRequest");
+
+        var participantContextId = state.get("participantContextId").toString();
         var secret = getVaultSecret(participantContextId);
 
         var token = createKeycloakToken(participantContextId, secret, "identity-api:write", "identity-api:read");
 
         monitor.info("Waiting for credential issuance");
-        assertThat(orchestration.getOutputData())
-                .hasFieldOrProperty("holderPid")
-                .hasFieldOrProperty("participantContextId")
-                .hasFieldOrProperty("credentialRequest");
 
-        var holderPid = orchestration.getOutputData().get("holderPid");
+        var holderPid = state.get("holderPid");
         assertThat(holderPid).withFailMessage(() -> "holderPid should be on the Orchestration's output data").isNotNull();
         waitForCredentialIssuance(participantContextId, token, holderPid.toString());
 
@@ -85,18 +96,18 @@ public record ParticipantOnboarding(String participantName, String participantCo
     /**
      * Retrieves an Orchestration object by its ID.
      *
-     * @param orchestrationId the unique identifier of the orchestration to retrieve
+     * @param profileId the unique identifier of the orchestration to retrieve
      * @return the Orchestration object
      */
-    private Orchestration getOrchestrationById(String orchestrationId) {
+    private ParticipantProfile getParticipantProfile(String tenant, String profileId) {
         return given()
-                .baseUri(Constants.PM_BASE_URL)
+                .baseUri(Constants.TM_BASE_URL)
                 .contentType(Constants.APPLICATION_JSON)
-                .get("/api/v1alpha1/orchestrations/%s".formatted(orchestrationId))
+                .get("/api/v1alpha1/tenants/%s/participant-profiles/%s".formatted(tenant, profileId))
                 .then()
                 .log().ifValidationFails()
                 .statusCode(200)
-                .extract().body().as(Orchestration.class);
+                .extract().body().as(ParticipantProfile.class);
     }
 
     /**

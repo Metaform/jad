@@ -195,9 +195,9 @@ of the heavy lifting by doing the following:
 - registers the new `ParticipantContext` with the IssuerService
 - requests VerifiableCredentials from the IssuerService
 
-One word of caution: the `Query Orchestration by Profile ID` will only yield a result after the onboarding is complete.
-If it returns an empty response (i.e., the onboarding is still ongoing), simply wait a bit and try again. Do run all
-requests - each one is needed!
+N.B.: the `Get Participant Profile` may need to be run repeatedly until all entries in the `vpas` array have a
+`"state": "active"` field. This is because the deployment is an asynchronous process and all agents need to run before
+the profile is activated.
 
 ## Seeding EDC-V CEL Expressions
 

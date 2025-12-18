@@ -22,6 +22,10 @@ body:json {
   }
 }
 
+vars:pre-request {
+  cell_id: 12084a60-b787-4caa-b450-97b36d9f5b97
+}
+
 script:post-response {
   let body = res.getBody()
   test("Response contains id", function () {

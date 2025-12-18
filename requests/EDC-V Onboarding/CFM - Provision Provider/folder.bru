@@ -1,6 +1,6 @@
 meta {
   name: CFM - Provision Provider
-  seq: 2
+  seq: 3
 }
 
 auth {
@@ -8,21 +8,6 @@ auth {
 }
 
 vars:pre-request {
-  participant_name: provider
+  participant_name: Provider Tenant
   participant_did: did:web:identityhub.edc-v.svc.cluster.local%3A7083:provider
-}
-
-script:post-response {
-  let jsonData;
-  
-  test("Response is valid JSON", function () {
-      try {
-          jsonData = res.getBody();
-        if(jsonData != null && jsonData != ''){
-          expect(jsonData).to.be.an("object");
-        }
-      } catch (e) {
-          throw new Error("Response body is not valid JSON");
-      }
-  });
 }

@@ -145,13 +145,6 @@ spec:
                 -d '{
                   "activities": [
                     {
-                      "dependsOn": [],
-                      "discriminator": "deploy",
-                      "inputs": [],
-                      "type": "network-activity",
-                      "id": "dns-provisioner"
-                    },
-                    {
                       "id": "kc-client-provisioner",
                       "type": "keycloak-activity",
                       "discriminator": "deploy",

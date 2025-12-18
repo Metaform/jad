@@ -18,7 +18,7 @@ import org.eclipse.edc.jad.tests.model.AccessToken;
 
 import static io.restassured.RestAssured.given;
 import static org.eclipse.edc.jad.tests.Constants.KEYCLOAK_URL;
-import static org.eclipse.edc.jad.tests.DataTransferTest.loadResourceFile;
+import static org.eclipse.edc.jad.tests.DataTransferEndToEndTest.loadResourceFile;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
 

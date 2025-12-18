@@ -38,7 +38,7 @@ import static org.eclipse.edc.jsonld.spi.JsonLdKeywords.ID;
  * <p>
  */
 @EndToEndTest
-public class DataTransferTest {
+public class DataTransferEndToEndTest {
 
 
     private static final String VAULT_TOKEN = "root";
