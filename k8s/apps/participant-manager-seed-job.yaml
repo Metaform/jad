@@ -49,8 +49,6 @@ spec:
           env:
             - name: PM_BASE_URL
               value: "http://participant-manager.edc-v.svc.cluster.local:8080"
-            - name: TM_BASE_URL
-              value: "http://tenant-manager.edc-v.svc.cluster.local:8080"
           command:
             - sh
             - -c
@@ -58,7 +56,7 @@ spec:
               set -e
 
               echo "================================================"
-              echo "ParticipantManager & TenantManager Seeding"
+              echo "ParticipantManager Seeding"
               echo "================================================"
 
               echo ""
@@ -160,7 +158,7 @@ spec:
                       "dependsOn": []
                     },
                     {
-                      "id": "holder-entry-creator",
+                      "id": "registration-agent",
                       "type": "registration-activity",
                       "discriminator": "deploy",
                       "dependsOn": [
@@ -176,12 +174,12 @@ spec:
                       ]
                     },
                     {
-                      "id": "onboarder",
+                      "id": "onboarding-agent",
                       "type": "onboarding-activity",
                       "discriminator": "deploy",
                       "dependsOn": [
                         "connector-provisioner",
-                        "holder-entry-creator"
+                        "registration-agent"
                       ]
                     }
                   ],

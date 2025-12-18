@@ -21,7 +21,6 @@ import org.eclipse.edc.spi.monitor.ConsoleMonitor;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.time.Instant;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,9 +63,7 @@ public class DataTransferTest {
         createCelExpression(adminToken);
 
         monitor.info("Create cell and dataspace profile");
-        var cellId = createCell();
-        var dataspaceProfileId = createDataspaceProfile();
-        deployDataspaceProfile(dataspaceProfileId, cellId);
+        var cellId = getCellId();
 
         // onboard consumer
         monitor.info("Onboarding consumer");
@@ -155,45 +152,15 @@ public class DataTransferTest {
      *
      * @return the Cell ID
      */
-    private String createCell() {
+    private String getCellId() {
         return given()
                 .contentType(APPLICATION_JSON)
-                .body("""
-                        {
-                            "properties": {
-                                "cellPurpose": "e2e-test"
-                            },
-                            "state": "active",
-                            "stateTimestamp": "%s"
-                        }
-                        """.formatted(Instant.now().toString()))
-                .post(TM_BASE_URL + "/api/v1alpha1/cells")
+                .get(TM_BASE_URL + "/api/v1alpha1/cells")
                 .then()
-                .statusCode(201)
-                .extract().jsonPath().getString("id");
+                .statusCode(200)
+                .extract().jsonPath().getString("[0].id");
     }
 
-    /**
-     * Deploys a dataspace profile in CFM.
-     *
-     * @param dataspaceProfileId the dataspace profile ID to deploy
-     * @param cellId             the cell ID to deploy the profile to
-     */
-    private void deployDataspaceProfile(String dataspaceProfileId, String cellId) {
-        given()
-                .baseUri(TM_BASE_URL)
-                .contentType(APPLICATION_JSON)
-                .body("""
-                        {
-                            "profileId": "%s",
-                            "cellId": "%s"
-                        }
-                        """.formatted(dataspaceProfileId, cellId))
-                .post("/api/v1alpha1/dataspace-profiles/%s/deployments".formatted(dataspaceProfileId))
-                .then()
-                .log().ifValidationFails()
-                .statusCode(202);
-    }
 
     /**
      * Creates a Common Expression Language (CEL) entry in the control plane

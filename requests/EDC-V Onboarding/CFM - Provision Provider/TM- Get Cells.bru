@@ -1,33 +1,23 @@
 meta {
-  name: TM: Create Cell
+  name: TM: Get Cells
   type: http
   seq: 1
 }
 
-post {
+get {
   url: {{tmBaseUrl}}/api/v1alpha1/cells
   body: json
   auth: inherit
 }
 
-body:json {
-  {
-    "properties": {
-      "newCellKey": "newCellValue"
-    },
-    "state": "active",
-    "stateTimestamp": "{{$isoTimestamp}}"
-  }
-}
-
 script:post-response {
   let body = res.getBody()
   test("Response contains id", function () {
-      expect(body).to.have.property("id");
+      expect(body[0]).to.have.property("id");
   });
   
   if (body && body.id) {
-      bru.setVar("cell_id", body.id);
+      bru.setVar("cell_id", body[0].id);
   } 
 }
 

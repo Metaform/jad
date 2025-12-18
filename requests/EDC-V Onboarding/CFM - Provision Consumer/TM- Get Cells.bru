@@ -1,30 +1,23 @@
 meta {
-  name: Create Dataspace Profile
+  name: TM: Get Cells
   type: http
   seq: 1
 }
 
-post {
-  url: {{tmBaseUrl}}/api/v1alpha1/dataspace-profiles
+get {
+  url: {{tmBaseUrl}}/api/v1alpha1/cells
   body: json
   auth: inherit
-}
-
-body:json {
-  {
-    "artifacts": [],
-    "properties": {}
-  }
 }
 
 script:post-response {
   let body = res.getBody()
   test("Response contains id", function () {
-      expect(body).to.have.property("id");
+      expect(body[0]).to.have.property("id");
   });
   
   if (body && body.id) {
-      bru.setVar("dataspace_profile_id", body.id);
+      bru.setVar("cell_id", body[0].id);
   } 
 }
 
@@ -33,13 +26,14 @@ example {
   description: Created
   
   request: {
-    url: {{baseUrl}}/api/v1alpha1/dataspace-profiles
+    url: {{baseUrl}}/api/v1alpha1/cells
     method: POST
     mode: json
     body:json: {
       {
-        "artifacts": [],
-        "properties": {}
+        "properties": {},
+        "state": "",
+        "stateTimestamp": ""
       }
     }
   }
@@ -58,19 +52,10 @@ example {
       type: json
       content: '''
         {
-          "artifacts": [],
-          "deployments": [
-            {
-              "cellId": "",
-              "id": "",
-              "properties": {},
-              "state": "",
-              "stateTimestamp": "",
-              "version": 0
-            }
-          ],
           "id": "",
           "properties": {},
+          "state": "",
+          "stateTimestamp": "",
           "version": 0
         }
       '''

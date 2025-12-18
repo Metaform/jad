@@ -1,11 +1,11 @@
 meta {
   name: Prepare Dataplane
   type: http
-  seq: 4
+  seq: 8
 }
 
 post {
-  url: {{baseURL}}/cp/api/mgmt/v1alpha/dataplanes/{{provider_id}}
+  url: {{baseURL}}/cp/api/mgmt/v4alpha/dataplanes/{{provider_id}}
   body: json
   auth: inherit
 }

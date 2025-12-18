@@ -1,0 +1,102 @@
+#
+# Copyright (c) 2025 Metaform Systems, Inc.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Contributors:
+#      Metaform Systems, Inc. - initial API and implementation
+#
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tenant-manager-seed
+  namespace: edc-v
+  labels:
+    app: tenant-manager-seed
+    platform: edcv
+    type: edcv-job
+spec:
+  backoffLimit: 5
+  template:
+    metadata:
+      labels:
+        app: tenant-manager-seed
+        platform: edcv
+        type: edcv-job
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+        # Wait for tenant-manager to be ready
+        - name: wait-for-tenant-manager
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              until curl -sf http://tenant-manager.edc-v.svc.cluster.local:8080/api/v1alpha1/cells; do
+                echo "Waiting for tenant-manager to be ready..."
+                sleep 5
+              done
+              echo "Tenant Manager is ready!"
+      containers:
+        - name: seed-tenant-manager
+          image: curlimages/curl:latest
+          env:
+            - name: TM_BASE_URL
+              value: "http://tenant-manager.edc-v.svc.cluster.local:8080"
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+
+              echo "================================================"
+              echo "TenantManager Seeding"
+              echo "================================================"
+
+              # Create Cell
+              echo "Creating Cell..."
+              CELL_RESPONSE=$(curl -s -X POST "$TM_BASE_URL/api/v1alpha1/cells" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "properties": {
+                    "newCellKey": "newCellValue"
+                  },
+                  "state": "active",
+                  "stateTimestamp": "'"$(date -u +"%Y-%m-%dT%H:%M:%SZ")"'"
+                }')
+
+              CELL_ID=$(echo "$CELL_RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+              echo "Cell created with ID: $CELL_ID"
+
+              # Create Dataspace Profile
+              echo "Creating Dataspace Profile..."
+              PROFILE_RESPONSE=$(curl -s -X POST "$TM_BASE_URL/api/v1alpha1/dataspace-profiles" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "artifacts": [],
+                  "properties": {}
+                }')
+
+              DATASPACE_PROFILE_ID=$(echo "$PROFILE_RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+              echo "Dataspace Profile created with ID: $DATASPACE_PROFILE_ID"
+
+              # Deploy Dataspace Profile
+              echo "Deploying Dataspace Profile..."
+              curl -s -X POST "$TM_BASE_URL/api/v1alpha1/dataspace-profiles/$DATASPACE_PROFILE_ID/deployments" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "profileId": "'"$DATASPACE_PROFILE_ID"'",
+                  "cellId": "'"$CELL_ID"'"
+                }'
+
+              echo "Dataspace Profile deployed successfully"
+              echo "================================================"
+              echo "TenantManager Seeding Complete"
+              echo "================================================"
+
