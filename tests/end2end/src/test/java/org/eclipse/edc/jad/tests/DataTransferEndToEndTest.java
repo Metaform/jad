@@ -14,19 +14,23 @@
 
 package org.eclipse.edc.jad.tests;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.RestAssured;
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.config.RestAssuredConfig;
 import org.eclipse.edc.jad.tests.model.CatalogResponse;
 import org.eclipse.edc.jad.tests.model.ClientCredentials;
 import org.eclipse.edc.junit.annotations.EndToEndTest;
 import org.eclipse.edc.spi.monitor.ConsoleMonitor;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.eclipse.edc.jad.tests.Constants.APPLICATION_JSON;
-import static org.eclipse.edc.jad.tests.Constants.BASE_URL;
-import static org.eclipse.edc.jad.tests.Constants.TM_BASE_URL;
+import static org.eclipse.edc.jad.tests.Constants.*;
 import static org.eclipse.edc.jad.tests.KeycloakApi.createKeycloakToken;
 import static org.eclipse.edc.jad.tests.KeycloakApi.getAccessToken;
 import static org.eclipse.edc.jsonld.spi.JsonLdKeywords.ID;
@@ -52,6 +56,18 @@ public class DataTransferEndToEndTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @BeforeAll
+    static void prepare() {
+        // globally disable failing on unknown properties for RestAssured
+        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig().jackson2ObjectMapperFactory(
+                (cls, charset) -> {
+                    ObjectMapper om = new ObjectMapper().findAndRegisterModules();
+                    om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                    return om;
+                }
+        ));
     }
 
     @Test

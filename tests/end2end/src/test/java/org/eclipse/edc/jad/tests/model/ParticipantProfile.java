@@ -14,15 +14,18 @@
 
 package org.eclipse.edc.jad.tests.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ParticipantProfile {
+    private Map<String, List<String>> participantRoles = new HashMap<>();
     private String id;
     private int version;
     private String identifier;
-    private List<Vpa> vpas;
-    private Map<String, Object> properties;
+    private List<Vpa> vpas = new ArrayList<>();
+    private Map<String, Object> properties = new HashMap<>();
     private boolean error;
 
     public String getId() {
@@ -71,6 +74,14 @@ public class ParticipantProfile {
 
     public void setError(boolean error) {
         this.error = error;
+    }
+
+    public Map<String, List<String>> getParticipantRoles() {
+        return participantRoles;
+    }
+
+    public void setParticipantRoles(Map<String, List<String>> participantRoles) {
+        this.participantRoles = participantRoles;
     }
 
     public static class Vpa {
