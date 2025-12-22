@@ -65,3 +65,4 @@ data:
   edc.datasource.membership.user: "issuer"
   edc.datasource.membership.password: "issuer"
 
+  edc.encryption.strict: "false"
