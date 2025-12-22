@@ -30,7 +30,9 @@ import java.io.IOException;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.eclipse.edc.jad.tests.Constants.*;
+import static org.eclipse.edc.jad.tests.Constants.APPLICATION_JSON;
+import static org.eclipse.edc.jad.tests.Constants.BASE_URL;
+import static org.eclipse.edc.jad.tests.Constants.TM_BASE_URL;
 import static org.eclipse.edc.jad.tests.KeycloakApi.createKeycloakToken;
 import static org.eclipse.edc.jad.tests.KeycloakApi.getAccessToken;
 import static org.eclipse.edc.jsonld.spi.JsonLdKeywords.ID;
