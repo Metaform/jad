@@ -91,15 +91,37 @@ and now want to see it in action, please follow the following steps to build and
   or if you're a bash God:
 
   ```shell
-  kind load docker-image -n edcv $(docker images --format "{{.Repository}}:{{.Tag}}" | grep '^ghcr.io/metaform/jad/')
+  kind load docker-image -n edcv $(docker images --format "{{.Repository}}:{{.Tag}}" | grep '^ghcr.io/metaform/jad.*:latest')
   ```
 
-- modify the deployment manifests `controlplane.yaml`, `dataplane.yaml`, `identityhub.yaml`, `issuerservice.yaml` and
-  `postgres.yaml` and set `imagePullPolicy: Never` to force KinD to use the local images. This can be done with
-  search-and-replace from your favorite editor, or you could do this with `sed`:
+- build CFM docker images locally:
   ```shell
-  
+  cd /path/to/cfm/
+  make load-into-kind
   ```
+  This builds all CFM components' docker images and loads them into your KinD cluster, assuming that your KinD cluster
+  is named `"edcv"`. If not, set the cluster name for the make file accordingly:
+  ```
+  cd /path/to/cfm/
+  make load-into-kind KIND_CLUSTER_NAME=your_cluster_name`. 
+  ```
+  Note that individual `make` targets for all CFM components exist, for example `make load-into-kind-pmanager`.
+
+- modify the deployment manifests of the components you want to load locally by setting the `imagePullPolicy: Never`
+  which forces KinD to rely on local images rather than pulling them. This can be done with search-and-replace from your
+  favorite editor, or you can do it from the command line by running
+  ```shell
+  sed -i "s/imagePullPolicy:.*Always/imagePullPolicy: Never/g" <FILENAME>
+  ```
+  **CAUTION Mac users**: this requires GNU-sed. By default, macOS, has a special version of `sed` so you will have
+  to [install GNU sed first](https://medium.com/@bramblexu/install-gnu-sed-on-mac-os-and-set-it-as-default-7c17ef1b8f64)
+- For the EDC-V components, the relevant files are `controlplane.yaml`, `dataplane.yaml`, `identityhub.yaml` and
+  `issuerservice.yaml`
+- as a simplification, and to modify the image pull policy of both EDC-V _and_ CFM components, run:
+  ```shell
+  grep -rlZ "imagePullPolicy: Always" k8s/apps  | xargs sed -i "s/imagePullPolicy:.*Always/imagePullPolicy: Never/g"
+  ```
+  For this, both the EDC-V and CFM docker images must be built locally!!
 
 ### 2. Deploy the services
 
@@ -130,7 +152,7 @@ kubectl wait --namespace edc-v \
 Here's a copy-and-pasteable command to delete and redeploy everything:
 
 ```shell
-kubectl delete -k k8s/ && \
+kubectl delete -k k8s/; \
 kubectl apply -f k8s/base && \
 kubectl wait --namespace edc-v \
             --for=condition=ready pod \
@@ -142,13 +164,16 @@ kubectl wait --namespace edc-v \
             --timeout=90s
 ```
 
+_Note: the `";"` after `kubectl delete -k k8s/` is on purpose for robustness, to allow the command to fail if no
+resources are deployed yet._
+
 This deploys all the services in the correct order. The services are deployed in the `edc-v` namespace. Please verify
 that everything got deployed correctly by running `kubectl get deployments -n edcv`. This should output something like:
 
 ```text
 NAME            READY   UP-TO-DATE   AVAILABLE             AGE
 cfm-agents                1/1     1            1           117m
-cfm-provision-manager   1/1     1            1           117m
+cfm-provision-manager     1/1     1            1           117m
 cfm-tenant-manager        1/1     1            1           117m
 controlplane              1/1     1            1           117m
 dataplane                 1/1     1            1           117m
