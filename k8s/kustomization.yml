@@ -27,8 +27,8 @@ resources:
   - apps/identityhub.yaml
   - apps/edcv-agent-config.yaml
   - apps/keycloak-agent-config.yaml
-  - apps/participant-manager.yaml
-  - apps/participant-manager-config.yaml
+  - apps/provision-manager.yaml
+  - apps/provision-manager-config.yaml
   - apps/tenant-manager.yaml
   - apps/tenant-manager-config.yaml
   - apps/cfm-agents.yaml

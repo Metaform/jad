@@ -14,26 +14,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cfm-participant-manager
+  name: cfm-provision-manager
   namespace: edc-v
   labels:
-    app: participant-manager
+    app: provision-manager
     platform: edcv
     type: edcv-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: participant-manager
+      app: provision-manager
   template:
     metadata:
       labels:
-        app: participant-manager
+        app: provision-manager
         platform: edcv
         type: edcv-app
     spec:
       containers:
-        - name: participant-manager
+        - name: provision-manager
           image: ghcr.io/metaform/connector-fabric-manager/pmanager:latest
           imagePullPolicy: Always
           ports:
@@ -52,11 +52,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: participant-manager
+  name: provision-manager
   namespace: edc-v
 spec:
   selector:
-    app: participant-manager
+    app: provision-manager
   ports:
     - port: 8080
       targetPort: 8080
@@ -66,7 +66,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: participant-manager
+  name: provision-manager
   namespace: edc-v
 spec:
   rules:
@@ -77,6 +77,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: participant-manager
+                name: provision-manager
                 port:
                   number: 8080

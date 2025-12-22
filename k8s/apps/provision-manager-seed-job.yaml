@@ -14,10 +14,10 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: participant-manager-seed
+  name: provision-manager-seed
   namespace: edc-v
   labels:
-    app: participant-manager-seed
+    app: provision-manager-seed
     platform: edcv
     type: edcv-job
 spec:
@@ -25,30 +25,30 @@ spec:
   template:
     metadata:
       labels:
-        app: participant-manager-seed
+        app: provision-manager-seed
         platform: edcv
         type: edcv-job
     spec:
       restartPolicy: OnFailure
       initContainers:
-        # Wait for participant-manager to be ready
-        - name: wait-for-participant-manager
+        # Wait for provision-manager to be ready
+        - name: wait-for-provision-manager
           image: curlimages/curl:latest
           command:
             - sh
             - -c
             - |
-              until curl -sf http://participant-manager.edc-v.svc.cluster.local:8080/api/v1alpha1/activity-definitions; do
-                echo "Waiting for participant-manager to be ready..."
+              until curl -sf http://provision-manager.edc-v.svc.cluster.local:8080/api/v1alpha1/activity-definitions; do
+                echo "Waiting for provision-manager to be ready..."
                 sleep 5
               done
-              echo "Participant Manager is ready!"
+              echo "Provision Manager is ready!"
       containers:
-        - name: seed-participant-manager
+        - name: seed-provision-manager
           image: curlimages/curl:latest
           env:
             - name: PM_BASE_URL
-              value: "http://participant-manager.edc-v.svc.cluster.local:8080"
+              value: "http://provision-manager.edc-v.svc.cluster.local:8080"
           command:
             - sh
             - -c
@@ -56,7 +56,7 @@ spec:
               set -e
 
               echo "================================================"
-              echo "ParticipantManager Seeding"
+              echo "ProvisionManager Seeding"
               echo "================================================"
 
               echo ""
@@ -187,5 +187,5 @@ spec:
               
               echo ""
               echo "================================================"
-              echo "ParticipantManager seeding completed!"
+              echo "ProvisionManager seeding completed!"
               echo "================================================"

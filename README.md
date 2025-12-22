@@ -47,13 +47,15 @@ ln -sf ~/.kube/edcv-kind.conf ~/.kube/config # to use KinD's kubeconfig
 
 #### 1.1 Option 1: Use pre-built images
 
-There are pre-built images for all JAD apps available from [GHCR](https://github.com/Metaform/jad/packages). Those are
-tested and we strongly recommend using them.
+There are pre-built images for all JAD apps available from [GHCR](https://github.com/Metaform/jad/packages) and the
+Connector Fabric Manager images are available from
+the [CFM GitHub Repository](https://github.com/Metaform/connector-fabric-manager/packages). Those are tested and we
+strongly recommend using them.
 
 #### 1.2 Option 2: Build images from source
 
 However, for the adventurous among us who want to build them from source, for example, because they've modified the code
-and now want to see it in action, please follow the following steps:
+and now want to see it in action, please follow the following steps to build and load JAD apps:
 
 - build Docker images:
 
@@ -62,14 +64,15 @@ and now want to see it in action, please follow the following steps:
   ```
 
   This will build the Docker images for all components and store them in the local Docker registry. JAD requires a
-  special version of PostgreSQL,n particular, it installs the `wal2json` extension. You can create this special Postgres
+  special version of PostgreSQL, in particular, it installs the `wal2json` extension. You can create this special
+  Postgres
   version by running
 
   ```shell
   docker buildx build -f launchers/postgres/Dockerfile --platform linux/amd64,linux/arm64 -t ghcr.io/metaform/jad/postgres:wal2json launchers/postgres
   ```
 
-  this will create the image `postgres:wal2json` for both amd64 and arm64 (e.g., Apple Silicon) architectures Add
+  this will create the image `postgres:wal2json` for both amd64 and arm64 (e.g., Apple Silicon) architectures. Add
   platforms as needed.
 
 - load images into KinD: KinD has no access to the host's docker context, so we need to load the images into KinD. Note
@@ -92,7 +95,11 @@ and now want to see it in action, please follow the following steps:
   ```
 
 - modify the deployment manifests `controlplane.yaml`, `dataplane.yaml`, `identityhub.yaml`, `issuerservice.yaml` and
-  `postgres.yaml` and set `imagePullPolicy: Never` to force KinD to use the local images.
+  `postgres.yaml` and set `imagePullPolicy: Never` to force KinD to use the local images. This can be done with
+  search-and-replace from your favorite editor, or you could do this with `sed`:
+  ```shell
+  
+  ```
 
 ### 2. Deploy the services
 
@@ -141,7 +148,7 @@ that everything got deployed correctly by running `kubectl get deployments -n ed
 ```text
 NAME            READY   UP-TO-DATE   AVAILABLE             AGE
 cfm-agents                1/1     1            1           117m
-cfm-participant-manager   1/1     1            1           117m
+cfm-provision-manager   1/1     1            1           117m
 cfm-tenant-manager        1/1     1            1           117m
 controlplane              1/1     1            1           117m
 dataplane                 1/1     1            1           117m
@@ -167,7 +174,7 @@ In addition, you should see the following Kubernetes jobs (`k get jobs -n edcv`)
 ```text
 NAME                       STATUS     COMPLETIONS   DURATION   AGE
 issuerservice-seed         Complete   1/1           13s        119m
-participant-manager-seed   Complete   1/1           15s        119m
+provision-manager-seed   Complete   1/1           15s        119m
 vault-bootstrap            Complete   1/1           19s        120m
 ```
 
