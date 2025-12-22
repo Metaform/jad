@@ -96,6 +96,7 @@ jobs:
           
           # wait until all init jobs are done
           kubectl wait --namespace edc-v \
+            --selector=type=edcv-job \
             --for=condition=complete job --all \
             --timeout=90s
 
