@@ -45,14 +45,26 @@ kind create cluster -n edcv --config kind.config.yaml --kubeconfig ~/.kube/edcv-
 ln -sf ~/.kube/edcv-kind.conf ~/.kube/config # to use KinD's kubeconfig
 ```
 
-#### 1.1 Option 1: Use pre-built images
+Next, deploy the NGINX ingress controller:
+
+```shell
+kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=90s
+```
+
+### 2. Deploy applications
+
+#### 2.1 Option 1: Use pre-built images
 
 There are pre-built images for all JAD apps available from [GHCR](https://github.com/Metaform/jad/packages) and the
 Connector Fabric Manager images are available from
 the [CFM GitHub Repository](https://github.com/Metaform/connector-fabric-manager/packages). Those are tested and we
 strongly recommend using them.
 
-#### 1.2 Option 2: Build images from source
+#### 2.2 Option 2: Build images from source
 
 However, for the adventurous among us who want to build them from source, for example, because they've modified the code
 and now want to see it in action, please follow the following steps to build and load JAD apps:
@@ -123,7 +135,7 @@ and now want to see it in action, please follow the following steps to build and
   ```
   For this, both the EDC-V and CFM docker images must be built locally!!
 
-### 2. Deploy the services
+### 3. Deploy the services
 
 JAD uses plain Kubernetes manifests to deploy the services. All the manifests are located in the [k8s](./k8s) folder.
 While it is possible to just use the Kustomize plugin and running `kubectl apply -k k8s/`, you may experience nasty race
@@ -185,7 +197,7 @@ postgres                  1/1     1            1           110m
 vault                     1/1     1            1           110m
 ```
 
-### 3. Inspect your deployment
+### 4. Inspect your deployment
 
 - database: the PostgreSQL database is accessible from outside the cluster via
   `jdbc:postgresql://postgres.localhost/controlplane`, username `cp`, password `cp`.
@@ -205,7 +217,7 @@ vault-bootstrap            Complete   1/1           19s        120m
 
 Those are needed to populate the databases and the vault with initial data.
 
-### 4. Prepare the data space
+### 5. Prepare the data space
 
 In addition to the initial seed data, a few bits and pieces are required for it to become fully operational. These can
 be put in place by running the REST requests in the `CFM - Provision Consumer` folder and in the
