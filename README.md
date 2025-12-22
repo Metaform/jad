@@ -306,6 +306,15 @@ To remove the deployment, run:
 kubectl delete -k k8s/
 ```
 
+## Troubleshooting
+
+In case any errors occur referring to authentication or authorization, it is recommended to delete and re-deploy the
+entire base and all apps.
+
+For example, if a participant onboarding went only through half-way, we recommend to do a clean-slate redeployment.
+
+In some cases, even deleting and re-creating the KinD cluster may be required.
+
 ## Deploying JAD on a bare-metal/cloud-hosted Kubernetes
 
 KinD is geared towards local development and testing. For example, it comes with a bunch of useful defaults, such as
