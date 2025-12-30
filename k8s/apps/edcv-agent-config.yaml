@@ -38,4 +38,5 @@ data:
     keycloak.clientSecret: provisioner-secret
     keycloak.tokenUrl:  http://keycloak.edc-v.svc.cluster.local:8080/realms/edcv/protocol/openid-connect/token
     identityhub.url: http://identityhub.edc-v.svc.cluster.local:7081/api/identity
+    identityhub.sts.url: http://identityhub.edc-v.svc.cluster.local:7084/api/sts/token
     controlplane.url: http://controlplane.edc-v.svc.cluster.local:8081/api/mgmt
