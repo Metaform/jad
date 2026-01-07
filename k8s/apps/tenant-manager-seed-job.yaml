@@ -80,7 +80,16 @@ spec:
                 -H "Content-Type: application/json" \
                 -d '{
                   "artifacts": [],
-                  "properties": {}
+                  "properties": {},
+                  "dataspaceSpec" : {
+                    "protocolStack": [],
+                    "credentialSpecs": [{
+                      "type": "MembershipCredential",
+                      "format": "VC1_0_JWT",
+                      "id": "membership-credential-def",
+                      "issuer": "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer"
+                    }]
+                  }
                 }')
 
               DATASPACE_PROFILE_ID=$(echo "$PROFILE_RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
