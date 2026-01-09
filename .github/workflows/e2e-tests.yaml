@@ -114,6 +114,10 @@ jobs:
             --for=condition=complete job --all \
             --timeout=120s
 
+          kubectl wait --namespace edc-v \
+                      --for=condition=ready pod \
+                      --selector=type=edcv-app \
+                      --timeout=120s
       - name: "Run E2E Test"
         run: |
           ./gradlew test -DincludeTags="EndToEndTest"
