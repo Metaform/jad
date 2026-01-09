@@ -51,8 +51,6 @@ spec:
         - name: seed-issuerservice
           image: curlimages/curl:latest
           env:
-            - name: BASE_URL
-              value: "http://localhost"
             - name: KC_HOST
               value: "http://keycloak.edc-v.svc.cluster.local:8080"
             - name: ISSUER_CLIENT_ID
@@ -83,6 +81,7 @@ spec:
               fi
 
               # Create Keycloak client for Vault access
+              echo "Creating Vault Access Client"
               curl -sf -X POST "${KC_HOST}/admin/realms/edcv/clients" \
                 -H "Authorization: Bearer ${KC_TOKEN}" \
                 -H "Content-Type: application/json" \

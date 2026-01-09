@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{dpBaseURL}}/app/internal/api/control/certs
+  url: {{dpBaseUrl}}/app/internal/api/control/certs
   body: multipartForm
   auth: inherit
 }
@@ -19,11 +19,7 @@ body:json {
 
 body:multipart-form {
   metadata: {}
-  file: @file(/home/wolf4ood/Downloads/ticket_19402661.pdf)
-}
-
-vars:pre-request {
-  dpBaseURL: 
+  file: @file(/Users/paullatzelsperger/code/jad/requests/test_document.pdf)
 }
 
 settings {

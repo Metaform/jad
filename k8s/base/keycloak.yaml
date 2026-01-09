@@ -111,6 +111,7 @@ data:
     {
       "realm": "edcv",
       "enabled": true,
+      "sslRequired": "none",
       "displayName": "EDCV Realm",
       "roles": {
         "realm": [
@@ -296,6 +297,8 @@ metadata:
 spec:
   parentRefs:
     - name: edcv-gateway
+      kind: Gateway
+      sectionName: http
   hostnames:
     - keycloak.localhost
   rules:
