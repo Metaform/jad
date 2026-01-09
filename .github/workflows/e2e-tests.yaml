@@ -63,7 +63,7 @@ jobs:
                                 ghcr.io/metaform/jad/controlplane:latest \
                                 ghcr.io/metaform/jad/dataplane:latest \
                                 ghcr.io/metaform/jad/identity-hub:latest \
-                                ghcr.io/metaform/jad/issuerservice:latest \
+                                ghcr.io/metaform/jad/issuerservice:latest 
 
 
       - name: "Install Traefik Gateway controller"
@@ -114,10 +114,6 @@ jobs:
             --for=condition=complete job --all \
             --timeout=120s
 
-          kubectl wait --namespace edc-v \
-                      --for=condition=ready pod \
-                      --selector=type=edcv-app \
-                      --timeout=120s
       - name: "Run E2E Test"
         run: |
           ./gradlew test -DincludeTags="EndToEndTest"

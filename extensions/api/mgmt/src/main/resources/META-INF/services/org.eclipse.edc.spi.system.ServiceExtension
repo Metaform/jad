@@ -13,3 +13,4 @@
 #
 
 org.eclipse.edc.virtualized.ApiExtension
+org.eclipse.edc.virtualized.ControlApiUrlExtension
