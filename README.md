@@ -8,6 +8,8 @@ infrastructure.
 
 For that, JAD uses the "Virtual Connector" project: https://github.com/eclipse-edc/Virtual-Connector
 
+## Components
+
 Such a dataspace requires – at a minimum – the following components:
 
 - a control plane: handles protocol messages and catalog data for each participant
@@ -18,6 +20,8 @@ Such a dataspace requires – at a minimum – the following components:
 - a vault: used to securely store sensitive data, such as the private keys etc. We are using Hashicorp Vault.
 - a database server: contains persistent data of all the components. We are using PostgreSQL.
 - a messaging system: used to process asynchronous messages. We are using NATS for this.
+- a connector fabric manager (CFM): comprised of the `tenant-manager` and the `provision-manager` as well as several
+  agents to manage dataspace participant resources
 
 ## Required tools and apps
 
@@ -36,7 +40,7 @@ _All shell commands are executed from the root of the project unless stated othe
 
 ## Getting started
 
-### 1. Create KinD cluster
+### 1. Create a KinD cluster
 
 To create a KinD cluster, run:
 
@@ -280,7 +284,7 @@ In addition, you should see the following Kubernetes jobs (`k get jobs -n edcv`)
 ```text
 NAME                       STATUS     COMPLETIONS   DURATION   AGE
 issuerservice-seed         Complete   1/1           13s        119m
-provision-manager-seed   Complete   1/1           15s        119m
+provision-manager-seed     Complete   1/1           15s        119m
 vault-bootstrap            Complete   1/1           19s        120m
 ```
 
@@ -440,53 +444,105 @@ Kubernetes cluster, then there are some caveats to keep in mind.
 EDC-V, Keycloak and Vault will need to be accessible from outside the cluster. For this, your cluster needs a network
 plugin and an external load balancer. For bare-metal installations, consider using [MetalLB](https://metallb.io).
 
-In addition, you likely want DNS resolution for your cluster so that individual services can be reached via
-subdomains, e.g. `http://auth.yourdomain.com/`, `http://vault.yourdomain.com/` etc.
+In addition, you'll likely want DNS resolution for your cluster so that individual services can be reached via
+subdomains, e.g. `http://auth.yourdomain.com/`, `http://vault.yourdomain.com/`, `controlplane.yourdomain.com` etc.
 This must be configured with your DNS provider, and the specifics will vary greatly from one to the next. All entries
 should point to the IP address of the Kubernetes host, for example:
 
 ![img.png](docs/images/dns.png)
 
+Each [component](#components) of JAD has its own HTTP route (Kubernetes replacement for Ingress routes), so it may be
+advisable to define DNS subdomains for each of them, for example:
+
+- Control plane: `https://cp.yourdomain.com/` -> 194.123.456.88
+- Identity Hub: `https://ih.yourdomain.com/` -> 194.123.456.88
+- Keycloak: `https://auth.yourdomain.com/` -> 194.123.456.88
+- Vault: `https://vault.yourdomain.com/` -> 194.123.456.88
+- etc.
+
+Where `194.178.218.88` is the IP address of the Kubernetes host running MetalLB (or similar).
+
+_In actual production deployments, these individual hostnames, and potentially also individual IP addresses, would be
+necessary to isolate security domains and prevent unauthorized access or privilege escalation._
+
+### Tune Traefik gateway controller
+
+By default, Traefik binds to port 80 and 443 on the host machine. This is useful to enable clean URLs like
+`http://tm.yourdomain.com/api/v1alpha1/cells` etc. without any ports. However, some Linux distributions don't allow
+binding to well-defined ports to non-root users.
+
+If that is the case (check Traefik's logs), adding the following snippet to `values.yaml` will fix the problem:
+
+```yaml
+hostNetwork: true
+securityContext:
+  capabilities:
+    drop: [ ALL ]
+    add: [ NET_BIND_SERVICE ]
+  readOnlyRootFilesystem: true
+  runAsGroup: 0
+  runAsNonRoot: false
+  runAsUser: 0
+```
+
 ### Create Bruno Environment
 
-Some of the URL paths used in Bruno are hard coded to `localhost` in a Bruno environment.
+Some of the URL paths used in Bruno are hard coded to `localhost` in a Bruno environment named `KinD Local`. This is
+tailored to running JAD on a local KinD cluster. To make the collection usable for a remote deployment, we recommend
+duplicating the collection and replace the `localhost` references with the DNS names of the services.
+
 Create another environment to suit your setup:
 
 ![img.png](docs/images/bruno_custom_env.png)
 
 ### Update deployment manifests
 
-in [keycloak.yaml](k8s/base/keycloak.yaml) and [vault.yaml](k8s/base/vault.yaml), update the `host` fields in the
-`Ingress`
-resources to match your DNS:
+in [keycloak.yaml](k8s/base/keycloak.yaml) and [vault.yaml](k8s/base/vault.yaml), update the `hostnames` fields in the
+`HTTPRoute` resources to match your DNS:
 
 ```yaml
 spec:
-  rules:
-    - host: keycloak.localhost # change to: auth.yourdomain.com
-      http:
+  parentRefs:
+    - name: edcv-gateway
+      kind: Gateway
+      sectionName: http
+  hostnames:
+    - keycloak.localhost
+    - auth.yourdomain.com
 ```
 
-Next, in the [controlplane-config.yaml](k8s/apps/controlplane-config.yaml) change the expected issuer URL to match your
-DNS:
+Do this for all `HTTPRoute` declarations in all components' manifests. The `hostnames` field should contain entries
+matching your DNS subdomains that you have also used to create the new Bruno environment.
 
-```yaml
-edc.iam.oauth2.issuer: "http://keycloak.edc-v.svc.cluster.local/realms/edcv" # change to "http://auth.yourdomain.com/realms/edcv"
+### Update the Keycloak realm
+
+In `k8s/base/keycloak.yaml`, find the line that says:
+
 ```
+"bound_issuer": "http://vault.localhost/realms/edcv" 
+```
+
+and replace with 
+
+```
+"bound_issuer": "http://vault.yourdomain.com/realms/edcv"
+```
+
+This is crucial for Vault authentication to work properly.
 
 ### Tune readiness probes
 
-Readiness probes are set up fairly tight to avoid long wait times on local KinD clusters. However, in some Kubernetes
-clusters, these may need to be tuned to allow for longer periods and/or larger failure thresholds. We've seen this in
-particular with KeyCloak, because it takes some time to fully start up.
-
+We've set up the readiness probes fairly tight, to avoid long wait times on local KinD clusters. However, in some
+Kubernetes
+clusters, these may need to be tuned to allow for longer periods and/or larger failure thresholds. In particular,
+KeyCloak takes a long time to start up, sometimes several minutes depending on the hardware.
 If the thresholds are too tight, then Keycloak may get hung up in endless restart loops: Kubernetes kills the pod
 before it reaches a healthy state.
 
 To start, edit the `readinessProbe` section of the `keycloak` deployment manifest:
 
 ```yaml
-# keycloak.yaml, Line 79ff
+# keycloak.yaml
 readinessProbe:
   httpGet:
     path: /health/ready
