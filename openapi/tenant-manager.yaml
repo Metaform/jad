@@ -1,0 +1,501 @@
+openapi: 3.0.3
+info:
+  title: Tenant Manager API
+  description: API for managing Tenants, Participant Profiles, Cells, and Dataspace Profiles
+  version: 0.0.1
+servers:
+  - url: http://tm.localhost
+    description: Local development environment
+paths:
+  /api/v1alpha1/cells:
+    get:
+      summary: List Cells
+      description: Retrieve all Cells
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/V1Alpha1Cell'
+    post:
+      summary: Create Cell
+      description: Create a new Cell
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V1Alpha1NewCell'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1Alpha1Cell'
+  /api/v1alpha1/dataspace-profiles:
+    get:
+      summary: List Dataspace Profiles
+      description: Retrieve all dataspace profiles
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/V1Alpha1DataspaceProfile'
+  /api/v1alpha1/dataspace-profiles/{id}:
+    get:
+      summary: Get Dataspace Profile
+      description: Retrieve a Dataspace Profile by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1Alpha1DataspaceProfile'
+  /api/v1alpha1/dataspace-profiles/{id}/deployments:
+    post:
+      summary: Deploy a Dataspace Profile
+      description: Deploy a Dataspace Profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Accepted
+  /api/v1alpha1/participant-profiles/query:
+    post:
+      summary: Perform a Participant Profile query
+      description: Perform a Participant Profile query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelQuery'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/V1Alpha1ParticipantProfile'
+  /api/v1alpha1/tenants:
+    get:
+      summary: List Tenants
+      description: Retrieve all Tenants
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/V1Alpha1Tenant'
+    post:
+      summary: Create a new Tenant
+      description: Create a new Tenant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V1Alpha1NewTenant'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1Alpha1Tenant'
+  /api/v1alpha1/tenants/query:
+    post:
+      summary: Perform a Tenant query
+      description: Perform a Tenant query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelQuery'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/V1Alpha1Tenant'
+  /api/v1alpha1/tenants/{id}:    get:
+      summary: Get Tenant
+      description: Retrieve a Tenant by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1Alpha1Tenant'
+    patch:
+      summary: Updates a Tenant
+      description: Updates a Tenant by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V1Alpha1TenantPropertiesDiff'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1Alpha1Tenant'
+  /api/v1alpha1/tenants/{id}/participant-profiles:
+    get:
+      summary: List Participant Profiles
+      description: Retrieve all Participant Profiles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/V1Alpha1ParticipantProfile'
+    post:
+      summary: Create Participant Profile
+      description: Create a new Participant Profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V1Alpha1ParticipantProfile'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1Alpha1ParticipantProfile'
+  /api/v1alpha1/tenants/{id}/participant-profiles/{participantID}:
+    delete:
+      summary: Dispose Participant Profile
+      description: Dispose a Participant Profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: participantID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1Alpha1ParticipantProfile'
+    get:
+      summary: Get Participant Profile
+      description: Get a Participant Profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: participantID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1Alpha1ParticipantProfile'
+components:
+  schemas:
+    ModelQuery:
+      required:
+        - predicate
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int64
+        offset:
+          type: integer
+          format: int64
+        predicate:
+          type: string
+    V1Alpha1Cell:
+      required:
+        - id
+        - version
+        - state
+        - stateTimestamp
+      type: object
+      properties:
+        externalId:
+          type: string
+        id:
+          type: string
+        properties:
+          type: object
+          additionalProperties: { }
+        state:
+          type: string
+        stateTimestamp:
+          type: string
+          format: date-time
+        version:
+          type: integer
+          format: int64
+    V1Alpha1CredentialSpec:
+      required:
+        - id
+        - type
+        - issuer
+        - format
+      type: object
+      properties:
+        format:
+          type: string
+        id:
+          type: string
+        issuer:
+          type: string
+        role:
+          type: string
+        type:
+          type: string
+    V1Alpha1DataspaceDeployment:
+      required:
+        - id
+        - version
+        - state
+        - stateTimestamp
+      type: object
+      properties:
+        cellId:
+          type: string
+        externalCellId:
+          type: string
+        id:
+          type: string
+        properties:
+          type: object
+          additionalProperties: { }
+        state:
+          type: string
+        stateTimestamp:
+          type: string
+          format: date-time
+        version:
+          type: integer
+          format: int64
+    V1Alpha1DataspaceProfile:
+      required:
+        - id
+        - version
+      type: object
+      properties:
+        artifacts:
+          type: array
+          items:
+            type: string
+        dataspaceSpec:
+          $ref: '#/components/schemas/V1Alpha1DataspaceSpec'
+        deployments:
+          type: array
+          items:
+            $ref: '#/components/schemas/V1Alpha1DataspaceDeployment'
+        id:
+          type: string
+        properties:
+          type: object
+          additionalProperties: { }
+        version:
+          type: integer
+          format: int64
+    V1Alpha1DataspaceSpec:
+      type: object
+      properties:
+        credentialSpecs:
+          type: array
+          items:
+            $ref: '#/components/schemas/V1Alpha1CredentialSpec'
+        protocolStack:
+          type: array
+          items:
+            type: string
+    V1Alpha1NewCell:
+      required:
+        - state
+        - stateTimestamp
+      type: object
+      properties:
+        externalId:
+          type: string
+        properties:
+          type: object
+          additionalProperties: { }
+        state:
+          type: string
+        stateTimestamp:
+          type: string
+          format: date-time
+    V1Alpha1NewDataspaceProfile:
+      type: object
+      properties:
+        artifacts:
+          type: array
+          items:
+            type: string
+        dataspaceSpec:
+          $ref: '#/components/schemas/V1Alpha1DataspaceSpec'
+        properties:
+          type: object
+          additionalProperties: { }
+    V1Alpha1NewTenant:
+      type: object
+      properties:
+        properties:
+          type: object
+          additionalProperties: { }
+    V1Alpha1ParticipantProfile:
+      required:
+        - id
+        - version
+        - identifier
+      type: object
+      properties:
+        error:
+          type: boolean
+        errorDetail:
+          type: string
+        id:
+          type: string
+        identifier:
+          type: string
+        participantRoles:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          nullable: true
+        properties:
+          type: object
+          additionalProperties: { }
+        tenantId:
+          type: string
+        version:
+          type: integer
+          format: int64
+        vpas:
+          type: array
+          items:
+            $ref: '#/components/schemas/V1Alpha1VirtualParticipantAgent'
+    V1Alpha1Tenant:
+      required:
+        - id
+        - version
+      type: object
+      properties:
+        id:
+          type: string
+        properties:
+          type: object
+          additionalProperties: { }
+        version:
+          type: integer
+          format: int64
+    V1Alpha1TenantPropertiesDiff:
+      type: object
+      properties:
+        properties:
+          type: object
+          additionalProperties: { }
+          nullable: true
+        removed:
+          type: array
+          items:
+            type: string
+          nullable: true
+    V1Alpha1VirtualParticipantAgent:
+      required:
+        - id
+        - version
+        - state
+        - stateTimestamp
+        - type
+        - cellId
+      type: object
+      properties:
+        cellId:
+          type: string
+        id:
+          type: string
+        properties:
+          type: object
+          additionalProperties: { }
+        state:
+          type: string
+        stateTimestamp:
+          type: string
+          format: date-time
+        type:
+          type: string
+        version:
+          type: integer
+          format: int64

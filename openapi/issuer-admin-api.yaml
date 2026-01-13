@@ -1,0 +1,748 @@
+openapi: 3.0.1
+info:
+  title: issuer-admin-api
+  description: REST API documentation for the issuer-admin-api
+  license:
+    name: "The Apache License, Version 2.0"
+    url: http://www.apache.org/licenses/LICENSE-2.0.txt
+  version: 1.0.0-alpha
+servers:
+  - url: http://is.localhost/admin/api/admin
+    description: Local development server
+security:
+  - oauth2:
+      - read
+      - write
+paths:
+  /v1alpha/participants/{participantContextId}/credentials/{credentialId}/status:
+    get:
+      tags:
+      - Issuer Service Credentials Admin API
+      description: Checks the revocation status of a credential with the given ID
+        for the given participant.
+      operationId: checkCredentialStatus
+      parameters:
+      - name: participantContextId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: credentialId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The credential status.
+        "400":
+          description: "Request body was malformed, or the request could not be processed"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "401":
+          description: "The request could not be completed, because either the authentication\
+            \ was missing or was not valid."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "404":
+          description: The credential or the participant was not found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+  /v1alpha/participants/{participantContextId}/holders/query:
+    post:
+      tags:
+      - Issuer Service Holder Admin API
+      description: Gets all holders for a certain query.
+      operationId: queryHolders
+      parameters:
+      - name: participantContextId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuerySpec"
+      responses:
+        "200":
+          description: A list of holders metadata.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Holder"
+        "400":
+          description: "Request body was malformed, or the request could not be processed"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "401":
+          description: "The request could not be completed, because either the authentication\
+            \ was missing or was not valid."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "404":
+          description: The holder was not found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+  /v1alpha/participants/{participantContextId}/holders/{holderId}:
+    get:
+      tags:
+      - Issuer Service Holder Admin API
+      description: Gets metadata for a certain holder.
+      operationId: getHolderById
+      parameters:
+      - name: participantContextId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: holderId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A list of verifiable credential metadata. Note that these are
+            not actual VerifiableCredentials.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Holder"
+        "400":
+          description: "Request body was malformed, or the request could not be processed"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "401":
+          description: "The request could not be completed, because either the authentication\
+            \ was missing or was not valid."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "404":
+          description: The holder was not found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+  /v1alpha/participants/{participantContextId}/credentialdefinitions/query:
+    post:
+      tags:
+      - Issuer Service Credential Definition Admin API
+      description: Gets all credential definitions for a certain query.
+      operationId: queryCredentialDefinitions
+      parameters:
+      - name: participantContextId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuerySpec"
+      responses:
+        "200":
+          description: A list of credentials definitions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CredentialDefinition"
+        "400":
+          description: "Request body was malformed, or the request could not be processed"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "401":
+          description: "The request could not be completed, because either the authentication\
+            \ was missing or was not valid."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+  /v1alpha/participants/{participantContextId}/credentialdefinitions/{credentialDefinitionId}:
+    get:
+      tags:
+      - Issuer Service Credential Definition Admin API
+      description: Gets a credential definition by its ID.
+      operationId: getCredentialDefinitionById
+      parameters:
+      - name: participantContextId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: credentialDefinitionId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The credential definition was found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CredentialDefinition"
+        "400":
+          description: "Request body was malformed, or the request could not be processed"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "401":
+          description: "The request could not be completed, because either the authentication\
+            \ was missing or was not valid."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "404":
+          description: The credential definition was not found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+  /v1alpha/participants/{participantContextId}/credentials/query:
+    post:
+      tags:
+      - Issuer Service Credentials Admin API
+      description: "Query credentials, possibly across multiple participants."
+      operationId: queryCredentials
+      parameters:
+      - name: participantContextId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuerySpec"
+      responses:
+        "200":
+          description: A list of verifiable credential metadata. Note that these are
+            not actual VerifiableCredentials.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VerifiableCredentialResourceDto"
+        "400":
+          description: "Request body was malformed, or the request could not be processed"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "401":
+          description: "The request could not be completed, because either the authentication\
+            \ was missing or was not valid."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+  /v1alpha/participants/{participantContextId}/issuanceprocesses/query:
+    post:
+      tags:
+      - Issuer Service Issuance Process Admin API
+      description: Gets all issuance processes for a certain query.
+      operationId: queryIssuanceProcesses
+      parameters:
+      - name: participantContextId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuerySpec"
+      responses:
+        "200":
+          description: A list of issuance processes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IssuanceProcessDto"
+        "400":
+          description: "Request body was malformed, or the request could not be processed"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "401":
+          description: "The request could not be completed, because either the authentication\
+            \ was missing or was not valid."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+  /v1alpha/participants/{participantContextId}/issuanceprocesses/{issuanceProcessId}:
+    get:
+      tags:
+      - Issuer Service Issuance Process Admin API
+      description: Gets an issuance process by its ID.
+      operationId: getIssuanceProcessById
+      parameters:
+      - name: participantContextId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: issuanceProcessId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The issuance process was found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IssuanceProcessDto"
+        "400":
+          description: "Request body was malformed, or the request could not be processed"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "401":
+          description: "The request could not be completed, because either the authentication\
+            \ was missing or was not valid."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+        "404":
+          description: The issuance process was not found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiErrorDetail"
+components:
+  schemas:
+    ApiErrorDetail:
+      type: object
+      properties:
+        invalidValue:
+          type: object
+        message:
+          type: string
+        path:
+          type: string
+        type:
+          type: string
+    AttestationDefinitionRequest:
+      type: object
+      properties:
+        attestationType:
+          type: string
+        configuration:
+          type: object
+          additionalProperties:
+            type: object
+        id:
+          type: string
+    HolderDto:
+      required:
+      - did
+      - holderId
+      type: object
+      properties:
+        did:
+          type: string
+        holderId:
+          type: string
+        name:
+          type: string
+        properties:
+          type: object
+          additionalProperties:
+            type: object
+    Holder:
+      type: object
+      properties:
+        anonymous:
+          type: boolean
+        createdAt:
+          type: integer
+          format: int64
+        did:
+          type: string
+        holderId:
+          type: string
+        holderName:
+          type: string
+        id:
+          type: string
+        lastModifiedAt:
+          type: integer
+          format: int64
+        participantContextId:
+          type: string
+        properties:
+          type: object
+          additionalProperties:
+            type: object
+    QuerySpec:
+      type: object
+      properties:
+        filterExpression:
+          type: array
+          items:
+            $ref: "#/components/schemas/Criterion"
+        limit:
+          type: integer
+          format: int32
+        offset:
+          type: integer
+          format: int32
+        sortField:
+          type: string
+        sortOrder:
+          type: string
+          enum:
+          - ASC
+          - DESC
+    Criterion:
+      type: object
+      properties:
+        operandLeft:
+          type: object
+        operandRight:
+          type: object
+        operator:
+          type: string
+    AttestationDefinition:
+      type: object
+      properties:
+        attestationType:
+          type: string
+        configuration:
+          type: object
+          additionalProperties:
+            type: object
+        createdAt:
+          type: integer
+          format: int64
+        id:
+          type: string
+        lastModifiedAt:
+          type: integer
+          format: int64
+        participantContextId:
+          type: string
+    CredentialDefinitionDto:
+      type: object
+      properties:
+        attestations:
+          type: array
+          items:
+            type: string
+        credentialType:
+          type: string
+        format:
+          type: string
+        id:
+          type: string
+        jsonSchema:
+          type: string
+        jsonSchemaUrl:
+          type: string
+        mappings:
+          type: array
+          items:
+            $ref: "#/components/schemas/MappingDefinition"
+        rules:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialRuleDefinition"
+        validity:
+          type: integer
+          format: int64
+    MappingDefinition:
+      type: object
+      properties:
+        input:
+          type: string
+        output:
+          type: string
+        required:
+          type: boolean
+    CredentialRuleDefinition:
+      type: object
+      properties:
+        configuration:
+          type: object
+          additionalProperties:
+            type: object
+        type:
+          type: string
+    CredentialDefinition:
+      type: object
+      properties:
+        attestations:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: integer
+          format: int64
+        credentialType:
+          type: string
+        format:
+          type: string
+        id:
+          type: string
+        jsonSchema:
+          type: string
+        jsonSchemaUrl:
+          type: string
+        mappings:
+          type: array
+          items:
+            $ref: "#/components/schemas/MappingDefinition"
+        participantContextId:
+          type: string
+        rules:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialRuleDefinition"
+        validity:
+          type: integer
+          format: int64
+    CredentialOfferDto:
+      required:
+      - credentials
+      - holderId
+      type: object
+      properties:
+        credentials:
+          type: array
+          items:
+            type: string
+        holderId:
+          type: string
+    VerifiableCredentialResourceDto:
+      type: object
+      properties:
+        credential:
+          $ref: "#/components/schemas/VerifiableCredential"
+        format:
+          type: string
+          enum:
+          - VC1_0_LD
+          - VC1_0_JWT
+          - VC2_0_JOSE
+          - VC2_0_SD_JWT
+          - VC2_0_COSE
+        id:
+          type: string
+        participantContextId:
+          type: string
+    VerifiableCredential:
+      type: object
+      properties:
+        credentialSchema:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialSchema"
+        credentialStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialStatus"
+        credentialSubject:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialSubject"
+        dataModelVersion:
+          type: string
+          enum:
+          - V_1_1
+          - V_2_0
+        description:
+          type: string
+        expirationDate:
+          type: string
+          format: date-time
+        id:
+          type: string
+        issuanceDate:
+          type: string
+          format: date-time
+        issuer:
+          $ref: "#/components/schemas/Issuer"
+        name:
+          type: string
+        type:
+          type: array
+          items:
+            type: string
+    CredentialSchema:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+    CredentialStatus:
+      type: object
+      properties:
+        additionalProperties:
+          type: object
+          additionalProperties:
+            type: object
+        id:
+          type: string
+        type:
+          type: string
+    CredentialSubject:
+      type: object
+      properties:
+        claims:
+          type: object
+          additionalProperties:
+            type: object
+        id:
+          type: string
+    Issuer:
+      type: object
+      properties:
+        additionalProperties:
+          type: object
+          additionalProperties:
+            type: object
+        id:
+          type: string
+    IssuanceProcessDto:
+      type: object
+      properties:
+        claims:
+          type: object
+          additionalProperties:
+            type: object
+        createdAt:
+          type: integer
+          format: int64
+        credentialDefinitions:
+          type: array
+          items:
+            type: string
+        credentialFormats:
+          type: object
+          additionalProperties:
+            type: string
+            enum:
+            - VC1_0_LD
+            - VC1_0_JWT
+            - VC2_0_JOSE
+            - VC2_0_SD_JWT
+            - VC2_0_COSE
+        holderId:
+          type: string
+        holderPid:
+          type: string
+        id:
+          type: string
+        participantContextId:
+          type: string
+        state:
+          type: string
+        updatedAt:
+          type: integer
+          format: int64
+  

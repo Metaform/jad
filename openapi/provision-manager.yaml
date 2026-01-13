@@ -1,0 +1,221 @@
+openapi: 3.0.3
+info:
+  title: Provision Manager API
+  description: API for managing Orchestrations, Orchestration Definitions, and Activity Definitions
+  version: 0.0.1
+servers:
+  - url: http://pm.localhost
+    description: Local development environment
+paths:
+  /api/v1alpha1/activity-definitions:
+    get:
+      summary: Get Activity Definitions
+      description: Returns all Activity Definitions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/V1Alpha1ActivityDefinition'
+  /api/v1alpha1/orchestration-definitions:
+    get:
+      summary: Get Orchestration Definitions
+      description: Returns all Orchestration Definitions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/V1Alpha1OrchestrationDefinition'
+  /api/v1alpha1/orchestrations:
+    post:
+      summary: Execute an Orchestration
+      description: Execute an Orchestration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelOrchestrationManifest'
+      responses:
+        '202':
+          description: Accepted
+  /api/v1alpha1/orchestrations/query:
+    post:
+      summary: Perform an Orchestration query
+      description: Perform an Orchestration query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelQuery'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/V1Alpha1OrchestrationEntry'
+  /api/v1alpha1/orchestrations/{id}:
+    get:
+      summary: Get an Orchestration
+      description: Retrieve an Orchestration by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1Alpha1Orchestration'
+components:
+  schemas:
+    ModelOrchestrationManifest:
+      type: object
+      properties:
+        correlationId:
+          type: string
+        id:
+          type: string
+        orchestrationType:
+          type: string
+        payload:
+          type: object
+          additionalProperties: {}
+    ModelQuery:
+      required:
+        - predicate
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int64
+        offset:
+          type: integer
+          format: int64
+        predicate:
+          type: string
+    V1Alpha1Activity:
+      type: object
+      properties:
+        dependsOn:
+          type: array
+          items:
+            type: string
+        discriminator:
+          type: string
+        id:
+          type: string
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/V1Alpha1MappingEntry'
+        type:
+          type: string
+    V1Alpha1ActivityDefinition:
+      type: object
+      properties:
+        description:
+          type: string
+        inputSchema:
+          type: object
+          additionalProperties: {}
+        outputSchema:
+          type: object
+          additionalProperties: {}
+        type:
+          type: string
+    V1Alpha1MappingEntry:
+      type: object
+      properties:
+        source:
+          type: string
+        target:
+          type: string
+    V1Alpha1Orchestration:
+      type: object
+      properties:
+        completed:
+          type: object
+          additionalProperties:
+            type: object
+          nullable: true
+        correlationId:
+          type: string
+        createdTimestamp:
+          type: string
+          format: date-time
+        id:
+          type: string
+        orchestrationType:
+          type: string
+        outputData:
+          type: object
+          additionalProperties: {}
+          nullable: true
+        processingData:
+          type: object
+          additionalProperties: {}
+          nullable: true
+        state:
+          type: integer
+        stateTimestamp:
+          type: string
+          format: date-time
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/V1Alpha1OrchestrationStep'
+          nullable: true
+    V1Alpha1OrchestrationDefinition:
+      type: object
+      properties:
+        activities:
+          type: array
+          items:
+            $ref: '#/components/schemas/V1Alpha1Activity'
+          nullable: true
+        description:
+          type: string
+        schema:
+          type: object
+          additionalProperties: {}
+        type:
+          type: string
+    V1Alpha1OrchestrationEntry:
+      type: object
+      properties:
+        correlationId:
+          type: string
+        createdTimestamp:
+          type: string
+          format: date-time
+        id:
+          type: string
+        orchestrationType:
+          type: string
+        state:
+          type: integer
+        stateTimestamp:
+          type: string
+          format: date-time
+    V1Alpha1OrchestrationStep:
+      type: object
+      properties:
+        activities:
+          type: array
+          items:
+            $ref: '#/components/schemas/V1Alpha1Activity'
+          nullable: true

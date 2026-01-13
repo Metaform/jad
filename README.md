@@ -6,7 +6,7 @@ JAD is a demonstrator that deploys a fully-fledged dataspace as a Software-as-a-
 This is to illustrate how Cloud Service Providers (CSPs) can deploy and manage dataspace components in their own cloud
 infrastructure.
 
-For that, JAD uses the "Virtual Connector" project: https://github.com/eclipse-edc/Virtual-Connector
+For that, JAD uses the "Virtual Connector" project: <https://github.com/eclipse-edc/Virtual-Connector>
 
 ## Components
 
@@ -78,7 +78,6 @@ With the Gateway API, there are three main ways to access services from outside 
   cloud-hosted environments, and DNS names are used. For KinD, there is no built-in load balancer, but one can be
   installed
 
-
 - via `NodePort` services: this exposes services on high-numbered ports on the host machine. This is not
   recommended for production use, and it gets complicated quickly when multiple services are involved, as is the case
   here. _This is not shown here_.
@@ -112,7 +111,7 @@ traefik   LoadBalancer   10.96.251.221   <pending>     80:31415/TCP,443:31650/TC
 To assign an IP address to the Traefik LoadBalancer service, we need to run the external LB:
 
 ```shell
-cloud-provider-kind 
+cloud-provider-kind
 # on macOS:
 sudo cloud-provider-kind
 ```
@@ -126,7 +125,7 @@ traefik   LoadBalancer   10.96.251.221   172.18.0.3    80:31415/TCP,443:31650/TC
 ```
 
 > Note that with the external LB, services inside the cluster must be accessed via the external IP address, e.g.
-`172.18.0.3` in this case. Variables inside the Bruno collection must be adjusted accordingly!
+> `172.18.0.3` in this case. Variables inside the Bruno collection must be adjusted accordingly!
 
 ### 2. Deploy applications
 
@@ -180,32 +179,41 @@ and now want to see it in action, please follow the following steps to build and
   ```
 
 - build CFM docker images locally:
+
   ```shell
   cd /path/to/cfm/
   make load-into-kind
   ```
+
   This builds all CFM components' docker images and loads them into your KinD cluster, assuming that your KinD cluster
   is named `"edcv"`. If not, set the cluster name for the make file accordingly:
+
   ```
   cd /path/to/cfm/
-  make load-into-kind KIND_CLUSTER_NAME=your_cluster_name`. 
+  make load-into-kind KIND_CLUSTER_NAME=your_cluster_name`.
   ```
+
   Note that individual `make` targets for all CFM components exist, for example `make load-into-kind-pmanager`.
 
 - modify the deployment manifests of the components you want to load locally by setting the `imagePullPolicy: Never`
   which forces KinD to rely on local images rather than pulling them. This can be done with search-and-replace from your
   favorite editor, or you can do it from the command line by running
+
   ```shell
   sed -i "s/imagePullPolicy:.*Always/imagePullPolicy: Never/g" <FILENAME>
   ```
+
   **CAUTION Mac users**: this requires GNU-sed. By default, macOS, has a special version of `sed` so you will have
   to [install GNU sed first](https://medium.com/@bramblexu/install-gnu-sed-on-mac-os-and-set-it-as-default-7c17ef1b8f64)
+
 - For the EDC-V components, the relevant files are `controlplane.yaml`, `dataplane.yaml`, `identityhub.yaml` and
   `issuerservice.yaml`
 - as a simplification, and to modify the image pull policy of both EDC-V _and_ CFM components, run:
+
   ```shell
   grep -rlZ "imagePullPolicy: Always" k8s/apps  | xargs sed -i "s/imagePullPolicy:.*Always/imagePullPolicy: Never/g"
   ```
+
   For this, both the EDC-V and CFM docker images must be built locally!!
 
 ### 3. Deploy the services
@@ -359,7 +367,7 @@ Perform the entire sequence by running both requests in the `Data Transfer/Http 
 
 This will request the catalog, which contains exactly one dataset, then initiates contract negotiation and data
 transfer for that asset. If everything went well, the output should contain demo output
-from https://jsonplaceholder.typicode.com/todos, something like:
+from <https://jsonplaceholder.typicode.com/todos>, something like:
 
 ```json lines
 [
@@ -518,13 +526,13 @@ matching your DNS subdomains that you have also used to create the new Bruno env
 
 In `k8s/base/keycloak.yaml`, find the line that says:
 
-```
-"bound_issuer": "http://vault.localhost/realms/edcv" 
+```text
+"bound_issuer": "http://vault.localhost/realms/edcv"
 ```
 
-and replace with 
+and replace with
 
-```
+```text
 "bound_issuer": "http://vault.yourdomain.com/realms/edcv"
 ```
 
@@ -561,3 +569,72 @@ livenessProbe:
   failureThreshold: 15 # changed
 ```
 
+## Using the OpenAPI specifications
+
+We've included [OpenAPI specifications](./openapi) for all JAD components that expose REST APIs. We'll call those APIs
+"Administration APIs" and you can read more about them in
+the [EDC-V documentation](https://github.com/eclipse-edc/Virtual-Connector/blob/main/docs/administration_api.md).
+
+Please note, that we've taken the liberty of curating the list of APIs to what we consider to be the most relevant for
+the end-user. We have also prioritized deployment resilience, ensuring that it is difficult for users to accidentally
+misconfigure their JAD deployment to the point of failure.
+
+However, the complete specifications for each component, including modifying and thus potentially dangerous actions, can
+be found in the respective GitHub repositories.
+
+### Intended audience
+
+The curated OpenAPI specifications are intended for developers who have graduated beyond the use of
+the [Bruno collection](./requests/EDC-V%20Onboarding) and want to integrate JAD components into their own applications
+such as ERP systems, web UIs or other applications.
+
+Another important use case is to generate server stubs for client applications to make testing independent of the JAD
+deployment, and thus easier and more repeatable.
+
+### Swagger UI vs generated clients
+
+Unfortunately, Keycloak rejects authorization requests from Swagger UI due to CORS restrictions. Therefore, we recommend
+using these OpenAPI files to manually implement or generate client libraries for your programming language of choice.
+One popular possibility to do that is
+the [OpenAPI Generator project](https://github.com/OpenAPITools/openapi-generator).
+
+The generator can be run in an ephemeral Docker container (amongst _many_ other options) to generate client stubs for
+various languages. Below are some examples of how to use it, myriads more are available on the project's GitHub page.
+
+**Example 1: generate a Java client using OkHttp and Gson**:
+
+```shell
+docker run --rm -v "${PWD}/openapi:/local" openapitools/openapi-generator-cli generate \
+    -i /local/identity-api.yaml \
+    -g java \
+    --library okhttp-gson \
+    -o /local/out/java
+```
+
+**Example 2: generate a TypeScript client using Angular**:
+
+```shell
+docker run --rm -v "${PWD}/openapi:/local" openapitools/openapi-generator-cli generate \
+    -i /local/identity-api.yaml \
+    -g typescript-angular \
+    -o /local/out/ts
+```
+
+**Example 3: generate a Go client**:
+
+```shell
+docker run --rm -v "${PWD}/openapi:/local" openapitools/openapi-generator-cli generate \
+    -i /local/identity-api.yaml \
+    -g go \
+    -o /local/out/go
+```
+
+Client code generators typically don't hard-wire authentication and authorization logic into the generated client code,
+so you'll need to add it manually. This is expected, and the generated code often contains examples of how to do it.
+Please consult the generators' documentation for more information.
+
+Please be aware that as with all generated code, the generated client stubs should be seen as a starting point, and
+adjustments and tweaks are almost certainly necessary to make it work in your application.
+
+The JAD project does not provide any official support for client libraries, nor are we responsible for any issues that
+may arise from using them, nor do we officially endorse any particular client library or generator thereof.
