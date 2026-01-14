@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redline-config
+  namespace: edc-v
+  labels:
+    app: redline
+data:
+  SPRING_PROFILES_ACTIVE: "dev-pg"
+  DATABASE_URL: "jdbc:postgresql://postgres.edc-v.svc.cluster.local:5432/redlinedb"
+  DATABASE_USERNAME: "redline"
+  DATABASE_PASSWORD: "redline"
+
+  # urls for external services
+  KEYCLOAK_TOKENURL: "http://keycloak.edc-v.svc.cluster.local:8080/realms/edcv/protocol/openid-connect/token"
+  CONTROLPLANE_URL: "http://controlplane.edc-v.svc.cluster.local:8081/api/mgmt/v4alpha"
+  VAULT_URL: "http://vault.edc-v.svc.cluster.local:8200"
+  IDENTITYHUB_URL: "http://identityhub.edc-v.svc.cluster.local:7081/identities"
+  TENANT-MANAGER_URL: "http://tenant-manager.edc-v.svc.cluster.local:8080"

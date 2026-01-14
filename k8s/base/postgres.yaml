@@ -100,3 +100,9 @@ data:
     GRANT ALL PRIVILEGES ON DATABASE cfm TO cfm;
     \c cfm
     GRANT ALL ON SCHEMA public TO cfm;
+
+    CREATE DATABASE redlinedb;
+    CREATE USER redline WITH PASSWORD 'redline';
+    GRANT ALL PRIVILEGES ON DATABASE redlinedb TO redline;
+    \c redlinedb
+    GRANT ALL ON SCHEMA public TO redline;

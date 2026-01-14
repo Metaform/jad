@@ -1,0 +1,96 @@
+
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redline
+  namespace: edc-v
+  labels:
+    app: redline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redline
+  template:
+    metadata:
+      labels:
+        app: redline
+    spec:
+      containers:
+        - name: redline
+          image: ghcr.io/metaform/redline:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+              name: http
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: redline-config
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redline
+  namespace: edc-v
+  labels:
+    app: redline
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8081
+      targetPort: 8081
+      protocol: TCP
+      name: http
+  selector:
+    app: redline
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: redline
+  namespace: edc-v
+spec:
+  parentRefs:
+    - name: edcv-gateway
+      kind: Gateway
+      sectionName: http
+  hostnames:
+    - redline.localhost
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: redline
+          port: 8081
+          weight: 1
