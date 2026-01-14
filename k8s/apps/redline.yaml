@@ -22,7 +22,7 @@ spec:
       containers:
         - name: redline
           image: ghcr.io/metaform/redline:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports:
             - containerPort: 8081
               name: http
@@ -39,7 +39,7 @@ spec:
               cpu: "1000m"
           livenessProbe:
             httpGet:
-              path: /actuator/health/liveness
+              path: /api/public/health
               port: 8081
             initialDelaySeconds: 60
             periodSeconds: 10
@@ -47,7 +47,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /actuator/health/readiness
+              path: /api/public/health
               port: 8081
             initialDelaySeconds: 30
             periodSeconds: 5
