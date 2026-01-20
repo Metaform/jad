@@ -1,0 +1,58 @@
+#
+# Copyright (c) 2026 Metaform Systems, Inc.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Contributors:
+#      Metaform Systems, Inc. - initial API and implementation
+#
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jad-web-ui-config
+  namespace: edc-v
+data:
+  config.json: |
+    {
+      "production": true,
+      "apiUrl": "http://redline.edc-v.svc.cluster.local:8081",
+      "appName": "Aruba's DataSpace",
+      "version": "1.0.0",
+      "features": {
+        "enableMockData": false,
+        "enableAnalytics": true,
+        "enableDebugMode": false,
+        "enableDevMode": true
+      },
+      "auth": {
+        "roles": {
+          "admin": "EDC_ADMIN",
+          "participant": "EDC_USER_PARTICIPANT",
+          "validRoles": ["EDC_ADMIN", "EDC_USER_PARTICIPANT"]
+        },
+        "enableAuth": true,
+        "tokenKey": "auth_token",
+        "keycloak": {
+          "url": "http://keycloak-fe.localhost",
+          "realm": "jad-ui",
+          "clientId": "edc-aruba-provisioning-customers-portal-fe",
+          "initOptions": {
+            "onLoad": "check-sso",
+            "checkLoginIframe": false,
+            "pkceMethod": "S256",
+            "storageKey": "edc-partipant"
+          },
+          "bearerExcludedUrls": ["/assets"]
+        }
+      }
+    }
+
+
+
+#  REDLINE_URL: "http://redline.edc-v.svc.cluster.local:8081"

@@ -1,0 +1,92 @@
+#
+# Copyright (c) 2026 Metaform Systems, Inc.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Contributors:
+#      Metaform Systems, Inc. - initial API and implementation
+#
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jad-web-ui
+  namespace: edc-v
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jad-web-ui
+  template:
+    metadata:
+      labels:
+        app: jad-web-ui
+    spec:
+      volumes:
+        - name: config-volume
+          configMap:
+            name: jad-web-ui-config
+            defaultMode: 420
+      containers:
+        - name: jad-web-ui
+          image:
+#            ghcr.io/aruba-it-s-p-a/edc-client-participant-fe:3b202e0bb6c88ddef712686e635e25357852377a
+             ghcr.io/aruba-it-s-p-a/edc-public-participant-portal:495b02ab5f3e329477186542eea7f3a7c7558421
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: HOST_API
+              value: https://identity.aruba.io
+          resources: {}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /usr/share/nginx/html/customers/assets/config
+          imagePullPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jad-web-ui
+  namespace: edc-v
+  labels:
+    app: jad-web-ui
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: jad-web-ui
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: jad-web-ui
+  namespace: edc-v
+spec:
+  parentRefs:
+    - name: edcv-gateway
+      kind: Gateway
+      sectionName: http
+  hostnames:
+    - ui.localhost
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: jad-web-ui
+          port: 80
+          weight: 1

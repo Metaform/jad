@@ -95,6 +95,12 @@ data:
     \c keycloak
     GRANT ALL ON SCHEMA public TO kc;
     
+    CREATE DATABASE keycloak_fe;
+    CREATE USER kc_fe WITH PASSWORD 'kc_fe';
+    GRANT ALL PRIVILEGES ON DATABASE keycloak_fe TO kc_fe;
+    \c keycloak_fe
+    GRANT ALL ON SCHEMA public TO kc_fe;
+    
     CREATE DATABASE cfm;
     CREATE USER cfm WITH PASSWORD 'cfm';
     GRANT ALL PRIVILEGES ON DATABASE cfm TO cfm;

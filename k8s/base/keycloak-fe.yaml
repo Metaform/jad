@@ -1,0 +1,222 @@
+#
+# Copyright (c) 2025 Metaform Systems, Inc.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Contributors:
+#      Metaform Systems, Inc. - initial API and implementation
+#
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak4frontend
+  namespace: edc-v
+  labels:
+    platform: edcv
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak-fe
+  template:
+    metadata:
+      labels:
+        app: keycloak-fe
+        platform: edcv
+        type: edcv-infra
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:latest
+          args:
+            - "start-dev"
+            - "--health-enabled=true"
+            - "--import-realm"
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 9000
+              name: health
+          env:
+            - name: KEYCLOAK_ADMIN
+              value: "admin"
+            - name: KC_BOOTSTRAP_ADMIN_USERNAME
+              value: "admin"
+            - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+              value: "admin"
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_HOSTNAME
+              value: http://keycloak-fe.localhost
+            - name: KC_HOSTNAME_STRICT
+              value: "true"
+            - name: KC_PROXY
+              value: "edge"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            - name: KC_METRICS_ENABLED
+              value: "true"
+            - name: KC_LOG_LEVEL
+              value: INFO
+            - name: KC_DB
+              value: postgres
+            - name: POSTGRES_DB
+              value: keycloak_fe
+            - name: KC_DB_URL
+              value: jdbc:postgresql://postgres.edc-v.svc.cluster.local:5432/keycloak_fe
+            - name: KC_DB_USERNAME
+              value: "kc_fe"
+            - name: KC_DB_PASSWORD
+              value: "kc_fe"
+          volumeMounts:
+            - name: realm-config-ui
+              mountPath: /opt/keycloak/data/import
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 9000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 9000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+      volumes:
+        - name: realm-config-ui
+          configMap:
+            name: keycloak-realm-ui
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-realm-ui
+  namespace: edc-v
+  labels:
+    tier: infrastructure
+data:
+  ## redirectUri and webOrigins "*" are required for public clients, otherwise we'll run into redirect and CORS issues
+  jad-ui-realm.json: |
+    {
+      "realm": "jad-ui",
+      "enabled": true,
+      "displayName": "Keycloak Realm for authenticating frontend (UI) users",
+      "displayNameHtml": "<div class=\"kc-logo-text\"><span>Keycloak Realm for authenticating frontend (UI) users</span></div>",
+      "clients": [
+        {
+          "clientId": "edc-aruba-provisioning-customers-portal-fe",
+          "enabled": true,
+          "clientAuthenticatorType": "client-secret",
+          "redirectUris": [
+            "http://localhost:4200/*",
+            "*"
+          ],
+          "webOrigins": [
+            "http://localhost:4200",
+            "*"
+          ],
+          "protocol": "openid-connect",
+          "publicClient": true,
+          "standardFlowEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "serviceAccountsEnabled": false,
+          "attributes": {
+            "pkce.code.challenge.method": "S256"
+          }
+        }
+      ],
+      "roles": {
+        "realm": [
+          {
+            "name": "EDC_ADMIN",
+            "description": "Administrator role for EDC portal"
+          },
+          {
+            "name": "EDC_USER_PARTICIPANT",
+            "description": "Participant role for EDC users"
+          }
+        ]
+      },
+      "users": [
+        {
+          "username": "admin",
+          "enabled": true,
+          "email": "admin@example.com",
+          "firstName": "Admin",
+          "lastName": "User",
+          "credentials": [
+            {
+              "type": "password",
+              "value": "admin123",
+              "temporary": false
+            }
+          ],
+          "realmRoles": ["EDC_ADMIN"]
+        },
+        {
+          "username": "user",
+          "enabled": true,
+          "email": "user@testcompany.it",
+          "firstName": "Test",
+          "lastName": "User",
+          "credentials": [
+            {
+              "type": "password",
+              "value": "user123",
+              "temporary": false
+            }
+          ],
+          "realmRoles": ["EDC_USER_PARTICIPANT"]
+        }
+      ]
+    }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-fe
+  namespace: edc-v
+  labels:
+    tier: infrastructure
+spec:
+  selector:
+    app: keycloak-fe
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: keycloak-fe
+  namespace: edc-v
+spec:
+  parentRefs:
+    - name: edcv-gateway
+      kind: Gateway
+      sectionName: http
+  hostnames:
+    - keycloak-fe.localhost
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: keycloak-fe
+          port: 8080
