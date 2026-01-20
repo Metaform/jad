@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +56,8 @@ public class DataTransferEndToEndTest {
     private static final ConsoleMonitor MONITOR = new ConsoleMonitor(ConsoleMonitor.Level.DEBUG, true);
     private static ClientCredentials providerCredentials;
     private static ClientCredentials consumerCredentials;
+    private static String consumerContextId;
+    private static String providerContextId;
 
 
     static String loadResourceFile(String resourceName) {
@@ -79,6 +82,8 @@ public class DataTransferEndToEndTest {
                 }
         ));
 
+        var slug = Instant.now().getEpochSecond();
+
         var adminToken = createKeycloakToken("admin", "edc-v-admin-secret", "issuer-admin-api:write", "identity-api:write", "management-api:write", "identity-api:read");
         createCelExpression(adminToken);
 
@@ -87,12 +92,16 @@ public class DataTransferEndToEndTest {
 
         // onboard consumer
         MONITOR.info("Onboarding consumer");
-        var po = new ParticipantOnboarding("consumer", "did:web:identityhub.edc-v.svc.cluster.local%3A7083:consumer", VAULT_TOKEN, MONITOR.withPrefix("Consumer"));
+        var consumerName = "consumer-" + slug;
+        consumerContextId = "did:web:identityhub.edc-v.svc.cluster.local%3A7083:" + consumerName;
+        var po = new ParticipantOnboarding(consumerName, consumerContextId, VAULT_TOKEN, MONITOR.withPrefix("Consumer " + slug));
         consumerCredentials = po.execute(cellId);
 
         // onboard provider
         MONITOR.info("Onboarding provider");
-        var providerPo = new ParticipantOnboarding("provider", "did:web:identityhub.edc-v.svc.cluster.local%3A7083:provider", VAULT_TOKEN, MONITOR.withPrefix("Provider"));
+        var providerName = "provider-" + slug;
+        providerContextId = "did:web:identityhub.edc-v.svc.cluster.local%3A7083:" + providerName;
+        var providerPo = new ParticipantOnboarding(providerName, providerContextId, VAULT_TOKEN, MONITOR.withPrefix("Provider " + slug));
         providerCredentials = providerPo.execute(cellId);
     }
 
@@ -154,10 +163,10 @@ public class DataTransferEndToEndTest {
                 .auth().oauth2(getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write").accessToken())
                 .body("""
                         {
-                            "providerId":"did:web:identityhub.edc-v.svc.cluster.local%%3A7083:provider",
+                            "providerId":"%s",
                             "policyId": "%s"
                         }
-                        """.formatted(offerId))
+                        """.formatted(providerContextId, offerId))
                 .contentType("application/json")
                 .post("/api/mgmt/v1alpha/participants/%s/data".formatted(consumerCredentials.clientId()))
                 .then()
@@ -192,10 +201,10 @@ public class DataTransferEndToEndTest {
                 .auth().oauth2(getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write").accessToken())
                 .body("""
                         {
-                            "providerId":"did:web:identityhub.edc-v.svc.cluster.local%%3A7083:provider",
+                            "providerId":"%s",
                             "policyId": "%s"
                         }
-                        """.formatted(offerId))
+                        """.formatted(providerContextId, offerId))
                 .contentType("application/json")
                 .post("/api/mgmt/v1alpha/participants/%s/transfer".formatted(consumerCredentials.clientId()))
                 .then()
@@ -226,9 +235,9 @@ public class DataTransferEndToEndTest {
                 .contentType("application/json")
                 .body("""
                         {
-                          "counterPartyDid": "did:web:identityhub.edc-v.svc.cluster.local%3A7083:provider"
+                          "counterPartyDid": "%s"
                         }
-                        """)
+                        """.formatted(providerContextId))
                 .post("/api/mgmt/v1alpha/participants/%s/catalog".formatted(consumerCredentials.clientId()))
                 .then()
                 .statusCode(200)
