@@ -21,6 +21,8 @@ import org.eclipse.edc.policy.model.Operator;
 import org.eclipse.edc.policy.model.Permission;
 import org.eclipse.edc.policy.model.Policy;
 
+import java.util.Map;
+
 public class Data {
     public static final Policy MEMBERSHIP_POLICY = Policy.Builder.newInstance()
             .permission(Permission.Builder.newInstance()
@@ -34,4 +36,19 @@ public class Data {
                             .build())
                     .build())
             .build();
+
+    public static final Policy MANUFACTURER_POLICY = Policy.Builder.newInstance()
+            .permission(Permission.Builder.newInstance()
+                    .action(Action.Builder.newInstance()
+                            .type("http://www.w3.org/ns/odrl/2/use")
+                            .build())
+                    .constraint(AtomicConstraint.Builder.newInstance()
+                            .leftExpression(new LiteralExpression("ManufacturerCredential"))
+                            .operator(Operator.EQ)
+                            .rightExpression(new LiteralExpression("active"))
+                            .build())
+                    .build())
+            .build();
+
+    public static final Map<String, Policy> POLICY_MAP = Map.of("membership", MEMBERSHIP_POLICY, "manufacturer", MANUFACTURER_POLICY);
 }

@@ -1,7 +1,7 @@
 meta {
   name: Deploy Participant Profile
   type: http
-  seq: 3
+  seq: 4
 }
 
 post {
@@ -13,12 +13,16 @@ post {
 body:json {
   {
     "id": "{{$randomAlphaNumeric}}",
-    "identifier": "{{participant_did}}",
-    "properties": {
-    },
+    "identifier": "{{participant_did}}-{{$randomNamePrefix}}",
+    "properties": {},
     "cellId": "{{cell_id}}",
     "version": 0,
-    "vpaProperties": {}
+    "vpaProperties": {},
+    "participantRoles": {
+      "{{dataspace_id}}": [
+        "manufacturer"
+      ]
+    }
   }
 }
 

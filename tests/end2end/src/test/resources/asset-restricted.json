@@ -1,0 +1,16 @@
+{
+  "@context": [
+    "https://w3id.org/edc/connector/management/v2"
+  ],
+  "@type": "Asset",
+  "properties": {
+    "description": "This asset requires the Manufacturer credential to access"
+  },
+  "dataAddress": {
+    "@type": "DataAddress",
+    "type": "HttpData",
+    "baseUrl": "https://jsonplaceholder.typicode.com/todos",
+    "proxyPath": "true",
+    "proxyQueryParams": "true"
+  }
+}

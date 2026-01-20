@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.edc.issuerservice.seed.attestation.dataprocessor;
+package org.eclipse.edc.issuerservice.seed.attestation.manufacturer;
 
 import org.eclipse.edc.issuerservice.spi.issuance.attestation.AttestationDefinitionValidatorRegistry;
 import org.eclipse.edc.issuerservice.spi.issuance.attestation.AttestationSourceFactoryRegistry;
@@ -21,11 +21,11 @@ import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 
-import static org.eclipse.edc.issuerservice.seed.attestation.dataprocessor.DataProcessorAttestationExtension.NAME;
+import static org.eclipse.edc.issuerservice.seed.attestation.manufacturer.ManufacturerAttestationExtension.NAME;
 
 @Extension(NAME)
-public class DataProcessorAttestationExtension implements ServiceExtension {
-    public static final String NAME = "DataProcessor Attestations Extension";
+public class ManufacturerAttestationExtension implements ServiceExtension {
+    public static final String NAME = "Manufacturer Attestations Extension";
 
     @Inject
     private AttestationSourceFactoryRegistry registry;
@@ -40,7 +40,7 @@ public class DataProcessorAttestationExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        registry.registerFactory("dataprocessor", new DataProcessorAttestationSourceFactory());
-        validatorRegistry.registerValidator("dataprocessor", new DataProcessorAttestationSourceValidator());
+        registry.registerFactory("manufacturer", new ManufacturerAttestationSourceFactory());
+        validatorRegistry.registerValidator("manufacturer", new ManufacturerAttestationSourceValidator());
     }
 }

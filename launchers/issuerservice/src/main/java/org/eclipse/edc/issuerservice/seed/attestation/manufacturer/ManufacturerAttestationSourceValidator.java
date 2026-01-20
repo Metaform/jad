@@ -12,13 +12,13 @@
  *
  */
 
-package org.eclipse.edc.issuerservice.seed.attestation.dataprocessor;
+package org.eclipse.edc.issuerservice.seed.attestation.manufacturer;
 
 import org.eclipse.edc.issuerservice.spi.issuance.model.AttestationDefinition;
 import org.eclipse.edc.validator.spi.ValidationResult;
 import org.eclipse.edc.validator.spi.Validator;
 
-public class DataProcessorAttestationSourceValidator implements Validator<AttestationDefinition> {
+public class ManufacturerAttestationSourceValidator implements Validator<AttestationDefinition> {
     @Override
     public ValidationResult validate(AttestationDefinition input) {
         return ValidationResult.success();

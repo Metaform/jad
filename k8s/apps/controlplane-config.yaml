@@ -69,6 +69,11 @@ data:
   edc.iam.dcp.scopes.membership.type: "DEFAULT"
   edc.iam.dcp.scopes.membership.value: "org.eclipse.edc.vc.type:MembershipCredential:read"
 
+  edc.iam.dcp.scopes.manufacturer.id: "manufacturer-scope"
+  edc.iam.dcp.scopes.manufacturer.type: "POLICY"
+  edc.iam.dcp.scopes.manufacturer.value: "org.eclipse.edc.vc.type:ManufacturerCredential:read"
+  edc.iam.dcp.scopes.manufacturer.prefix-mapping: "ManufacturerCredential"
+
   # Trusted Issuers
   edc.iam.trusted-issuer.issuer.id: "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer"
 

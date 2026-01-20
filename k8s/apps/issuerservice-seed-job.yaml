@@ -82,7 +82,7 @@ spec:
 
               # Create Keycloak client for Vault access
               echo "Creating Vault Access Client"
-              curl -sf -X POST "${KC_HOST}/admin/realms/edcv/clients" \
+              if curl -sf -X POST "${KC_HOST}/admin/realms/edcv/clients" \
                 -H "Authorization: Bearer ${KC_TOKEN}" \
                 -H "Content-Type: application/json" \
                 -d '{
@@ -127,9 +127,11 @@ spec:
                       }
                     }
                   ]
-                }'
-
-              echo "✓ Vault Access Token created"
+                }'; then
+                echo "✓ Vault Access Token created"
+              else
+                echo "⚠ Vault Access Client creation failed (may already exist)"
+              fi
 
               echo ""
               echo "================================================"
@@ -192,7 +194,7 @@ spec:
 
               echo ""
               echo "================================================"
-              echo "Step 3: Create AttestationDefinition"
+              echo "Step 3: Create AttestationDefinitions"
               echo "================================================"
 
               # Get issuer token
@@ -208,7 +210,8 @@ spec:
                 exit 1
               fi
 
-              # Create attestation definition
+              # Create attestation definitions
+              echo "Creating Membership AttestationDefinition"
               curl -sf -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/aXNzdWVy/attestations" \
                 -H "Authorization: Bearer ${ISSUER_TOKEN}" \
                 -H "Content-Type: application/json" \
@@ -217,15 +220,26 @@ spec:
                   "configuration": {},
                   "id": "membership-attestation-def-1"
                 }'
+              
+              echo "Creating Manufacturer AttestationDefinition"
+              curl -sf -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/aXNzdWVy/attestations" \
+                -H "Authorization: Bearer ${ISSUER_TOKEN}" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "attestationType": "manufacturer",
+                  "configuration": {},
+                  "id": "manufacturer-attestation-def-1"
+                }'
 
-              echo "✓ AttestationDefinition created"
+              echo "✓ AttestationDefinitions created"
 
               echo ""
               echo "================================================"
-              echo "Step 4: Create CredentialDefinition"
+              echo "Step 4: Create CredentialDefinitions"
               echo "================================================"
 
-              # Create credential definition
+              # Create credential definitions
+              echo "Creating Membership CredentialDefinition"
               curl -sf -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/aXNzdWVy/credentialdefinitions" \
                 -H "Authorization: Bearer ${ISSUER_TOKEN}" \
                 -H "Content-Type: application/json" \
@@ -249,6 +263,38 @@ spec:
                     {
                       "input": "membershipStartDate",
                       "output": "credentialSubject.membershipStartDate",
+                      "required": true
+                    }
+                  ],
+                  "rules": [],
+                  "format": "VC1_0_JWT",
+                  "validity": "604800"
+                }'
+              
+              echo "Creating Manufacturer CredentialDefinition"
+              curl -sf -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/aXNzdWVy/credentialdefinitions" \
+                -H "Authorization: Bearer ${ISSUER_TOKEN}" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "attestations": ["manufacturer-attestation-def-1"],
+                  "credentialType": "ManufacturerCredential",
+                  "id": "manufacturer-credential-def",
+                  "jsonSchema": "{}",
+                  "jsonSchemaUrl": "https://example.com/schema/manufacturer-credential.json",
+                  "mappings": [
+                    {
+                      "input": "contractVersion",
+                      "output": "credentialSubject.contractVersion",
+                      "required": true
+                    },
+                    {
+                      "input": "component_types",
+                      "output": "credentialSubject.part_types",
+                      "required": "true"
+                    },
+                    {
+                      "input": "since",
+                      "output": "credentialSubject.since",
                       "required": true
                     }
                   ],

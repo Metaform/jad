@@ -3,8 +3,8 @@
     "https://w3id.org/edc/connector/management/v2"
   ],
   "@type": "ContractDefinition",
-  "accessPolicyId": "{{policy_def_id}}",
-  "contractPolicyId": "{{policy_def_id}}",
+  "accessPolicyId": "{{access_policy_id}}",
+  "contractPolicyId": "{{contract_policy_id}}",
   "assetsSelector": [
     {
       "@type": "Criterion",

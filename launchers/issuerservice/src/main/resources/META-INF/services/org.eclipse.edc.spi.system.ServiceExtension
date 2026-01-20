@@ -12,4 +12,4 @@
 #
 #
 org.eclipse.edc.issuerservice.seed.attestation.membership.MembershipAttestationsExtension
-org.eclipse.edc.issuerservice.seed.attestation.dataprocessor.DataProcessorAttestationExtension
+org.eclipse.edc.issuerservice.seed.attestation.manufacturer.ManufacturerAttestationExtension

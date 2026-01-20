@@ -1,0 +1,21 @@
+{
+  "@context": [
+    "https://w3id.org/edc/connector/management/v2"
+  ],
+  "@type": "PolicyDefinition",
+  "policy": {
+    "@type": "Set",
+    "permission": [
+      {
+        "action": "use",
+        "constraint": [
+          {
+            "leftOperand": "ManufacturerCredential",
+            "operator": "eq",
+            "rightOperand": "active"
+          }
+        ]
+      }
+    ]
+  }
+}

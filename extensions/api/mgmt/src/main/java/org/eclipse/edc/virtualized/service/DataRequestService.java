@@ -43,6 +43,8 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.net.http.HttpClient.newHttpClient;
 import static java.util.Optional.ofNullable;
+import static org.eclipse.edc.virtualized.service.Data.MEMBERSHIP_POLICY;
+import static org.eclipse.edc.virtualized.service.Data.POLICY_MAP;
 
 /**
  * this is a wrapper service that initiates the contract negotiation and the transfer process, waits for its completion, and then downloads the data.
@@ -65,7 +67,7 @@ public class DataRequestService {
     public CompletableFuture<ServiceResult<Object>> getData(ParticipantContext participantContext, DataRequest dataRequest) {
         return initiateContractNegotiation(participantContext, dataRequest)
                 .thenCompose(this::waitForContractNegotiation)
-                .thenCompose(contractNegotiation -> startTransferProcess(participantContext, contractNegotiation))
+                .thenCompose(agreement -> startTransferProcess(participantContext, agreement))
                 .thenCompose(this::waitForTransferProcess)
                 .thenCompose(transferProcess -> getEdr(transferProcess.getId()))
                 .thenCompose(this::downloadData)
@@ -87,6 +89,9 @@ public class DataRequestService {
         if (addressForDid.failed()) {
             return CompletableFuture.failedFuture(new RuntimeException("Could not resolve address for did: %s".formatted(addressForDid.getFailureDetail())));
         }
+
+        var policy = ofNullable(dataRequest.policyType()).map(POLICY_MAP::get).orElse(MEMBERSHIP_POLICY);
+
         var offerId = ContractOfferId.parseId(dataRequest.policyId());
         var rq = ContractRequest.Builder.newInstance()
                 .protocol("dataspace-protocol-http:2025-1")
@@ -94,7 +99,7 @@ public class DataRequestService {
                 .contractOffer(ContractOffer.Builder.newInstance()
                         .id(dataRequest.policyId())
                         .assetId(offerId.getContent().assetIdPart())
-                        .policy(Data.MEMBERSHIP_POLICY.toBuilder()
+                        .policy(policy.toBuilder()
                                 .target(offerId.getContent().assetIdPart())
                                 .assigner(dataRequest.providerId())
                                 .type(PolicyType.OFFER)

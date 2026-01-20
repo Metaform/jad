@@ -1,0 +1,15 @@
+{
+  "@context": [
+    "https://w3id.org/edc/connector/management/v2",
+    "https://w3id.org/edc/virtual-connector/management/v2"
+  ],
+  "@type": "CelExpression",
+  "leftOperand": "ManufacturerCredential",
+  "description": "Expression for evaluating manufacturer credentials",
+  "scopes": [
+    "catalog",
+    "contract.negotiation",
+    "transfer.process"
+  ],
+  "expression": "ctx.agent.claims.vc.filter(c, c.type.exists(t, t == 'ManufacturerCredential')).exists(c, c.credentialSubject.exists(cs, timestamp(cs.since) < now))"
+}

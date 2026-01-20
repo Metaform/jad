@@ -36,7 +36,6 @@ spec:
       containers:
         - name: jad-web-ui
           image:
-#            ghcr.io/aruba-it-s-p-a/edc-client-participant-fe:3b202e0bb6c88ddef712686e635e25357852377a
              ghcr.io/aruba-it-s-p-a/edc-public-participant-portal:demo-madrid
           ports:
             - containerPort: 80

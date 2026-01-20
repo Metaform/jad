@@ -56,8 +56,8 @@ public class DataTransferEndToEndTest {
     private static final ConsoleMonitor MONITOR = new ConsoleMonitor(ConsoleMonitor.Level.DEBUG, true);
     private static ClientCredentials providerCredentials;
     private static ClientCredentials consumerCredentials;
-    private static String consumerContextId;
     private static String providerContextId;
+    private static ClientCredentials manufacturerCredentials;
 
 
     static String loadResourceFile(String resourceName) {
@@ -85,15 +85,16 @@ public class DataTransferEndToEndTest {
         var slug = Instant.now().getEpochSecond();
 
         var adminToken = createKeycloakToken("admin", "edc-v-admin-secret", "issuer-admin-api:write", "identity-api:write", "management-api:write", "identity-api:read");
-        createCelExpression(adminToken);
+        createCelExpression(adminToken, "membership_cel_expression.json");
+        createCelExpression(adminToken, "manufacturer_cel_expression.json");
 
         MONITOR.info("Create cell and dataspace profile");
         var cellId = getCellId();
 
         // onboard consumer
-        MONITOR.info("Onboarding consumer");
+        MONITOR.info("Onboarding (standard) consumer");
         var consumerName = "consumer-" + slug;
-        consumerContextId = "did:web:identityhub.edc-v.svc.cluster.local%3A7083:" + consumerName;
+        var consumerContextId = "did:web:identityhub.edc-v.svc.cluster.local%3A7083:" + consumerName;
         var po = new ParticipantOnboarding(consumerName, consumerContextId, VAULT_TOKEN, MONITOR.withPrefix("Consumer " + slug));
         consumerCredentials = po.execute(cellId);
 
@@ -102,16 +103,24 @@ public class DataTransferEndToEndTest {
         var providerName = "provider-" + slug;
         providerContextId = "did:web:identityhub.edc-v.svc.cluster.local%3A7083:" + providerName;
         var providerPo = new ParticipantOnboarding(providerName, providerContextId, VAULT_TOKEN, MONITOR.withPrefix("Provider " + slug));
-        providerCredentials = providerPo.execute(cellId);
+        providerCredentials = providerPo.execute(cellId, "manufacturer");
+
+        // onboard manufacturer consumer - only this one will see some assets
+        MONITOR.info("Onboarding manufacturer consumer");
+        var name = "manufacturer-" + slug;
+        var manufacturerContextId = "did:web:identityhub.edc-v.svc.cluster.local%3A7083:" + name;
+        var manufacturerPo = new ParticipantOnboarding(name, manufacturerContextId, VAULT_TOKEN, MONITOR.withPrefix("Manufacturer " + slug));
+        manufacturerCredentials = manufacturerPo.execute(cellId, "manufacturer");
     }
 
     /**
      * Creates a Common Expression Language (CEL) entry in the control plane
      *
-     * @param accessToken OAuth2 token
+     * @param accessToken  OAuth2 token
+     * @param resourceName name of the resource file that contains the CEL expression.
      */
-    private static void createCelExpression(String accessToken) {
-        var template = loadResourceFile("create_cel_expression.json");
+    private static void createCelExpression(String accessToken, String resourceName) {
+        var template = loadResourceFile(resourceName);
 
         given()
                 .baseUri(CONTROLPLANE_BASE_URL)
@@ -144,10 +153,10 @@ public class DataTransferEndToEndTest {
         MONITOR.info("Seeding provider");
         var providerAccessToken = getAccessToken(providerCredentials.clientId(), providerCredentials.clientSecret(), "management-api:write").accessToken();
 
-        var assetId = createAsset(providerCredentials.clientId(), providerAccessToken);
-        var policyDefId = createPolicyDef(providerCredentials.clientId(), providerAccessToken);
-        createContractDef(providerCredentials.clientId(), providerAccessToken, policyDefId, assetId);
-        registerDataplane(providerCredentials.clientId(), providerAccessToken);
+        var assetId = createAsset(providerCredentials.clientId(), providerAccessToken, "asset.json");
+        var policyDefId = createPolicyDef(providerCredentials.clientId(), providerAccessToken, "policy-def.json");
+        createContractDef(providerCredentials.clientId(), providerAccessToken, policyDefId, policyDefId, assetId);
+        registerDataPlane(providerCredentials.clientId(), providerAccessToken);
 
         // perform data transfer
         MONITOR.info("Starting data transfer");
@@ -183,9 +192,9 @@ public class DataTransferEndToEndTest {
         var providerAccessToken = getAccessToken(providerCredentials.clientId(), providerCredentials.clientSecret(), "management-api:write").accessToken();
 
         var assetId = createCertAsset(providerCredentials.clientId(), providerAccessToken);
-        var policyDefId = createPolicyDef(providerCredentials.clientId(), providerAccessToken);
-        createContractDef(providerCredentials.clientId(), providerAccessToken, policyDefId, assetId);
-        registerDataplane(providerCredentials.clientId(), providerAccessToken);
+        var policyDefId = createPolicyDef(providerCredentials.clientId(), providerAccessToken, "policy-def.json");
+        createContractDef(providerCredentials.clientId(), providerAccessToken, policyDefId, policyDefId, assetId);
+        registerDataPlane(providerCredentials.clientId(), providerAccessToken);
 
         // perform data transfer
         MONITOR.info("Starting data transfer");
@@ -226,6 +235,61 @@ public class DataTransferEndToEndTest {
         assertThat(list).isEmpty();
     }
 
+    @Test
+    void testTransferLimitedAccess() {
+        // seed provider
+        MONITOR.info("Seeding provider");
+        var providerAccessToken = getAccessToken(providerCredentials.clientId(), providerCredentials.clientSecret(), "management-api:write").accessToken();
+
+        var assetId = createAsset(providerCredentials.clientId(), providerAccessToken, "asset-restricted.json");
+        var accessPolicyId = createPolicyDef(providerCredentials.clientId(), providerAccessToken, "policy-def.json");
+        var contractPolicyId = createPolicyDef(providerCredentials.clientId(), providerAccessToken, "policy-def-manufacturer.json");
+        createContractDef(providerCredentials.clientId(), providerAccessToken, accessPolicyId, contractPolicyId, assetId);
+        registerDataPlane(providerCredentials.clientId(), providerAccessToken);
+
+        // perform data transfer
+        MONITOR.info("Starting data transfer");
+        var catalog = fetchCatalog(consumerCredentials);
+
+        MONITOR.info("Catalog received, starting data transfer");
+        var offerId = catalog.datasets().stream().filter(dataSet -> dataSet.id().equals(assetId)).findFirst().get().offers().get(0).id();
+        assertThat(offerId).isNotNull();
+
+
+        // attempt download as a normal consumer - should fail due to missing credentials
+        given()
+                .baseUri(CONTROLPLANE_BASE_URL)
+                .auth().oauth2(getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write").accessToken())
+                .body("""
+                        {
+                            "providerId":"%s",
+                            "policyId": "%s",
+                            "policyType": "manufacturer"
+                        }
+                        """.formatted(providerContextId, offerId))
+                .contentType("application/json")
+                .post("/api/mgmt/v1alpha/participants/%s/data".formatted(consumerCredentials.clientId()))
+                .then()
+                .statusCode(500);
+
+        // download the asset as manufacturer - should work because the manufacturer has the necessary credentials
+        given()
+                .baseUri(CONTROLPLANE_BASE_URL)
+                .auth().oauth2(getAccessToken(manufacturerCredentials.clientId(), manufacturerCredentials.clientSecret(), "management-api:write").accessToken())
+                .body("""
+                        {
+                            "providerId":"%s",
+                            "policyId": "%s",
+                            "policyType": "manufacturer"
+                        }
+                        """.formatted(providerContextId, offerId))
+                .contentType("application/json")
+                .post("/api/mgmt/v1alpha/participants/%s/data".formatted(manufacturerCredentials.clientId()))
+                .then()
+                .statusCode(200);
+
+    }
+
     private CatalogResponse fetchCatalog(ClientCredentials consumerCredentials) {
         var accessToken = getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:read");
 
@@ -252,7 +316,7 @@ public class DataTransferEndToEndTest {
      * @param participantContextId Participant context for which the data plane should be registered.
      * @param accessToken          OAuth2 token
      */
-    private void registerDataplane(String participantContextId, String accessToken) {
+    private void registerDataPlane(String participantContextId, String accessToken) {
         given()
                 .baseUri(CONTROLPLANE_BASE_URL)
                 .contentType(APPLICATION_JSON)
@@ -270,8 +334,8 @@ public class DataTransferEndToEndTest {
                 .statusCode(204);
     }
 
-    private String createAsset(String participantContextId, String accessToken) {
-        var template = loadResourceFile("asset.json");
+    private String createAsset(String participantContextId, String accessToken, String resourceName) {
+        var template = loadResourceFile(resourceName);
         return given()
                 .baseUri(CONTROLPLANE_BASE_URL)
                 .auth().oauth2(accessToken)
@@ -284,20 +348,11 @@ public class DataTransferEndToEndTest {
     }
 
     private String createCertAsset(String participantContextId, String accessToken) {
-        var template = loadResourceFile("asset-cert.json");
-        return given()
-                .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(accessToken)
-                .contentType("application/json")
-                .body(template)
-                .post("/api/mgmt/v4alpha/participants/%s/assets".formatted(participantContextId))
-                .then()
-                .statusCode(200)
-                .extract().jsonPath().getString(ID);
+        return createAsset(participantContextId, accessToken, "asset-cert.json");
     }
 
-    private String createPolicyDef(String participantContextId, String accessToken) {
-        var template = loadResourceFile("policy-def.json");
+    private String createPolicyDef(String participantContextId, String accessToken, String resourceName) {
+        var template = loadResourceFile(resourceName);
         return given()
                 .baseUri(CONTROLPLANE_BASE_URL)
                 .auth().oauth2(accessToken)
@@ -309,10 +364,11 @@ public class DataTransferEndToEndTest {
                 .extract().jsonPath().getString(ID);
     }
 
-    private String createContractDef(String participantContextId, String accessToken, String policyDefId, String assetId) {
+    private String createContractDef(String participantContextId, String accessToken, String accessPolicyId, String contractPolicyId, String assetId) {
         var template = loadResourceFile("contract-def.json");
 
-        template = template.replace("{{policy_def_id}}", policyDefId);
+        template = template.replace("{{access_policy_id}}", accessPolicyId);
+        template = template.replace("{{contract_policy_id}}", contractPolicyId);
         template = template.replace("{{asset_id}}", assetId);
 
         return given()

@@ -12,24 +12,26 @@
  *
  */
 
-package org.eclipse.edc.issuerservice.seed.attestation.dataprocessor;
+package org.eclipse.edc.issuerservice.seed.attestation.manufacturer;
 
 import org.eclipse.edc.issuerservice.spi.issuance.attestation.AttestationContext;
 import org.eclipse.edc.issuerservice.spi.issuance.attestation.AttestationSource;
 import org.eclipse.edc.spi.result.Result;
 
+import java.time.Instant;
 import java.util.Map;
 
-public record DataProcessorAttestationSource(Map<String, Object> config) implements AttestationSource {
+public record ManufacturerAttestationSource(Map<String, Object> config) implements AttestationSource {
     private static final String DEFAULT_CONTRACT_VERSION = "1.0.0";
-    private static final String LEVEL = "processing";
 
     @Override
     public Result<Map<String, Object>> execute(AttestationContext context) {
         var contractVersion = config.getOrDefault("contractVersion", DEFAULT_CONTRACT_VERSION);
+
         return Result.success(Map.of(
                 "contractVersion", contractVersion,
-                "level", LEVEL,
+                "component_types", "all",
+                "since", Instant.now().toString(),
                 "id", context.participantContextId()
         ));
     }

@@ -18,7 +18,9 @@ import org.eclipse.edc.jad.tests.model.ClientCredentials;
 import org.eclipse.edc.jad.tests.model.ParticipantProfile;
 import org.eclipse.edc.spi.monitor.Monitor;
 
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -43,13 +45,14 @@ public record ParticipantOnboarding(String participantName, String participantCo
                                     String vaultToken, Monitor monitor) {
 
     @SuppressWarnings("unchecked")
-    public ClientCredentials execute(String cellId) {
+    public ClientCredentials execute(String cellId, String... roles) {
 
         monitor.info("Creating tenant for %s".formatted(participantName));
         var tenantId = createTenant(participantName);
-        monitor.info("Deploy dataspace profile");
+        monitor.info("Get dataspace profile ID");
+        var dataspaceId = getDataspaceProfileId();
         monitor.info("Deploy participant profile");
-        var profileId = deployParticipantProfile(tenantId, cellId, participantContextDid);
+        var profileId = deployParticipantProfile(tenantId, cellId, participantContextDid, dataspaceId, roles);
 
         monitor.info("Waiting for dataspace profile to become active");
         await().atMost(20, SECONDS)
@@ -81,6 +84,17 @@ public record ParticipantOnboarding(String participantName, String participantCo
 
 
         return new ClientCredentials(participantContextId, secret);
+    }
+
+    private String getDataspaceProfileId() {
+        return given()
+                .baseUri(Constants.TM_BASE_URL)
+                .contentType(Constants.APPLICATION_JSON)
+                .get("/api/v1alpha1/dataspace-profiles")
+                .then()
+                .log().ifValidationFails()
+                .statusCode(200)
+                .extract().body().jsonPath().getString("[0].id");
     }
 
     //we could the full HashicorpVault for this, but a REST request is simpler here
@@ -148,19 +162,24 @@ public record ParticipantOnboarding(String participantName, String participantCo
      * @param tenantId              the tenant ID.
      * @param cellId                the cell ID.
      * @param participantContextDid the Web:DID of the participant.
+     * @param dataspaceId           the ID of the dataspaces
      * @return the participant profile ID.
      */
-    private String deployParticipantProfile(String tenantId, String cellId, String participantContextDid) {
+    private String deployParticipantProfile(String tenantId, String cellId, String participantContextDid, Object dataspaceId, String... roles) {
+
+        var body = new HashMap<>(Map.of("identifier", participantContextDid,
+                "properties", Map.of(),
+                "cellId", cellId));
+
+        if (roles.length > 0) {
+            var rolesString = Arrays.asList(roles);
+            body.put("participantRoles", Map.of(dataspaceId, rolesString));
+        }
+
         return given()
                 .baseUri(Constants.TM_BASE_URL)
                 .contentType(Constants.APPLICATION_JSON)
-                .body("""
-                        {
-                            "identifier": "%s",
-                            "properties": {},
-                            "cellId": "%s"
-                        }
-                        """.formatted(participantContextDid, cellId))
+                .body(body)
                 .post("/api/v1alpha1/tenants/%s/participant-profiles".formatted(tenantId))
                 .then()
                 .log().ifValidationFails()

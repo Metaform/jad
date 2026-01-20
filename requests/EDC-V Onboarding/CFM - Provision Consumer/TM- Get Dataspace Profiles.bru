@@ -1,0 +1,22 @@
+meta {
+  name: TM: Get Dataspace Profiles
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{tmBaseUrl}}/api/v1alpha1/dataspace-profiles
+  body: json
+  auth: inherit
+}
+
+script:post-response {
+  let body = res.getBody()
+  test("Response contains id", function () {
+      expect(body[0]).to.have.property("id");
+  });
+  
+  if (body && body[0].id) {
+      bru.setVar("dataspace_id", body[0].id);
+  } 
+}

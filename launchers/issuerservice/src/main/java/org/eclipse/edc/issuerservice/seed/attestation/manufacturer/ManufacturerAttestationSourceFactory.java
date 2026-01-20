@@ -12,16 +12,16 @@
  *
  */
 
-package org.eclipse.edc.issuerservice.seed.attestation.dataprocessor;
+package org.eclipse.edc.issuerservice.seed.attestation.manufacturer;
 
 import org.eclipse.edc.issuerservice.spi.issuance.attestation.AttestationSource;
 import org.eclipse.edc.issuerservice.spi.issuance.attestation.AttestationSourceFactory;
 import org.eclipse.edc.issuerservice.spi.issuance.model.AttestationDefinition;
 
-public class DataProcessorAttestationSourceFactory implements AttestationSourceFactory {
+public class ManufacturerAttestationSourceFactory implements AttestationSourceFactory {
     @Override
     public AttestationSource createSource(AttestationDefinition definition) {
         var config = definition.getConfiguration();
-        return new DataProcessorAttestationSource(config);
+        return new ManufacturerAttestationSource(config);
     }
 }

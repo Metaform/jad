@@ -14,8 +14,11 @@
 
 package org.eclipse.edc.virtualized.api.data;
 
+import org.jetbrains.annotations.Nullable;
+
 public record DataRequest(
         String providerId,
-        String policyId
+        String policyId,
+        @Nullable String policyType
 ) {
 }
