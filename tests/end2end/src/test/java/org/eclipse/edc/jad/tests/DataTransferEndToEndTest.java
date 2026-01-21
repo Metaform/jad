@@ -103,7 +103,7 @@ public class DataTransferEndToEndTest {
         var providerName = "provider-" + slug;
         providerContextId = "did:web:identityhub.edc-v.svc.cluster.local%3A7083:" + providerName;
         var providerPo = new ParticipantOnboarding(providerName, providerContextId, VAULT_TOKEN, MONITOR.withPrefix("Provider " + slug));
-        providerCredentials = providerPo.execute(cellId, "manufacturer");
+        providerCredentials = providerPo.execute(cellId);
 
         // onboard manufacturer consumer - only this one will see some assets
         MONITOR.info("Onboarding manufacturer consumer");
