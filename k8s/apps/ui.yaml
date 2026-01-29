@@ -33,20 +33,27 @@ spec:
           configMap:
             name: jad-web-ui-config
             defaultMode: 420
+        - name: nginx-config-volume
+          configMap:
+            name: jad-web-nginx-config
+            defaultMode: 420
       containers:
         - name: jad-web-ui
           image:
-             ghcr.io/aruba-it-s-p-a/edc-public-participant-portal:demo-madrid
+            ghcr.io/aruba-it-s-p-a/edc-public-participant-portal:demo-madrid
           ports:
             - containerPort: 80
               protocol: TCP
           env:
             - name: HOST_API
               value: https://identity.aruba.io
-          resources: {}
+          resources: { }
           volumeMounts:
             - name: config-volume
               mountPath: /usr/share/nginx/html/customers/assets/config
+            - name: nginx-config-volume
+              mountPath: /etc/nginx/conf.d/
+
           imagePullPolicy: Always
 
 ---

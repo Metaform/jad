@@ -54,6 +54,36 @@ data:
       "participantIdentifierPrefix": "did:web:identityhub.edc-v.svc.cluster.local%3A7083:"
     }
 
-
-
-#  REDLINE_URL: "http://redline.edc-v.svc.cluster.local:8081"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jad-web-nginx-config
+  namespace: edc-v
+data:
+  default.conf: |
+    server {
+      listen 80;
+      server_name _;
+      root /usr/share/nginx/html;
+      index index.html;
+      gzip on;
+      gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+      # Root redirect
+      location = / {
+          return 301 /customers/;
+      }
+      location /customers/ {
+          root /usr/share/nginx/html;
+          index index.html;
+          try_files $uri $uri/ /customers/index.html;
+          add_header X-Frame-Options "SAMEORIGIN" always;
+          add_header X-Content-Type-Options "nosniff" always;
+          add_header X-XSS-Protection "1; mode=block" always;
+      }
+      # Cache per assets statici
+      location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+          expires 1y;
+          add_header Cache-Control "public, max-age=31536000";
+      }
+    }
