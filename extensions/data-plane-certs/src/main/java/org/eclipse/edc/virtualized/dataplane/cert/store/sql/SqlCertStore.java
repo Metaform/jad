@@ -111,4 +111,16 @@ public class SqlCertStore extends AbstractSqlStore implements CertStore {
             }
         });
     }
+
+    @Override
+    public void updateMetadata(String id, CertMetadata metadata) {
+        transactionContext.execute(() -> {
+            try (var connection = getConnection()) {
+                var stmt = "UPDATE edc_certs SET metadata = ?::jsonb WHERE id = ?";
+                queryExecutor.execute(connection, stmt, toJson(metadata), id);
+            } catch (SQLException e) {
+                throw new EdcException(e);
+            }
+        });
+    }
 }

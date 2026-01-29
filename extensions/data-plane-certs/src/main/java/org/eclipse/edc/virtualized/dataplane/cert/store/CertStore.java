@@ -64,4 +64,9 @@ public interface CertStore {
      * @return the input stream of the certificate data
      */
     InputStream retrieve(String id);
+
+    /**
+     * Overwrites the metadata for a given certificate with the provided metadata.
+     */
+    void updateMetadata(String id, CertMetadata metadata);
 }

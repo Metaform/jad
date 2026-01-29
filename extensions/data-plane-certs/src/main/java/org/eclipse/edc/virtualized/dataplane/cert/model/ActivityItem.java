@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2025 Metaform Systems, Inc.
+ *  Copyright (c) 2026 Metaform Systems, Inc.
  *
  *  This program and the accompanying materials are made available under the
  *  terms of the Apache License, Version 2.0 which is available at
@@ -14,12 +14,5 @@
 
 package org.eclipse.edc.virtualized.dataplane.cert.model;
 
-import java.util.List;
-import java.util.Map;
-
-public record CertMetadata(String id, String contentType, Map<String, Object> properties, List<ActivityItem> history) {
-
-    public CertMetadata(String id, String contentType, Map<String, Object> properties) {
-        this(id, contentType, properties, List.of());
-    }
+public record ActivityItem(String counterParty, Long timestampEpoch, String action) {
 }
