@@ -143,17 +143,15 @@ spec:
               curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/orchestration-definitions" \
                 -H "Content-Type: application/json" \
                 -d '{
-                  "activities": [
-                    {
+                  "activities": {
+                    "cfm.orchestration.vpa.deploy": [{
                       "id": "kc-client-provisioner",
                       "type": "keycloak-activity",
-                      "discriminator": "deploy",
                       "dependsOn": []
                     },
                     {
                       "id": "registration-agent",
                       "type": "registration-activity",
-                      "discriminator": "deploy",
                       "dependsOn": [
                         "kc-client-provisioner"
                       ]
@@ -161,7 +159,6 @@ spec:
                     {
                       "id": "connector-provisioner",
                       "type": "edcv-activity",
-                      "discriminator": "deploy",
                       "dependsOn": [
                         "kc-client-provisioner"
                       ]
@@ -169,16 +166,14 @@ spec:
                     {
                       "id": "onboarding-agent",
                       "type": "onboarding-activity",
-                      "discriminator": "deploy",
                       "dependsOn": [
                         "connector-provisioner",
                         "registration-agent"
                       ]
-                    }
-                  ],
+                    }]
+                  },
                   "description": "Orchestrates the deployment of a new dataspace member",
                   "schema": {},
-                  "type": "cfm.orchestration.vpa.deploy",
                   "id": "'"${DEPLOY_ORCH_ID}"'"
                 }'
 
