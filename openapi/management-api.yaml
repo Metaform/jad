@@ -14,10 +14,10 @@ security:
       - read
       - write
 paths:
-  /v4alpha/participants/{participantContextId}/contractnegotiations/request:
+  /v5alpha/participants/{participantContextId}/contractnegotiations/request:
     post:
       tags:
-        - Contract Negotiation v4alpha
+        - Contract Negotiation v5alpha
       description: Returns all contract negotiations according to a query
       operationId: queryNegotiationsV4
       parameters:
@@ -50,10 +50,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/policydefinitions:
+  /v5alpha/participants/{participantContextId}/policydefinitions:
     post:
       tags:
-        - Policy Definition v4alpha
+        - Policy Definition v5alpha
       description: Creates a new policy definition
       operationId: createPolicyDefinitionV4
       parameters:
@@ -94,10 +94,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/assets:
+  /v5alpha/participants/{participantContextId}/assets:
     put:
       tags:
-        - Asset v4alpha
+        - Asset v5alpha
       description: "Updates an asset with the given ID if it exists. If the asset\
         \ is not found, no further action is taken. DANGER ZONE: Note that updating\
         \ assets can have unexpected results, especially for contract offers that\
@@ -131,7 +131,7 @@ paths:
           description: "Asset could not be updated, because it does not exist."
     post:
       tags:
-        - Asset v4alpha
+        - Asset v5alpha
       description: Creates a new asset together with a data address
       operationId: createAsset
       parameters:
@@ -172,10 +172,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v4alpha/participants/{participantContextId}/assets/request:
+  /v5alpha/participants/{participantContextId}/assets/request:
     post:
       tags:
-        - Asset v4alpha
+        - Asset v5alpha
       description: Request all assets according to a particular query
       operationId: queryAssets
       parameters:
@@ -208,10 +208,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v4alpha/participants/{participantContextId}/policydefinitions/{id}:
+  /v5alpha/participants/{participantContextId}/policydefinitions/{id}:
     get:
       tags:
-        - Policy Definition v4alpha
+        - Policy Definition v5alpha
       description: Gets a policy definition with the given ID
       operationId: getPolicyDefinitionV4
       parameters:
@@ -254,7 +254,7 @@ paths:
                   $ref: "#/components/schemas/api-error-schema"
     put:
       tags:
-        - Policy Definition v4alpha
+        - Policy Definition v5alpha
       description: "Updates an existing Policy, If the Policy is not found, an error\
         \ is reported"
       operationId: updatePolicyDefinitionV4
@@ -298,7 +298,7 @@ paths:
                 $ref: "#/components/schemas/api-error-schema"
     delete:
       tags:
-        - Policy Definition v4alpha
+        - Policy Definition v5alpha
       description: "Removes a policy definition with the given ID if possible. Deleting\
         \ a policy definition is only possible if that policy definition is not yet\
         \ referenced by a contract definition, in which case an error is returned.\
@@ -348,10 +348,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/celexpressions:
+  /v5alpha/celexpressions:
     post:
       tags:
-        - Cel Expressions v4alpha
+        - Cel Expressions v5alpha
       description: Create a Cel Expression.
       operationId: createExpressionV4
       requestBody:
@@ -388,7 +388,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/transferprocesses/{id}/state:
+  /v5alpha/participants/{participantContextId}/transferprocesses/{id}/state:
     get:
       tags:
         - Transfer Process v4beta
@@ -432,10 +432,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/celexpressions/{id}:
+  /v5alpha/celexpressions/{id}:
     get:
       tags:
-        - Cel Expressions v4alpha
+        - Cel Expressions v5alpha
       description: Gets an Expression by ID.
       operationId: getExpressionV4
       parameters:
@@ -480,7 +480,7 @@ paths:
                   $ref: "#/components/schemas/api-error-schema"
     put:
       tags:
-        - Cel Expressions v4alpha
+        - Cel Expressions v5alpha
       description: Update an Expression.
       operationId: updateExpressionV4
       parameters:
@@ -530,7 +530,7 @@ paths:
                   $ref: "#/components/schemas/api-error-schema"
     delete:
       tags:
-        - Cel Expressions v4alpha
+        - Cel Expressions v5alpha
       description: Delete an Expression by ID.
       operationId: deleteExpressionV4
       parameters:
@@ -573,10 +573,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/contractagreements/{id}:
+  /v5alpha/participants/{participantContextId}/contractagreements/{id}:
     get:
       tags:
-        - Contract Agreement v4alpha
+        - Contract Agreement v5alpha
       description: Gets an contract agreement with the given ID
       operationId: getAgreementByIdV4
       parameters:
@@ -617,10 +617,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/policydefinitions/{id}/validate:
+  /v5alpha/participants/{participantContextId}/policydefinitions/{id}/validate:
     post:
       tags:
-        - Policy Definition v4alpha
+        - Policy Definition v5alpha
       description: "Validates an existing Policy, If the Policy is not found, an error\
         \ is reported"
       operationId: validatePolicyDefinitionV4
@@ -653,10 +653,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/contractnegotiations/{id}/terminate:
+  /v5alpha/participants/{participantContextId}/contractnegotiations/{id}/terminate:
     post:
       tags:
-        - Contract Negotiation v4alpha
+        - Contract Negotiation v5alpha
       description: Terminates the contract negotiation.
       operationId: terminateNegotiationV4
       parameters:
@@ -701,7 +701,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/transferprocesses/{id}/terminate:
+  /v5alpha/participants/{participantContextId}/transferprocesses/{id}/terminate:
     post:
       tags:
         - Transfer Process v4beta
@@ -762,10 +762,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{id}:
+  /v5alpha/participants/{id}:
     get:
       tags:
-        - Participant Context v4alpha
+        - Participant Context v5alpha
       description: Gets ParticipantContexts by ID.
       operationId: getParticipantV4
       parameters:
@@ -810,7 +810,7 @@ paths:
                   $ref: "#/components/schemas/api-error-schema"
     put:
       tags:
-        - Participant Context v4alpha
+        - Participant Context v5alpha
       description: Updates a ParticipantContext object.
       operationId: updateParticipantV4
       parameters:
@@ -857,7 +857,7 @@ paths:
                   $ref: "#/components/schemas/api-error-schema"
     delete:
       tags:
-        - Participant Context v4alpha
+        - Participant Context v5alpha
       description: Delete a ParticipantContext.
       operationId: deleteParticipantV4
       parameters:
@@ -896,10 +896,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/contractagreements/{id}/negotiation:
+  /v5alpha/participants/{participantContextId}/contractagreements/{id}/negotiation:
     get:
       tags:
-        - Contract Agreement v4alpha
+        - Contract Agreement v5alpha
       description: Gets a contract negotiation with the given contract agreement ID
       operationId: getNegotiationByAgreementIdV4
       parameters:
@@ -940,10 +940,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/celexpressions/request:
+  /v5alpha/celexpressions/request:
     post:
       tags:
-        - Cel Expressions v4alpha
+        - Cel Expressions v5alpha
       description: Returns all cel expressions according to a query
       operationId: queryExpressionV4
       requestBody:
@@ -968,10 +968,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/config:
+  /v5alpha/participants/{participantContextId}/config:
     get:
       tags:
-        - Participant Context config v4alpha
+        - Participant Context config v5alpha
       description: Gets ParticipantContexts config by ID.
       operationId: getConfigV4
       parameters:
@@ -1016,7 +1016,7 @@ paths:
                   $ref: "#/components/schemas/api-error-schema"
     put:
       tags:
-        - Participant Context config v4alpha
+        - Participant Context config v5alpha
       description: Set ParticipantContext config.
       operationId: setConfigV4
       parameters:
@@ -1061,10 +1061,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/contractagreements/request:
+  /v5alpha/participants/{participantContextId}/contractagreements/request:
     post:
       tags:
-        - Contract Agreement v4alpha
+        - Contract Agreement v5alpha
       description: Gets all contract agreements according to a particular query
       operationId: queryAgreementsV4
       parameters:
@@ -1097,10 +1097,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants:
+  /v5alpha/participants:
     get:
       tags:
-        - Participant Context v4alpha
+        - Participant Context v5alpha
       description: Get all DID documents across all Participant Contexts. Requires
         elevated access.
       operationId: getAllParticipantsV4
@@ -1151,7 +1151,7 @@ paths:
                   $ref: "#/components/schemas/api-error-schema"
     post:
       tags:
-        - Participant Context v4alpha
+        - Participant Context v5alpha
       description: Creates a new ParticipantContext object.
       operationId: createParticipantV4
       requestBody:
@@ -1193,7 +1193,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/transferprocesses/{id}:
+  /v5alpha/participants/{participantContextId}/transferprocesses/{id}:
     get:
       tags:
         - Transfer Process v4beta
@@ -1237,10 +1237,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/catalog/request:
+  /v5alpha/participants/{participantContextId}/catalog/request:
     post:
       tags:
-        - Catalog v4alpha
+        - Catalog v5alpha
       operationId: requestCatalogV4
       parameters:
         - name: participantContextId
@@ -1262,10 +1262,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/catalog-schema"
-  /v4alpha/participants/{participantContextId}/contractnegotiations/{id}:
+  /v5alpha/participants/{participantContextId}/contractnegotiations/{id}:
     get:
       tags:
-        - Contract Negotiation v4alpha
+        - Contract Negotiation v5alpha
       description: Gets a contract negotiation with the given ID
       operationId: getNegotiationV4
       parameters:
@@ -1308,7 +1308,7 @@ paths:
                   $ref: "#/components/schemas/api-error-schema"
     delete:
       tags:
-        - Contract Negotiation v4alpha
+        - Contract Negotiation v5alpha
       description: Deletes the contract negotiation with the given ID. Only terminated
         negotiations without agreement will be deleted
       operationId: deleteNegotiationV4
@@ -1358,10 +1358,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/contractdefinitions/request:
+  /v5alpha/participants/{participantContextId}/contractdefinitions/request:
     post:
       tags:
-        - Contract Definition v4alpha
+        - Contract Definition v5alpha
       description: Returns all contract definitions according to a query
       operationId: queryContractDefinitionsV4
       parameters:
@@ -1394,7 +1394,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/transferprocesses/{id}/resume:
+  /v5alpha/participants/{participantContextId}/transferprocesses/{id}/resume:
     post:
       tags:
         - Transfer Process v4beta
@@ -1440,10 +1440,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/assets/{assetId}:
+  /v5alpha/participants/{participantContextId}/assets/{assetId}:
     delete:
       tags:
-        - Asset v4alpha
+        - Asset v5alpha
       description: "Removes an asset with the given ID if possible. Deleting an asset\
         \ is only possible if that asset is not yet referenced by a contract agreement,\
         \ in which case an error is returned. DANGER ZONE: Note that deleting assets\
@@ -1493,7 +1493,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v4alpha/participants/{participantContextId}/transferprocesses:
+  /v5alpha/participants/{participantContextId}/transferprocesses:
     post:
       tags:
         - Transfer Process v4beta
@@ -1536,7 +1536,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/transferprocesses/request:
+  /v5alpha/participants/{participantContextId}/transferprocesses/request:
     post:
       tags:
         - Transfer Process v4beta
@@ -1572,7 +1572,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/transferprocesses/{id}/suspend:
+  /v5alpha/participants/{participantContextId}/transferprocesses/{id}/suspend:
     post:
       tags:
         - Transfer Process v4beta
@@ -1632,10 +1632,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/assets/{id}:
+  /v5alpha/participants/{participantContextId}/assets/{id}:
     get:
       tags:
-        - Asset v4alpha
+        - Asset v5alpha
       description: Gets an asset with the given ID
       operationId: getAsset
       parameters:
@@ -1676,10 +1676,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v4alpha/participants/{participantContextId}/contractdefinitions/{id}:
+  /v5alpha/participants/{participantContextId}/contractdefinitions/{id}:
     get:
       tags:
-        - Contract Definition v4alpha
+        - Contract Definition v5alpha
       description: Gets an contract definition with the given ID
       operationId: getContractDefinitionV4
       parameters:
@@ -1722,7 +1722,7 @@ paths:
                   $ref: "#/components/schemas/api-error-schema"
     delete:
       tags:
-        - Contract Definition v4alpha
+        - Contract Definition v5alpha
       description: "Removes a contract definition with the given ID if possible. DANGER\
         \ ZONE: Note that deleting contract definitions can have unexpected results,\
         \ especially for contract offers that have been sent out or ongoing or contract\
@@ -1762,10 +1762,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/contractnegotiations/{id}/agreement:
+  /v5alpha/participants/{participantContextId}/contractnegotiations/{id}/agreement:
     get:
       tags:
-        - Contract Negotiation v4alpha
+        - Contract Negotiation v5alpha
       description: Gets a contract agreement for a contract negotiation with the given
         ID
       operationId: getAgreementForNegotiationV4
@@ -1808,10 +1808,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/policydefinitions/request:
+  /v5alpha/participants/{participantContextId}/policydefinitions/request:
     post:
       tags:
-        - Policy Definition v4alpha
+        - Policy Definition v5alpha
       description: Returns all policy definitions according to a query
       operationId: queryPolicyDefinitionsV4
       parameters:
@@ -1844,10 +1844,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/catalog/dataset/request:
+  /v5alpha/participants/{participantContextId}/catalog/dataset/request:
     post:
       tags:
-        - Catalog v4alpha
+        - Catalog v5alpha
       operationId: getDatasetV4
       parameters:
         - name: participantContextId
@@ -1869,10 +1869,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/dataset-schema"
-  /v4alpha/participants/{participantContextId}/policydefinitions/{id}/evaluationplan:
+  /v5alpha/participants/{participantContextId}/policydefinitions/{id}/evaluationplan:
     post:
       tags:
-        - Policy Definition v4alpha
+        - Policy Definition v5alpha
       description: "Creates an execution plane for an existing Policy, If the Policy\
         \ is not found, an error is reported"
       operationId: createExecutionPlanV4
@@ -1910,10 +1910,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/contractdefinitions:
+  /v5alpha/participants/{participantContextId}/contractdefinitions:
     put:
       tags:
-        - Contract Definition v4alpha
+        - Contract Definition v5alpha
       description: Updated a contract definition with the given ID. The supplied JSON
         structure must be a valid JSON-LD object
       operationId: updateContractDefinitionV4
@@ -1951,7 +1951,7 @@ paths:
                   $ref: "#/components/schemas/api-error-schema"
     post:
       tags:
-        - Contract Definition v4alpha
+        - Contract Definition v5alpha
       description: Creates a new contract definition
       operationId: createContractDefinitionV4
       parameters:
@@ -1992,10 +1992,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/contractnegotiations:
+  /v5alpha/participants/{participantContextId}/contractnegotiations:
     post:
       tags:
-        - Contract Negotiation v4alpha
+        - Contract Negotiation v5alpha
       description: "Initiates a contract negotiation for a given offer and with the\
         \ given counter part. Please note that successfully invoking this endpoint\
         \ only means that the negotiation was initiated. Clients must poll the /{id}/state\
@@ -2035,10 +2035,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/api-error-schema"
-  /v4alpha/participants/{participantContextId}/contractnegotiations/{id}/state:
+  /v5alpha/participants/{participantContextId}/contractnegotiations/{id}/state:
     get:
       tags:
-        - Contract Negotiation v4alpha
+        - Contract Negotiation v5alpha
       description: Gets the state of a contract negotiation with the given ID
       operationId: getNegotiationStateV4
       parameters:
@@ -2302,7 +2302,7 @@ components:
           type: string
         operandLeft:
           type: string
-        operandRight: {}
+        operandRight: { }
         operator:
           type: string
       example:

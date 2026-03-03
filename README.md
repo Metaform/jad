@@ -133,7 +133,7 @@ traefik   LoadBalancer   10.96.251.221   172.18.0.3    80:31415/TCP,443:31650/TC
 
 There are pre-built images for all JAD apps available from [GHCR](https://github.com/Metaform/jad/packages) and the
 Connector Fabric Manager images are available from
-the [CFM GitHub Repository](https://github.com/Metaform/connector-fabric-manager/packages). Those are tested and we
+the [CFM GitHub Repository](https://github.com/eclipse-cfm/cfm/packages). Those are tested and we
 strongly recommend using them.
 
 #### 2.2 Option 2: Build images from source

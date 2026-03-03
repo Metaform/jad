@@ -5,7 +5,7 @@ meta {
 }
 
 put {
-  url: {{cpBaseUrl}}/api/mgmt/v4alpha/celexpressions/{{CEL_EXPR_ID}}
+  url: {{cpBaseUrl}}/api/mgmt/v5alpha/celexpressions/{{CEL_EXPR_ID}}
   body: json
   auth: inherit
 }
@@ -13,8 +13,7 @@ put {
 body:json {
   {
     "@context": [
-      "https://w3id.org/edc/connector/management/v2",
-      "https://w3id.org/edc/virtual-connector/management/v2"
+      "https://w3id.org/edc/connector/management/v2"
     ],
     "@type": "CelExpression",
     "@id": "{{CEL_EXPR_ID}}",

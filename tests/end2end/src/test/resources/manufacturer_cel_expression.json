@@ -1,7 +1,6 @@
 {
   "@context": [
-    "https://w3id.org/edc/connector/management/v2",
-    "https://w3id.org/edc/virtual-connector/management/v2"
+    "https://w3id.org/edc/connector/management/v2"
   ],
   "@type": "CelExpression",
   "leftOperand": "ManufacturerCredential",
