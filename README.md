@@ -250,7 +250,7 @@ _Note: the `";"` after `kubectl delete -k k8s/` is on purpose for robustness, to
 resources are deployed yet._
 
 This deploys all the services in the correct order. The services are deployed in the `edc-v` namespace. Please verify
-that everything got deployed correctly by running `kubectl get deployments -n edcv`. This should output something like:
+that everything got deployed correctly by running `kubectl get deployments -n edc-v`. This should output something like:
 
 ```text
 NAME            READY   UP-TO-DATE   AVAILABLE             AGE
@@ -276,7 +276,7 @@ vault                     1/1     1            1           110m
 
 **Caution: these are security-relevant credentials and must not be used in production! EVER!!**
 
-In addition, you should see the following Kubernetes jobs (`k get jobs -n edcv`) running:
+In addition, you should see the following Kubernetes jobs (`kubectl get jobs -n edc-v`) running:
 
 ```text
 NAME                       STATUS     COMPLETIONS   DURATION   AGE
