@@ -105,7 +105,7 @@ spec:
 
               # Deploy Dataspace Profile
               echo "Deploying Dataspace Profile..."
-              curl -s -X POST "$TM_BASE_URL/api/v1alpha1/dataspace-profiles/$DATASPACE_PROFILE_ID/deployments" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "$TM_BASE_URL/api/v1alpha1/dataspace-profiles/$DATASPACE_PROFILE_ID/deployments" \
                 -H "Content-Type: application/json" \
                 -d '{
                   "profileId": "'"$DATASPACE_PROFILE_ID"'",

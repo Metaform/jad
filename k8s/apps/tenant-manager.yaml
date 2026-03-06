@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
         - name: tenant-manager
-          image: ghcr.io/metaform/connector-fabric-manager/tmanager:latest
+          image: ghcr.io/eclipse-cfm/cfm/tmanager:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

@@ -108,7 +108,7 @@ spec:
               
               # Register Participant
               echo "Deploy Participant $CONSUMER_PARTICIPANT_ID..."
-              curl -sf -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$CONSUMER_TENANT_ID/participants/$CONSUMER_PARTICIPANT_ID/deployments" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$CONSUMER_TENANT_ID/participants/$CONSUMER_PARTICIPANT_ID/deployments" \
                 -H "content-type: application/json" \
                 -d '{
                   "participantId": '$CONSUMER_PARTICIPANT_ID',
@@ -132,7 +132,7 @@ spec:
               done
               
               # Register data plane for consumer participant
-              curl -sf -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$CONSUMER_TENANT_ID/participants/$CONSUMER_PARTICIPANT_ID/dataplanes"
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$CONSUMER_TENANT_ID/participants/$CONSUMER_PARTICIPANT_ID/dataplanes"
 
              
               # Create Provider Tenant
@@ -156,7 +156,7 @@ spec:
               
               # Register Participant
               echo "Deploy Participant $PROVIDER_PARTICIPANT_ID..."
-              curl -sf -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$PROVIDER_TENANT_ID/participants/$PROVIDER_PARTICIPANT_ID/deployments" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n"S -w "\nHTTP_STATUS:%{http_code}\n" -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$PROVIDER_TENANT_ID/participants/$PROVIDER_PARTICIPANT_ID/deployments" \
                 -H "content-type: application/json" \
                 -d '{
                   "participantId": '$PROVIDER_PARTICIPANT_ID',
@@ -180,18 +180,18 @@ spec:
               done
               
               # Register data plane for provider participant
-              curl -sf -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$PROVIDER_TENANT_ID/participants/$PROVIDER_PARTICIPANT_ID/dataplanes"
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$PROVIDER_TENANT_ID/participants/$PROVIDER_PARTICIPANT_ID/dataplanes"
               
               # Register consumer and provider as partners
               echo "Registering Partners..."
-              curl -sf -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$CONSUMER_TENANT_ID/participants/$CONSUMER_PARTICIPANT_ID/partners/$DATASPACE_ID" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$CONSUMER_TENANT_ID/participants/$CONSUMER_PARTICIPANT_ID/partners/$DATASPACE_ID" \
                 -H "content-type: application/json" \
                 -d '{
                   "identifier": "'"$PROVIDER_DID"'",
                   "nickname": "provider-partner"
                 }'
               
-              curl -sf -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$PROVIDER_TENANT_ID/participants/$PROVIDER_PARTICIPANT_ID/partners/$DATASPACE_ID" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "$REDLINE_BASE_URL/service-providers/$SP_ID/tenants/$PROVIDER_TENANT_ID/participants/$PROVIDER_PARTICIPANT_ID/partners/$DATASPACE_ID" \
                 -H "content-type: application/json" \
                 -d '{
                   "identifier": "'"$CONSUMER_DID"'",

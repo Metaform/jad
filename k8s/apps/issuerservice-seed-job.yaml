@@ -160,7 +160,7 @@ spec:
                   "serviceEndpoints": [
                     {
                       "type": "IssuerService",
-                      "serviceEndpoint": "http://issuerservice.edc-v.svc.cluster.local:10012/api/issuance/v1alpha/participants/aXNzdWVy",
+                      "serviceEndpoint": "http://issuerservice.edc-v.svc.cluster.local:10012/api/issuance/v1alpha/participants/issuer",
                       "id": "issuer-service-1"
                     }
                   ],
@@ -212,7 +212,7 @@ spec:
 
               # Create attestation definitions
               echo "Creating Membership AttestationDefinition"
-              curl -sf -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/aXNzdWVy/attestations" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/issuer/attestations" \
                 -H "Authorization: Bearer ${ISSUER_TOKEN}" \
                 -H "Content-Type: application/json" \
                 -d '{
@@ -222,7 +222,7 @@ spec:
                 }'
               
               echo "Creating Manufacturer AttestationDefinition"
-              curl -sf -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/aXNzdWVy/attestations" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/issuer/attestations" \
                 -H "Authorization: Bearer ${ISSUER_TOKEN}" \
                 -H "Content-Type: application/json" \
                 -d '{
@@ -240,7 +240,7 @@ spec:
 
               # Create credential definitions
               echo "Creating Membership CredentialDefinition"
-              curl -sf -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/aXNzdWVy/credentialdefinitions" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/issuer/credentialdefinitions" \
                 -H "Authorization: Bearer ${ISSUER_TOKEN}" \
                 -H "Content-Type: application/json" \
                 -d '{
@@ -272,7 +272,7 @@ spec:
                 }'
               
               echo "Creating Manufacturer CredentialDefinition"
-              curl -sf -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/aXNzdWVy/credentialdefinitions" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/issuer/credentialdefinitions" \
                 -H "Authorization: Bearer ${ISSUER_TOKEN}" \
                 -H "Content-Type: application/json" \
                 -d '{

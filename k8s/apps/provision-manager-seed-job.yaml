@@ -63,7 +63,7 @@ spec:
               echo "Step 1: Create network-activity ActivityDefinition"
               echo "---------------------------------------------------"
 
-              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
                 -H "Content-Type: application/json" \
                 -d '{ 
                   "description": "Provisions DNS entries",
@@ -78,7 +78,7 @@ spec:
               echo "Step 2: Create edcv-activity ActivityDefinition"
               echo "------------------------------------------------"
 
-              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
                 -H "Content-Type: application/json" \
                 -d '{
                   "description": "Provisions EDC-V Control plane entries",
@@ -93,7 +93,7 @@ spec:
               echo "Step 3: Create registration-activity ActivityDefinition"
               echo "--------------------------------------------------------"
 
-              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
                 -H "Content-Type: application/json" \
                 -d '{
                   "description": "Creates Holder entries on the IssuerService",
@@ -108,7 +108,7 @@ spec:
               echo "Step 4: Create keycloak-activity ActivityDefinition"
               echo "----------------------------------------------------"
 
-              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
                 -H "Content-Type: application/json" \
                 -d '{
                   "description": "Provisions Keycloak clients",
@@ -123,7 +123,7 @@ spec:
               echo "Step 5: Create onboarding-activity ActivityDefinition"
               echo "------------------------------------------------------"
 
-              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
                 -H "Content-Type: application/json" \
                 -d '{
                   "description": "Onboards participants (= requests credentials)",
@@ -140,7 +140,7 @@ spec:
 
               DEPLOY_ORCH_ID=$(cat /proc/sys/kernel/random/uuid)
 
-              curl -sf -X POST "${PM_BASE_URL}/api/v1alpha1/orchestration-definitions" \
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/orchestration-definitions" \
                 -H "Content-Type: application/json" \
                 -d '{
                   "activities": {

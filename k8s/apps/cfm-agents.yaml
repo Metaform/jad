@@ -34,28 +34,28 @@ spec:
     spec:
       containers:
         - name: keycloak-agent
-          image: ghcr.io/metaform/connector-fabric-manager/kcagent:latest
+          image: ghcr.io/eclipse-cfm/cfm/kcagent:latest
           imagePullPolicy: Always
           volumeMounts:
             - name: keycloak-agent-config
               mountPath: /etc/appname
               readOnly: true
         - name: edcv-agent
-          image: ghcr.io/metaform/connector-fabric-manager/edcvagent:latest
+          image: ghcr.io/eclipse-cfm/cfm/edcvagent:latest
           imagePullPolicy: Always
           volumeMounts:
             - name: edcv-agent-config
               mountPath: /etc/appname
               readOnly: true
         - name: registration-agent
-          image: ghcr.io/metaform/connector-fabric-manager/regagent:latest
+          image: ghcr.io/eclipse-cfm/cfm/regagent:latest
           imagePullPolicy: Always
           volumeMounts:
             - name: registration-agent-config
               mountPath: /etc/appname
               readOnly: true
         - name: onboarding-agent
-          image: ghcr.io/metaform/connector-fabric-manager/obagent:latest
+          image: ghcr.io/eclipse-cfm/cfm/obagent:latest
           imagePullPolicy: Always
           volumeMounts:
             - name: onboarding-agent-config

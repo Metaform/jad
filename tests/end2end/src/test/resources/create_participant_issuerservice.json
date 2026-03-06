@@ -5,7 +5,7 @@
   "serviceEndpoints": [
     {
       "type": "IssuerService",
-      "serviceEndpoint": "http://issuerservice.edc-v.svc.cluster.local:10012/api/issuance/v1alpha/participants/aXNzdWVy",
+      "serviceEndpoint": "http://issuerservice.edc-v.svc.cluster.local:10012/api/issuance/v1alpha/participants/issuer",
       "id": "issuer-service-1"
     }
   ],

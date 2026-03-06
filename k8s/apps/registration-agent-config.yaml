@@ -32,4 +32,4 @@ data:
     keycloak.clientId: provisioner
     keycloak.clientSecret: provisioner-secret
     issuerservice.url: http://issuerservice.edc-v.svc.cluster.local:10013/api/admin
-    issuer.id: aXNzdWVy # base64 encoded "issuer"
+    issuer.id: issuer # base64 encoded "issuer"
