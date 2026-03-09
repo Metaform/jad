@@ -78,7 +78,7 @@ jakarta-rsApi = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "rsA
 jersey-multipart = { module = "org.glassfish.jersey.media:jersey-media-multipart", version.ref = "jersey" }
 
 [plugins]
-shadow = { id = "com.gradleup.shadow", version = "8.3.6" }
+shadow = { id = "com.gradleup.shadow", version = "9.3.2" }
 edc-build = { id = "org.eclipse.edc.edc-build", version.ref = "edc-build" }
 docker = { id = "com.bmuschko.docker-remote-api", version = "10.0.0" }
 swagger = { id = "io.swagger.core.v3.swagger-gradle-plugin", version.ref = "swagger" }
