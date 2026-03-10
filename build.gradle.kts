@@ -13,12 +13,11 @@
  */
 
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin
 
 plugins {
     `java-library`
     id("com.bmuschko.docker-remote-api") version "10.0.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.3.2"
     alias(libs.plugins.edc.build)
 }
 
@@ -64,7 +63,7 @@ subprojects {
                 inputDir.set(file(dockerContextDir))
             }
             // make sure always runs after "dockerize" and after "copyOtel"
-            dockerTask.dependsOn(tasks.named(ShadowJavaPlugin.SHADOW_JAR_TASK_NAME))
+            dockerTask.dependsOn(tasks.named("shadowJar"))
         }
     }
 }
