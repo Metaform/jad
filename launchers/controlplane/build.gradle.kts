@@ -34,10 +34,10 @@ dependencies {
     runtimeOnly(project(":extensions:api:mgmt"))
 }
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    exclude("**/pom.properties", "**/pom.xm")
+tasks.shadowJar {
     mergeServiceFiles()
     archiveFileName.set("${project.name}.jar")
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 application {

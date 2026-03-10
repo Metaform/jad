@@ -30,10 +30,10 @@ dependencies {
     runtimeOnly(libs.edc.store.participantcontext.config.sql)
 }
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    exclude("**/pom.properties", "**/pom.xml")
+tasks.shadowJar {
     mergeServiceFiles()
     archiveFileName.set("issuerservice.jar")
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 application {
