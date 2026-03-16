@@ -10,7 +10,7 @@ jackson = "2.21.1"
 jackson-annotations = "2.20"
 restAssured = "6.0.0"
 rsApi = "4.0.0"
-swagger = "2.2.44"
+swagger = "2.2.45"
 jersey = "3.1.11"
 
 
