@@ -43,7 +43,7 @@ jobs:
       - uses: eclipse-edc/.github/.github/actions/setup-build@main
 
       - name: "Setup Kubectl"
-        uses: azure/setup-kubectl@v4
+        uses: azure/setup-kubectl@v5
       - name: "Set up Helm"
         uses: azure/setup-helm@v4
 
