@@ -17,7 +17,7 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 plugins {
     `java-library`
     id("com.bmuschko.docker-remote-api") version "10.0.0"
-    id("com.gradleup.shadow") version "9.3.2"
+    id("com.gradleup.shadow") version "9.4.1"
     alias(libs.plugins.edc.build)
 }
 
