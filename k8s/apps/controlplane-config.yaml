@@ -31,6 +31,7 @@ data:
   web.http.path: "/api"
   web.http.protocol.port: "8082"
   web.http.protocol.path: "/api/dsp"
+  web.http.protocol.virtual: "true"
   web.http.management.port: "8081"
   web.http.management.path: "/api/mgmt"
   web.http.control.port: "8083"
@@ -63,11 +64,11 @@ data:
   # Default scopes config
   edc.iam.dcp.scopes.membership.id: "membership-scope"
   edc.iam.dcp.scopes.membership.type: "DEFAULT"
-  edc.iam.dcp.scopes.membership.value: "org.eclipse.edc.vc.type:MembershipCredential:read"
+  edc.iam.dcp.scopes.membership.value: "org.eclipse.dspace.dcp.vc.type:MembershipCredential:read"
 
   edc.iam.dcp.scopes.manufacturer.id: "manufacturer-scope"
   edc.iam.dcp.scopes.manufacturer.type: "POLICY"
-  edc.iam.dcp.scopes.manufacturer.value: "org.eclipse.edc.vc.type:ManufacturerCredential:read"
+  edc.iam.dcp.scopes.manufacturer.value: "org.eclipse.dspace.dcp.vc.type:ManufacturerCredential:read"
   edc.iam.dcp.scopes.manufacturer.prefix-mapping: "ManufacturerCredential"
 
   # Trusted Issuers

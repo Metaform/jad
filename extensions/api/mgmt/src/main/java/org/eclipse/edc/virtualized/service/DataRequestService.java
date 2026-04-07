@@ -114,9 +114,12 @@ public class DataRequestService {
                                 .build())
                         .build())
                 .build();
-        var negotiation = contractNegotiationService.initiateNegotiation(participantContext, rq);
+        var result = contractNegotiationService.initiateNegotiation(participantContext, rq);
+        if (result.failed()) {
+            return CompletableFuture.failedFuture(new EdcException("Could not initiate contract negotiation: %s ".formatted(result.getFailureDetail())));
+        }
+        return CompletableFuture.completedFuture(result.getContent().getId());
 
-        return CompletableFuture.completedFuture(negotiation.getId());
     }
 
     private Result<String> getAddressForDid(String counterPartyDid) {
