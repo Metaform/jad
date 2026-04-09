@@ -66,7 +66,7 @@ subprojects {
                 from(rootProject.layout.buildDirectory.dir("otel"))
                 into(project.layout.buildDirectory.dir("otel"))
             }
-            var shadowJarTask = tasks.named("shadowJar").get();
+            var shadowJarTask = tasks.named("shadowJar").get()
             shadowJarTask.dependsOn(copyOtelAgent)
 
             // configure the "dockerize" task

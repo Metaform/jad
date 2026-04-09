@@ -23,7 +23,8 @@ dependencies {
     runtimeOnly(project(":extensions:data-plane-certs"))
 
     runtimeOnly(libs.edc.vault.hashicorp)
-
+    runtimeOnly(libs.edc.monitor.console)
+    runtimeOnly(libs.edc.monitor.otel)
     runtimeOnly(libs.opentelemetry.exporter.otlp)
 }
 

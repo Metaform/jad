@@ -20,4 +20,6 @@ resources:
   - keycloak.yaml
   - vault.yaml
   - jaeger.yaml
+  - loki.yaml
   - prometheus.yaml
+  - grafana.yaml

@@ -28,6 +28,8 @@ dependencies {
     runtimeOnly(libs.edc.bom.issuerservice.sql)
     runtimeOnly(libs.edc.core.participantcontext.config)
     runtimeOnly(libs.edc.store.participantcontext.config.sql)
+    runtimeOnly(libs.edc.monitor.console)
+    runtimeOnly(libs.edc.monitor.otel)
 
     runtimeOnly(libs.opentelemetry.exporter.otlp)
 }

@@ -13,8 +13,6 @@ WORKDIR /app
 COPY ${OTEL_AGENT} opentelemetry-javaagent.jar
 COPY ${JAR} identity-hub.jar
 
-EXPOSE 8080
-
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:8080/api/check/health
 
 # Use "exec" for graceful termination (SIGINT) to reach JVM.

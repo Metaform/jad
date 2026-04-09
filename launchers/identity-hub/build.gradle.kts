@@ -13,9 +13,9 @@
  */
 
 plugins {
-    `java-library`
     id("application")
     alias(libs.plugins.shadow)
+    alias(libs.plugins.docker)
 }
 
 dependencies {
@@ -25,6 +25,8 @@ dependencies {
     runtimeOnly(libs.edc.bom.identityhub.sql)
     runtimeOnly(libs.edc.core.participantcontext.config)
     runtimeOnly(libs.edc.store.participantcontext.config.sql)
+    runtimeOnly(libs.edc.monitor.console)
+    runtimeOnly(libs.edc.monitor.otel)
 
     runtimeOnly(libs.opentelemetry.exporter.otlp)
 }
@@ -35,7 +37,7 @@ application {
 
 tasks.shadowJar {
     mergeServiceFiles()
-    archiveFileName.set("identity-hub.jar")
+    archiveFileName.set("${project.name}.jar")
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 

@@ -40,6 +40,8 @@ edc-transaction-pool = { module = "org.eclipse.edc:sql-pool-apache-commons", ver
 edc-api-control-configuration = { module = "org.eclipse.edc:control-api-configuration", version.ref = "edc" }
 edc-api-observability = { module = "org.eclipse.edc:api-observability", version.ref = "edc" }
 edc-fixtures-mgmtapi = { module = "org.eclipse.edc:management-api-test-fixtures", version.ref = "edc" }
+edc-monitor-otel = { module = "org.eclipse.edc:otel-monitor", version.ref = "edc" }
+edc-monitor-console = { module = "org.eclipse.edc:console-monitor", version.ref = "edc" }
 
 # EDC spi dependencies
 edc-spi-web = { module = "org.eclipse.edc:web-spi", version.ref = "edc" }

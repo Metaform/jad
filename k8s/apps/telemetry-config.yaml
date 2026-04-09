@@ -23,3 +23,4 @@ data:
   OTEL_TRACES_EXPORTER: "otlp"
   OTEL_METRICS_EXPORTER: "otlp"
   OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: "http://prometheus.edc-v.svc.cluster.local:9090/api/v1/otlp/v1/metrics"
+  OTEL_EXPORTER_OTLP_LOGS_ENDPOINT: "http://loki.edc-v.svc.cluster.local:3100/otlp/v1/logs"
