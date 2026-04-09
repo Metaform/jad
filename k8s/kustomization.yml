@@ -17,6 +17,7 @@ resources:
   - base/nats.yaml
   - base/keycloak.yaml
   - base/vault.yaml
+  - base/jaeger.yaml
   - apps/controlplane-config.yaml
   - apps/controlplane.yaml
   - apps/dataplane-config.yaml
