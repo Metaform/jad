@@ -1,0 +1,40 @@
+#
+# Copyright (c) 2025 Metaform Systems, Inc.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Contributors:
+#      Metaform Systems, Inc. - initial API and implementation
+#
+
+resources:
+  - controlplane-config.yaml
+  - controlplane.yaml
+  - dataplane-config.yaml
+  - dataplane.yaml
+  - issuerservice-config.yaml
+  - issuerservice.yaml
+  - issuerservice-seed-job.yaml
+  - identityhub-config.yaml
+  - identityhub.yaml
+  - edcv-agent-config.yaml
+  - keycloak-agent-config.yaml
+  - onboarding-agent-config.yaml
+  - registration-agent-config.yaml
+  - provision-manager.yaml
+  - provision-manager-config.yaml
+  - provision-manager-seed-job.yaml
+  - tenant-manager.yaml
+  - tenant-manager-config.yaml
+  - tenant-manager-seed-job.yaml
+  - telemetry-config.yaml
+  - cfm-agents.yaml
+  - redline.yaml
+  - redline-config.yaml
+  - redline-seed-job.yaml
+  - ui.yaml
+  - ui-config.yaml
