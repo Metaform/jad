@@ -1,0 +1,64 @@
+#
+# Copyright (c) 2026 Metaform Systems, Inc.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Contributors:
+#      Metaform Systems, Inc. - initial API and implementation
+#
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: siglet-config
+  namespace: edc-v
+data:
+  siglet.toml: |
+    storage_backend = "postgres"
+    postgres_url = "postgresql://siglet:siglet@postgres:5432/sigletdb"
+    postgres_encryption_password = "mysecretpassword"
+    postgres_encryption_salt = "6b9768804c86626227e61acd9e06f8ff"
+    token_server_secret = "93d22865c1b0695d3caa1ac5ba648b88942aaeee3b05ba4aff2efc87e2cd1944"
+    [[transfer_types]]
+    transfer_type = "HttpData-PULL"
+    endpoint_type = "HTTP"
+    endpoint = "http://provider:8080/data"
+    token_source = "provider"
+
+# Vault Agent configuration for Siglet
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-agent-config-siglet
+  namespace: edc-v
+data:
+  vault-agent-config.hcl: |
+    pid_file = "/tmp/vault-agent.pid"
+
+    vault {
+      address = "http://vault:8200"
+    }
+
+    auto_auth {
+      method {
+        type = "kubernetes"
+
+        config = {
+          role = "siglet-role"
+        }
+      }
+
+      sink {
+        type = "file"
+        config = {
+          path = "/vault/secrets/.vault-token"
+          mode = 0644
+        }
+      }
+    }

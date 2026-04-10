@@ -112,3 +112,9 @@ data:
     GRANT ALL PRIVILEGES ON DATABASE redlinedb TO redline;
     \c redlinedb
     GRANT ALL ON SCHEMA public TO redline;
+    
+    CREATE DATABASE sigletdb;
+    CREATE USER siglet WITH PASSWORD 'siglet';
+    GRANT ALL PRIVILEGES ON DATABASE sigletdb TO siglet;
+    \c sigletdb
+    GRANT ALL ON SCHEMA public TO siglet;
