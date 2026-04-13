@@ -147,54 +147,18 @@ public class DataTransferEndToEndTest {
     }
 
     @Test
-    void testTodoDataTransfer() {
-
-        // seed provider
-        MONITOR.info("Seeding provider");
-        var providerAccessToken = getAccessToken(providerCredentials.clientId(), providerCredentials.clientSecret(), "management-api:write").accessToken();
-
-        var assetId = createAsset(providerCredentials.clientId(), providerAccessToken, "asset.json");
-        var policyDefId = createPolicyDef(providerCredentials.clientId(), providerAccessToken, "policy-def.json");
-        createContractDef(providerCredentials.clientId(), providerAccessToken, policyDefId, policyDefId, assetId);
-        registerDataPlane(providerCredentials.clientId(), providerAccessToken);
-
-        // perform data transfer
-        MONITOR.info("Starting data transfer");
-        var catalog = fetchCatalog(consumerCredentials);
-
-        MONITOR.info("Catalog received, starting data transfer");
-        var offerId = catalog.datasets().stream().filter(dataSet -> dataSet.id().equals(assetId)).findFirst().get().offers().get(0).id();
-        assertThat(offerId).isNotNull();
-
-        //download dummy data
-        var jsonResponse = given()
-                .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write").accessToken())
-                .body("""
-                        {
-                            "providerId":"%s",
-                            "policyId": "%s"
-                        }
-                        """.formatted(providerContextId, offerId))
-                .contentType("application/json")
-                .post("/api/mgmt/v1alpha/participants/%s/data".formatted(consumerCredentials.clientId()))
-                .then()
-                .statusCode(200)
-                .extract().body().asPrettyString();
-        assertThat(jsonResponse).isNotNull();
-    }
-
-    @Test
     void testCertDataTransfer() {
 
         // seed provider
         MONITOR.info("Seeding provider");
         var providerAccessToken = getAccessToken(providerCredentials.clientId(), providerCredentials.clientSecret(), "management-api:write").accessToken();
-
+        var consumerAccessToken = getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write").accessToken();
         var assetId = createCertAsset(providerCredentials.clientId(), providerAccessToken);
         var policyDefId = createPolicyDef(providerCredentials.clientId(), providerAccessToken, "policy-def.json");
         createContractDef(providerCredentials.clientId(), providerAccessToken, policyDefId, policyDefId, assetId);
+        // Register dataplanes
         registerDataPlane(providerCredentials.clientId(), providerAccessToken);
+        registerDataPlane(consumerCredentials.clientId(), consumerAccessToken);
 
         // perform data transfer
         MONITOR.info("Starting data transfer");
@@ -207,7 +171,7 @@ public class DataTransferEndToEndTest {
         // trigger transfer
         var transferResponse = given()
                 .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write").accessToken())
+                .auth().oauth2(consumerAccessToken)
                 .body("""
                         {
                             "providerId":"%s",
@@ -220,11 +184,11 @@ public class DataTransferEndToEndTest {
                 .statusCode(200)
                 .extract().body().as(Map.class);
 
-        var accessToken = transferResponse.get("https://w3id.org/edc/v0.0.1/ns/authorization");
+        var accessToken = transferResponse.get("authorization");
 
         var list = given()
                 .baseUri(DATAPLANE_BASE_URL)
-                .header("Authorization", accessToken)
+                .header("Authorization", "Bearer " + accessToken)
                 .body("{}")
                 .contentType("application/json")
                 .post("/app/public/api/data/certs/request")
@@ -240,12 +204,16 @@ public class DataTransferEndToEndTest {
         // seed provider
         MONITOR.info("Seeding provider");
         var providerAccessToken = getAccessToken(providerCredentials.clientId(), providerCredentials.clientSecret(), "management-api:write").accessToken();
-
+        var consumerAccessToken = getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write").accessToken();
+        var manufacturerAccessToken = getAccessToken(manufacturerCredentials.clientId(), manufacturerCredentials.clientSecret(), "management-api:write").accessToken();
         var assetId = createAsset(providerCredentials.clientId(), providerAccessToken, "asset-restricted.json");
         var accessPolicyId = createPolicyDef(providerCredentials.clientId(), providerAccessToken, "policy-def.json");
         var contractPolicyId = createPolicyDef(providerCredentials.clientId(), providerAccessToken, "policy-def-manufacturer.json");
         createContractDef(providerCredentials.clientId(), providerAccessToken, accessPolicyId, contractPolicyId, assetId);
+
         registerDataPlane(providerCredentials.clientId(), providerAccessToken);
+        registerDataPlane(consumerCredentials.clientId(), consumerAccessToken);
+        registerDataPlane(manufacturerCredentials.clientId(), manufacturerAccessToken);
 
         // perform data transfer
         MONITOR.info("Starting data transfer");
@@ -259,7 +227,7 @@ public class DataTransferEndToEndTest {
         // attempt download as a normal consumer - should fail due to missing credentials
         given()
                 .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write").accessToken())
+                .auth().oauth2(consumerAccessToken)
                 .body("""
                         {
                             "providerId":"%s",
@@ -268,14 +236,14 @@ public class DataTransferEndToEndTest {
                         }
                         """.formatted(providerContextId, offerId))
                 .contentType("application/json")
-                .post("/api/mgmt/v1alpha/participants/%s/data".formatted(consumerCredentials.clientId()))
+                .post("/api/mgmt/v1alpha/participants/%s/transfer".formatted(consumerCredentials.clientId()))
                 .then()
                 .statusCode(500);
 
         // download the asset as manufacturer - should work because the manufacturer has the necessary credentials
-        given()
+        var transferResponse = given()
                 .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(getAccessToken(manufacturerCredentials.clientId(), manufacturerCredentials.clientSecret(), "management-api:write").accessToken())
+                .auth().oauth2(manufacturerAccessToken)
                 .body("""
                         {
                             "providerId":"%s",
@@ -284,9 +252,24 @@ public class DataTransferEndToEndTest {
                         }
                         """.formatted(providerContextId, offerId))
                 .contentType("application/json")
-                .post("/api/mgmt/v1alpha/participants/%s/data".formatted(manufacturerCredentials.clientId()))
+                .post("/api/mgmt/v1alpha/participants/%s/transfer".formatted(manufacturerCredentials.clientId()))
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .extract().body().as(Map.class);
+
+        var accessToken = transferResponse.get("authorization");
+
+        var list = given()
+                .baseUri(DATAPLANE_BASE_URL)
+                .header("Authorization", "Bearer " + accessToken)
+                .body("{}")
+                .contentType("application/json")
+                .post("/app/public/api/data/certs/request")
+                .then()
+                .statusCode(200)
+                .extract().body().as(List.class);
+
+        assertThat(list).isEmpty();
 
     }
 
@@ -323,11 +306,11 @@ public class DataTransferEndToEndTest {
                 .auth().oauth2(accessToken)
                 .body("""
                         {
-                            "allowedSourceTypes": [ "HttpData", "HttpCertData" ],
+                            "id": "dataplane-%s",
                             "allowedTransferTypes": [ "HttpData-PULL" ],
-                            "url": "http://dataplane.edc-v.svc.cluster.local:8083/api/control/v1/dataflows"
+                            "url": "http://siglet.edc-v.svc.cluster.local:8081/api/v1/%s/dataflows"
                         }
-                        """)
+                        """.formatted(participantContextId, participantContextId))
                 .post("/api/mgmt/v5alpha/dataplanes/%s".formatted(participantContextId))
                 .then()
                 .log().ifValidationFails()

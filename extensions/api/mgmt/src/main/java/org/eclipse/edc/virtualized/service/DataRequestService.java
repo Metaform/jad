@@ -64,16 +64,6 @@ public class DataRequestService {
         this.edrStore = edrStore;
     }
 
-    public CompletableFuture<ServiceResult<Object>> getData(ParticipantContext participantContext, DataRequest dataRequest) {
-        return initiateContractNegotiation(participantContext, dataRequest)
-                .thenCompose(this::waitForContractNegotiation)
-                .thenCompose(agreement -> startTransferProcess(participantContext, agreement))
-                .thenCompose(this::waitForTransferProcess)
-                .thenCompose(transferProcess -> getEdr(transferProcess.getId()))
-                .thenCompose(this::downloadData)
-                .thenApply(ServiceResult::success);
-    }
-
     public CompletableFuture<ServiceResult<Map<String, Object>>> setupTransfer(ParticipantContext participantContext, DataRequest dataRequest) {
         return initiateContractNegotiation(participantContext, dataRequest)
                 .thenCompose(this::waitForContractNegotiation)

@@ -20,15 +20,9 @@ plugins {
 
 dependencies {
     runtimeOnly(libs.tink)
-    implementation(libs.edc.bom.dataplane) {
-        exclude("org.eclipse.edc", "data-plane-self-registration")
-    }
-    runtimeOnly(project(":extensions:data-plane-public-api-v2"))
     runtimeOnly(project(":extensions:data-plane-certs"))
 
-    runtimeOnly(libs.edc.core.participantcontext.config)
     runtimeOnly(libs.edc.vault.hashicorp)
-    runtimeOnly(libs.edc.bom.dataplane.sql)
 }
 
 tasks.shadowJar {

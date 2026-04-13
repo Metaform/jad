@@ -33,4 +33,5 @@ data:
   VAULT_URL: "http://vault.edc-v.svc.cluster.local:8200"
   IDENTITYHUB_URL: "http://identityhub.edc-v.svc.cluster.local:7081/identities"
   TENANT-MANAGER_URL: "http://tenant-manager.edc-v.svc.cluster.local:8080"
+  SIGLET_URL: "http://siglet.edc-v.svc.cluster.local:8080"
   CORS_ALLOWED_ORIGIN: "http://ui.localhost"

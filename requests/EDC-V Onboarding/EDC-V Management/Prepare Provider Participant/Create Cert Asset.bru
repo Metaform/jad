@@ -1,7 +1,7 @@
 meta {
   name: Create Cert Asset
   type: http
-  seq: 2
+  seq: 1
 }
 
 post {
@@ -22,10 +22,6 @@ body:json {
     },
     "privateProperties": {
       "permission": "{{ASSET_PERMISSION}}"
-    },
-    "dataAddress": {
-      "@type": "DataAddress",
-      "type": "HttpCertData"
     }
   }
 }

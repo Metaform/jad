@@ -5,9 +5,5 @@
   "@type": "Asset",
   "properties": {
     "description": "This asset requires the Membership credential to access"
-  },
-  "dataAddress": {
-    "@type": "DataAddress",
-    "type": "HttpCertData"
   }
 }

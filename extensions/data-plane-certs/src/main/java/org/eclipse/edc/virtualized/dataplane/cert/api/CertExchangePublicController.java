@@ -15,16 +15,16 @@
 package org.eclipse.edc.virtualized.dataplane.cert.api;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.nimbusds.jwt.SignedJWT;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
-import org.eclipse.edc.connector.dataplane.spi.iam.DataPlaneAuthorizationService;
+import org.eclipse.edc.spi.iam.ClaimToken;
 import org.eclipse.edc.spi.query.QuerySpec;
 import org.eclipse.edc.transaction.spi.TransactionContext;
 import org.eclipse.edc.virtualized.dataplane.cert.model.ActivityItem;
@@ -35,30 +35,27 @@ import org.jetbrains.annotations.NotNull;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
-import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static org.eclipse.edc.api.authentication.filter.Constants.REQUEST_PROPERTY_CLAIMS;
 
 @Path("certs")
 public class CertExchangePublicController {
 
-    private final DataPlaneAuthorizationService authorizationService;
     private final CertStore certStore;
     private final TransactionContext transactionContext;
 
-    public CertExchangePublicController(DataPlaneAuthorizationService authorizationService, CertStore certStore, TransactionContext transactionContext) {
-        this.authorizationService = authorizationService;
+    public CertExchangePublicController(CertStore certStore, TransactionContext transactionContext) {
         this.certStore = certStore;
         this.transactionContext = transactionContext;
     }
 
     @POST
     @Path("/request")
-    public List<CertMetadata> queryCertificates(@HeaderParam(AUTHORIZATION) String token, QuerySpec querySpec) {
+    public List<CertMetadata> queryCertificates(@Context ContainerRequestContext requestContext, QuerySpec querySpec) {
         return transactionContext.execute(() -> {
-            checkAuth(token);
+            checkAuth(requestContext);
             return certStore.queryMetadata(querySpec)
                     // strip out the history for public API
                     .stream().map(ct -> new CertMetadata(ct.id(), ct.contentType(), ct.properties())).toList();
@@ -67,54 +64,46 @@ public class CertExchangePublicController {
 
     @GET
     @Path("/{id}")
-    public Response certificateDownload(@HeaderParam(AUTHORIZATION) String token, @PathParam("id") String id) {
+    public Response certificateDownload(@Context ContainerRequestContext requestContext, @PathParam("id") String id) {
         return transactionContext.execute(() -> {
-            var subject = checkAuth(token);
+            var claims = checkAuth(requestContext);
             var metadata = certStore.getMetadata(id);
             if (metadata == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            metadata.history().add(new ActivityItem(subject, Instant.now().getEpochSecond(), "DOWNLOAD"));
-            certStore.updateMetadata(id, metadata);
-            StreamingOutput stream = output -> {
-                try (InputStream is = certStore.retrieve(id)) {
-                    is.transferTo(output);
-                }
-            };
+            var subject = claims.getClaim("sub");
+            if (subject instanceof String s) {
+                metadata.history().add(new ActivityItem(s, Instant.now().getEpochSecond(), "DOWNLOAD"));
+                certStore.updateMetadata(id, metadata);
+                StreamingOutput stream = output -> {
+                    try (InputStream is = certStore.retrieve(id)) {
+                        is.transferTo(output);
+                    }
+                };
 
 
-            return Response.ok(stream)
-                    .header("Content-Type", metadata.contentType())
-                    .build();
+                return Response.ok(stream)
+                        .header("Content-Type", metadata.contentType())
+                        .build();
+            } else {
+                throw new WebApplicationException(FORBIDDEN);
+            }
+
         });
     }
 
-    private String checkAuth(String token) {
-        if (token == null) {
+    private ClaimToken checkAuth(ContainerRequestContext requestContext) {
+        if (requestContext == null) {
             throw new WebApplicationException(UNAUTHORIZED);
         }
-
-        // assuming "token" is a JWT, lets parse it and extract the `sub` claim
-        var subject = parseJwt(token);
-
-
-        var sourceDataAddress = authorizationService.authorize(token, Map.of());
-        if (sourceDataAddress.failed()) {
+        var claims = requestContext.getProperty(REQUEST_PROPERTY_CLAIMS);
+        if (claims instanceof ClaimToken claimToken) {
+            return claimToken;
+        } else {
             throw new WebApplicationException(FORBIDDEN);
-
-        }
-
-        return subject;
-    }
-
-    private String parseJwt(String token) {
-        try {
-            var signedJwt = SignedJWT.parse(token);
-            return String.join(",", signedJwt.getJWTClaimsSet().getAudience());
-        } catch (Exception e) {
-            return null;
         }
     }
+
 
     @NotNull
     protected <T> TypeReference<T> getTypeRef() {

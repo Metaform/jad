@@ -14,19 +14,23 @@
 
 package org.eclipse.edc.virtualized.dataplane.cert;
 
-import org.eclipse.edc.connector.dataplane.iam.service.DataPlaneAuthorizationServiceImpl;
-import org.eclipse.edc.connector.dataplane.spi.Endpoint;
-import org.eclipse.edc.connector.dataplane.spi.edr.EndpointDataReferenceServiceRegistry;
-import org.eclipse.edc.connector.dataplane.spi.iam.DataPlaneAuthorizationService;
-import org.eclipse.edc.connector.dataplane.spi.iam.PublicEndpointGeneratorService;
+import org.eclipse.edc.api.authentication.JwksResolver;
+import org.eclipse.edc.api.authentication.filter.JwtValidatorFilter;
+import org.eclipse.edc.keys.spi.KeyParserRegistry;
 import org.eclipse.edc.runtime.metamodel.annotation.Configuration;
 import org.eclipse.edc.runtime.metamodel.annotation.Extension;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.runtime.metamodel.annotation.Setting;
 import org.eclipse.edc.runtime.metamodel.annotation.Settings;
+import org.eclipse.edc.spi.EdcException;
 import org.eclipse.edc.spi.system.Hostname;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
+import org.eclipse.edc.token.rules.ExpirationIssuedAtValidationRule;
+import org.eclipse.edc.token.rules.IssuerEqualsValidationRule;
+import org.eclipse.edc.token.rules.NotBeforeValidationRule;
+import org.eclipse.edc.token.spi.TokenValidationRule;
+import org.eclipse.edc.token.spi.TokenValidationService;
 import org.eclipse.edc.transaction.spi.TransactionContext;
 import org.eclipse.edc.virtualized.dataplane.cert.api.CertExchangePublicController;
 import org.eclipse.edc.virtualized.dataplane.cert.api.CertInternalExchangeController;
@@ -34,6 +38,11 @@ import org.eclipse.edc.virtualized.dataplane.cert.store.CertStore;
 import org.eclipse.edc.web.spi.WebService;
 import org.eclipse.edc.web.spi.configuration.PortMapping;
 import org.eclipse.edc.web.spi.configuration.PortMappingRegistry;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.Clock;
+import java.util.List;
 
 import static org.eclipse.edc.virtualized.dataplane.cert.CertExchangeExtension.NAME;
 
@@ -43,12 +52,7 @@ public class CertExchangeExtension implements ServiceExtension {
     public static final String API_CONTEXT = "certs";
     private static final int DEFAULT_CERTS_PORT = 8186;
     private static final String DEFAULT_CERTS_PATH = "/api/data";
-
-
-    @Setting(description = "Base url of the public public API endpoint without the trailing slash. This should point to the public certs endpoint configured.",
-            required = false,
-            key = "edc.dataplane.api.certs.baseurl", warnOnMissingConfig = true)
-    private String publicBaseUrl;
+    private static final long FIVE_MINUTES = 1000 * 60 * 5;
 
     @Configuration
     private CertApiConfiguration apiConfiguration;
@@ -60,14 +64,6 @@ public class CertExchangeExtension implements ServiceExtension {
     private PortMappingRegistry portMappingRegistry;
 
     @Inject
-    private DataPlaneAuthorizationService authorizationService;
-    @Inject
-    private PublicEndpointGeneratorService generatorService;
-
-    @Inject
-    private EndpointDataReferenceServiceRegistry endpointDataReferenceServiceRegistry;
-
-    @Inject
     private WebService webService;
 
     @Inject
@@ -76,24 +72,45 @@ public class CertExchangeExtension implements ServiceExtension {
     @Inject
     private TransactionContext transactionContext;
 
+    @Inject
+    private TokenValidationService tokenValidationService;
+
+    @Configuration
+    private SigletConfig sigletConfig;
+
+    @Inject
+    private KeyParserRegistry keyParserRegistry;
+
+    @Inject
+    private Clock clock;
+
     @Override
     public void initialize(ServiceExtensionContext context) {
         var portMapping = new PortMapping(API_CONTEXT, apiConfiguration.port(), apiConfiguration.path());
         portMappingRegistry.register(portMapping);
 
-        if (publicBaseUrl == null) {
-            publicBaseUrl = "http://%s:%d%s".formatted(hostname.get(), portMapping.port(), portMapping.path());
-            context.getMonitor().warning("The public API endpoint was not explicitly configured, the default '%s' will be used.".formatted(publicBaseUrl));
+        URL url;
+        try {
+            url = new URL(sigletConfig.jwksUrl());
+        } catch (MalformedURLException e) {
+            throw new EdcException(e);
         }
-        var endpoint = Endpoint.url(publicBaseUrl);
-        generatorService.addGeneratorFunction("HttpCertData", dataAddress -> endpoint);
-        webService.registerResource(API_CONTEXT, new CertExchangePublicController(authorizationService, certStore, transactionContext));
+
+        webService.registerResource(API_CONTEXT, new CertExchangePublicController(certStore, transactionContext));
+        webService.registerResource(API_CONTEXT, new JwtValidatorFilter(tokenValidationService, new JwksResolver(url, keyParserRegistry, sigletConfig.cacheValidityInMillis), getRules()));
+
         webService.registerResource("control", new CertInternalExchangeController(certStore, transactionContext));
 
-        if (authorizationService instanceof DataPlaneAuthorizationServiceImpl dpAuthService) {
-            endpointDataReferenceServiceRegistry.register("HttpCertData", dpAuthService);
-        }
     }
+
+    private List<TokenValidationRule> getRules() {
+        return List.of(
+                new IssuerEqualsValidationRule(sigletConfig.expectedIssuer),
+                new NotBeforeValidationRule(clock, 0, true),
+                new ExpirationIssuedAtValidationRule(clock, 0, false)
+        );
+    }
+
 
     @Settings
     record CertApiConfiguration(
@@ -101,6 +118,18 @@ public class CertExchangeExtension implements ServiceExtension {
             int port,
             @Setting(key = "web.http." + API_CONTEXT + ".path", description = "Path for " + API_CONTEXT + " api context", defaultValue = DEFAULT_CERTS_PATH)
             String path
+    ) {
+
+    }
+
+    @Settings
+    record SigletConfig(
+            @Setting(key = "edc.iam.siglet.issuer", description = "Issuer of the Siglet server", required = false)
+            String expectedIssuer,
+            @Setting(key = "edc.iam.siglet.jwks.url", description = "Absolute URL where the JWKS of the Siglet server is hosted")
+            String jwksUrl,
+            @Setting(key = "edc.iam.siglet.jwks.cache.validity", description = "Time (in ms) that cached JWKS are cached", defaultValue = "" + FIVE_MINUTES)
+            long cacheValidityInMillis
     ) {
 
     }

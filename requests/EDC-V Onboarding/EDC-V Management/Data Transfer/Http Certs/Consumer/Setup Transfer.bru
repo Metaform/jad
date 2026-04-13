@@ -20,7 +20,7 @@ body:json {
 script:post-response {
   try {
       const json = res.getBody();
-      const accessToken = json['https://w3id.org/edc/v0.0.1/ns/authorization'];
+      const accessToken = json['authorization'];
     
       if (accessToken && typeof accessToken === 'string') {
           bru.setVar('ACCESS_TOKEN', accessToken);

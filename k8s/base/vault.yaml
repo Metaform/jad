@@ -41,13 +41,11 @@ spec:
               value: "root"
             - name: VAULT_DEV_LISTEN_ADDRESS
               value: "0.0.0.0:8200"
+            - name: SKIP_SETCAP
+              value: "true"
           args:
             - "server"
             - "-dev"
-          securityContext:
-            capabilities:
-              add:
-                - IPC_LOCK
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -188,7 +186,7 @@ spec:
               vault secrets enable transit 2>/dev/null && echo "Transit engine enabled" || echo "Transit engine already enabled"
               
               # Create signing key for Siglet
-              vault write -f transit/keys/siglet-signing-key type=ed25519 2>/dev/null && echo "Signing key created" || echo "Signing key already exists"
+              vault write -f transit/keys/signing-siglet type=ed25519 2>/dev/null && echo "Signing key created" || echo "Signing key already exists"
               
               # Create policy for signer
               cat <<EOF | vault policy write transit-policy - || { echo "Failed to write policy"; exit 1; }

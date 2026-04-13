@@ -20,11 +20,6 @@ metadata:
 data:
   edc.hostname: "dataplane.edc-v.svc.cluster.local"
 
-  edc.transfer.proxy.token.verifier.publickey.alias: "dataplane-private"
-  edc.transfer.proxy.token.signer.privatekey.alias: "dataplane-public"
-
-  edc.dpf.selector.url: "http://controlplane.edc-v.svc.cluster.local:8083/api/control/v1/dataplanes"
-
   web.http.port: "8080"
   web.http.path: "/api"
   web.http.control.port: "8083"
@@ -44,6 +39,6 @@ data:
   edc.datasource.default.password: "dp"
   edc.sql.schema.autocreate: "true"
 
-#  EDC_IAM_STS_OAUTH_TOKEN_URL: "http://foobar/token"
-#  EDC_IAM_STS_OAUTH_CLIENT_ID: "${PARTICIPANT_ID}"
-#  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: "${PARTICIPANT_ID}-sts-client-secret"
+  edc.iam.siglet.issuer: "siglet-issuer"
+  edc.iam.siglet.jwks.url: "http://siglet.edc-v.svc.cluster.local:8080/keys"
+

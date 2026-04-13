@@ -1,22 +1,22 @@
 meta {
   name: Prepare Dataplane
   type: http
-  seq: 4
+  seq: 5
 }
 
 post {
-  url: {{cpBaseUrl}}/api/mgmt/v5alpha/dataplanes/{{provider_id}}
+  url: {{cpBaseUrl}}/api/mgmt/v5alpha/dataplanes/{{consumer_id}}
   body: json
   auth: inherit
 }
 
 body:json {
   {
-    "id": "provider-siglet",
+    "id": "consumer-siglet",
     "allowedTransferTypes": [
       "HttpData-PULL"
     ],
-    "url": "http://siglet.edc-v.svc.cluster.local:8081/api/v1/{{provider_id}}/dataflows"
+    "url": "http://siglet.edc-v.svc.cluster.local:8081/api/v1/{{consumer_id}}/dataflows"
   }
 }
 
