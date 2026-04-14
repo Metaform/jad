@@ -41,6 +41,11 @@ spec:
               protocol: TCP
           envFrom:
             - configMapRef: { name: issuerservice-config }
+            - configMapRef:
+                name: telemetry-config
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: edc.issuerservice
           livenessProbe:
             httpGet:
               path: /api/check/liveness

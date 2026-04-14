@@ -21,3 +21,5 @@ metadata:
 data:
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger.edc-v.svc.cluster.local:4318"
   OTEL_TRACES_EXPORTER: "otlp"
+  OTEL_METRICS_EXPORTER: "otlp"
+  OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: "http://prometheus.edc-v.svc.cluster.local:9090/api/v1/otlp/v1/metrics"

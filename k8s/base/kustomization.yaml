@@ -20,3 +20,4 @@ resources:
   - keycloak.yaml
   - vault.yaml
   - jaeger.yaml
+  - prometheus.yaml

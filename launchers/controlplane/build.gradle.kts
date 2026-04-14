@@ -24,6 +24,7 @@ dependencies {
     runtimeOnly(libs.edcv.bom.controlplane.sql)
     runtimeOnly(libs.edcv.bom.controlplane.nats)
     runtimeOnly(libs.edcv.bom.controlplane.dcp)
+    runtimeOnly(libs.edc.spi.jwt)
 
     runtimeOnly(libs.edc.core.edrstore)
     runtimeOnly(libs.edc.vault.hashicorp)
@@ -32,6 +33,8 @@ dependencies {
     runtimeOnly(libs.bouncyCastle.bcprovJdk18on)
 
     runtimeOnly(project(":extensions:api:mgmt"))
+
+    runtimeOnly(libs.opentelemetry.exporter.otlp)
 }
 
 tasks.shadowJar {

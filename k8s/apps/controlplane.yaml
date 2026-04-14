@@ -38,6 +38,11 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - configMapRef: { name: controlplane-config }
+            - configMapRef:
+                name: telemetry-config
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: edc.controlplane
           ports:
             - containerPort: 8081
               name: management-port

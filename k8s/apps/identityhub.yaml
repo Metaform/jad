@@ -39,6 +39,11 @@ spec:
           envFrom:
             - configMapRef:
                 name: ih-config
+            - configMapRef:
+                name: telemetry-config
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: edc.identityhub
           ports:
             - containerPort: 7082
               name: creds-port

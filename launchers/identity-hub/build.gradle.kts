@@ -25,6 +25,8 @@ dependencies {
     runtimeOnly(libs.edc.bom.identityhub.sql)
     runtimeOnly(libs.edc.core.participantcontext.config)
     runtimeOnly(libs.edc.store.participantcontext.config.sql)
+
+    runtimeOnly(libs.opentelemetry.exporter.otlp)
 }
 
 application {

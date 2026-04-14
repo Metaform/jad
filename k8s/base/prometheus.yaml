@@ -1,0 +1,100 @@
+#
+# Copyright (c) 2026 Metaform Systems, Inc.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Contributors:
+#      Metaform Systems, Inc. - initial API and implementation
+#
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: edc-v
+  labels:
+    app: prometheus
+    platform: edcv
+    type: edcv-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      name: prometheus
+      labels:
+        app: prometheus
+        platform: edcv
+        type: edcv-infra
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v3.2.1
+          imagePullPolicy: IfNotPresent
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --web.enable-otlp-receiver
+          ports:
+            - containerPort: 9090
+              protocol: TCP
+              name: http
+          volumeMounts:
+            - name: prometheus-config
+              mountPath: /etc/prometheus
+      volumes:
+        - name: prometheus-config
+          configMap:
+            name: prometheus-config
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: edc-v
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: edc-v
+spec:
+  type: ClusterIP
+  selector:
+    app: prometheus
+  ports:
+    - name: http
+      port: 9090
+      targetPort: 9090
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: prometheus
+  namespace: edc-v
+spec:
+  parentRefs:
+    - name: edcv-gateway
+  hostnames:
+    - prometheus.localhost
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: prometheus
+          port: 9090

@@ -53,6 +53,7 @@ edc-spi-http = { module = "org.eclipse.edc:http-spi", version.ref = "edc" }
 edc-spi-catalog = { module = "org.eclipse.edc:catalog-spi", version.ref = "edc" }
 edc-spi-transaction = { module = "org.eclipse.edc:transaction-spi", version.ref = "edc" }
 edc-spi-edrstore = { module = "org.eclipse.edc:edr-store-spi", version.ref = "edc" }
+edc-spi-jwt = { module = "org.eclipse.edc:jwt-spi", version.ref = "edc" }
 
 # identityhub SPI modules
 edc-ih-spi-credentials = { module = "org.eclipse.edc:verifiable-credential-spi", version.ref = "edc" }
@@ -86,6 +87,7 @@ restAssured = { module = "io.rest-assured:rest-assured", version.ref = "restAssu
 jakarta-rsApi = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "rsApi" }
 jersey-multipart = { module = "org.glassfish.jersey.media:jersey-media-multipart", version.ref = "jersey" }
 postgres = { module = "org.postgresql:postgresql", version.ref = "postgres" }
+opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version = "1.61.0" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version = "9.4.1" }
