@@ -35,7 +35,7 @@ spec:
       containers:
         - name: tenant-manager
           image: ghcr.io/eclipse-cfm/cfm/tmanager:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           command: [ "/tmanager" ]
           args: [
             "--mode=debug"

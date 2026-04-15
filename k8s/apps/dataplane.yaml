@@ -39,6 +39,11 @@ spec:
           envFrom:
             - configMapRef:
                 name: dataplane-config
+            - configMapRef:
+                name: telemetry-config
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: "edc.dataplane"
           ports:
             - containerPort: 11002
               name: public-port

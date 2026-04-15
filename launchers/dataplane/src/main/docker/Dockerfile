@@ -4,12 +4,13 @@ FROM eclipse-temurin:24.0.2_12-jre-alpine
 # Optional JVM arguments, such as memory settings
 ARG JVM_ARGS=""
 ARG JAR
+ARG OTEL_AGENT
 
 RUN apk --no-cache add curl
 
 WORKDIR /app
 
-
+COPY ${OTEL_AGENT} opentelemetry-javaagent.jar
 COPY ${JAR} edc-dataplane.jar
 
 
@@ -20,4 +21,4 @@ HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://local
 ENV ENV_JVM_ARGS=$JVM_ARGS
 # need the sh -c syntax so that the SECRETS variable gets expanded
 # use the "exec" syntax so that SIGINT reaches the JVM -> graceful termination
-CMD ["sh", "-c", "exec java -Djava.security.egd=file:/dev/urandom -jar edc-dataplane.jar --log-level=debug"]
+CMD ["sh", "-c", "exec java -javaagent:opentelemetry-javaagent.jar -Djava.security.egd=file:/dev/urandom -jar edc-dataplane.jar --log-level=debug"]

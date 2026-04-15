@@ -35,7 +35,7 @@ spec:
       containers:
         - name: provision-manager
           image: ghcr.io/eclipse-cfm/cfm/pmanager:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           command: [ "/pmanager" ]
           args: [
             "--mode=debug"

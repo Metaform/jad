@@ -23,6 +23,8 @@ dependencies {
     runtimeOnly(project(":extensions:data-plane-certs"))
 
     runtimeOnly(libs.edc.vault.hashicorp)
+
+    runtimeOnly(libs.opentelemetry.exporter.otlp)
 }
 
 tasks.shadowJar {
