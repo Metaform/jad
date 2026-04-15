@@ -52,18 +52,18 @@ spec:
             httpGet:
               path: /api/public/health
               port: 8081
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
+            initialDelaySeconds: 15
+            periodSeconds: 3
+            timeoutSeconds: 1
+            failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /api/public/health
               port: 8081
-            initialDelaySeconds: 30
-            periodSeconds: 5
-            timeoutSeconds: 3
-            failureThreshold: 3
+            initialDelaySeconds: 15
+            periodSeconds: 3
+            timeoutSeconds: 1
+            failureThreshold: 10
 
 ---
 apiVersion: v1

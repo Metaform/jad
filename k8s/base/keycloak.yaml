@@ -83,7 +83,7 @@ spec:
               path: /health/ready
               port: 9000
             initialDelaySeconds: 3
-            periodSeconds: 10
+            periodSeconds: 5
             successThreshold: 1
             failureThreshold: 12
           livenessProbe:
@@ -91,7 +91,7 @@ spec:
               path: /health/live
               port: 9000
             initialDelaySeconds: 3
-            periodSeconds: 10
+            periodSeconds: 5
             successThreshold: 1
             failureThreshold: 12
       volumes:
