@@ -215,7 +215,7 @@ The recommended way is to deploy infrastructure services first, and application 
 by running:
 
 ```shell
-kubectl apply -f k8s/base/
+kubectl apply -k k8s/base/
 
 # Wait for the infrastructure services to be ready:
 kubectl wait --namespace edc-v \
@@ -223,7 +223,7 @@ kubectl wait --namespace edc-v \
             --selector=type=edcv-infra \
             --timeout=90s
 
-kubectl apply -f k8s/apps/
+kubectl apply -k k8s/apps/
 
 # Wait for seed jobs to be ready:
 kubectl wait --namespace edc-v \
@@ -235,12 +235,12 @@ Here's a copy-and-pasteable command to delete and redeploy everything:
 
 ```shell
 kubectl delete -k k8s/; \
-kubectl apply -f k8s/base && \
+kubectl apply -k k8s/base && \
 kubectl wait --namespace edc-v \
             --for=condition=ready pod \
             --selector=type=edcv-infra \
             --timeout=90s && \
-kubectl apply -f k8s/apps && \
+kubectl apply -k k8s/apps && \
 kubectl wait --namespace edc-v \
             --for=condition=complete job --all \
             --timeout=90s

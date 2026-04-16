@@ -86,7 +86,7 @@ jobs:
           # deploying the infrastructure first, wait for it to finish and deploying the applications afterwards is 
           # the safest way to avoid race conditions between apps and infra, e.g. vault.
           
-          kubectl apply -f k8s/base
+          kubectl apply -k k8s/base
       - name: "Wait for JAD infrastructure to be ready"
         run: |-
           kubectl wait --namespace edc-v \
@@ -102,7 +102,7 @@ jobs:
           sed -i "s/imagePullPolicy:.*Always/imagePullPolicy: Never/g" k8s/apps/issuerservice.yaml
           sed -i "s/imagePullPolicy:.*Always/imagePullPolicy: Never/g" k8s/apps/identityhub.yaml
           
-          kubectl apply -f k8s/apps
+          kubectl apply -k k8s/apps
 
       - name: "Wait for JAD applications to be ready"
         run: |-
