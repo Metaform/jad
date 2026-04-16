@@ -38,3 +38,5 @@ resources:
   - redline-seed-job.yaml
   - ui.yaml
   - ui-config.yaml
+  - siglet-config.yaml
+  - siglet.yaml
