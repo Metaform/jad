@@ -307,14 +307,14 @@ public class DataTransferEndToEndTest {
                 .body("""
                         {
                             "id": "dataplane-%s",
-                            "allowedTransferTypes": [ "HttpData-PULL" ],
-                            "url": "http://siglet.edc-v.svc.cluster.local:8081/api/v1/%s/dataflows"
+                            "transferTypes": [ "HttpData-PULL" ],
+                            "endpoint": "http://siglet.edc-v.svc.cluster.local:8081/api/v1/%s/dataflows"
                         }
                         """.formatted(participantContextId, participantContextId))
-                .post("/api/mgmt/v5beta/dataplanes/%s".formatted(participantContextId))
+                .put("/api/mgmt/v5beta/participants/%s/dataplanes".formatted(participantContextId))
                 .then()
                 .log().ifValidationFails()
-                .statusCode(204);
+                .statusCode(200);
     }
 
     private String createAsset(String participantContextId, String accessToken, String resourceName) {

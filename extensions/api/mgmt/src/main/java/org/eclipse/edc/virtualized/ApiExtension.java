@@ -17,7 +17,6 @@ package org.eclipse.edc.virtualized;
 import org.eclipse.edc.connector.controlplane.services.spi.catalog.CatalogService;
 import org.eclipse.edc.connector.controlplane.services.spi.contractnegotiation.ContractNegotiationService;
 import org.eclipse.edc.connector.controlplane.services.spi.transferprocess.TransferProcessService;
-import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
 import org.eclipse.edc.edr.spi.store.EndpointDataReferenceStore;
 import org.eclipse.edc.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.edc.participantcontext.spi.service.ParticipantContextService;
@@ -25,7 +24,6 @@ import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.virtualized.api.data.DataApiController;
-import org.eclipse.edc.virtualized.api.management.DataplaneRegistrationApiController;
 import org.eclipse.edc.virtualized.service.DataRequestService;
 import org.eclipse.edc.web.spi.WebService;
 import org.eclipse.edc.web.spi.configuration.ApiContext;
@@ -42,8 +40,6 @@ public class ApiExtension implements ServiceExtension {
     @Inject
     private ParticipantContextService participantContextService;
     @Inject
-    private DataPlaneSelectorService selectorService;
-    @Inject
     private ContractNegotiationService contractNegotiationService;
     @Inject
     private TransferProcessService transferProcessService;
@@ -54,11 +50,7 @@ public class ApiExtension implements ServiceExtension {
     public void initialize(ServiceExtensionContext context) {
         var dataRequestService = new DataRequestService(contractNegotiationService, transferProcessService, didResolverRegistry, edrStore);
         webService.registerResource(ApiContext.MANAGEMENT, new DataApiController(catalogService, didResolverRegistry, participantContextService, dataRequestService));
-        webService.registerResource(ApiContext.MANAGEMENT, new DataplaneRegistrationApiController(selectorService));
     }
-
-
-
 
 
 }

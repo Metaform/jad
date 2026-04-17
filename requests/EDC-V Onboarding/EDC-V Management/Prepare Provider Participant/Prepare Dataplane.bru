@@ -4,8 +4,8 @@ meta {
   seq: 4
 }
 
-post {
-  url: {{cpBaseUrl}}/api/mgmt/v5beta/dataplanes/{{provider_id}}
+put {
+  url: {{cpBaseUrl}}/api/mgmt/v5beta/participants/{{provider_id}}/dataplanes
   body: json
   auth: inherit
 }
@@ -13,10 +13,10 @@ post {
 body:json {
   {
     "id": "provider-siglet",
-    "allowedTransferTypes": [
+    "transferTypes": [
       "HttpData-PULL"
     ],
-    "url": "http://siglet.edc-v.svc.cluster.local:8081/api/v1/{{provider_id}}/dataflows"
+    "endpoint": "http://siglet.edc-v.svc.cluster.local:8081/api/v1/{{provider_id}}/dataflows"
   }
 }
 
