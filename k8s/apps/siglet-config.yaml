@@ -19,11 +19,10 @@ metadata:
   namespace: edc-v
 data:
   siglet.toml: |
-    storage_backend = "postgres"
-    postgres_url = "postgresql://siglet:siglet@postgres:5432/sigletdb"
-    postgres_encryption_password = "mysecretpassword"
-    postgres_encryption_salt = "6b9768804c86626227e61acd9e06f8ff"
     token_server_secret = "93d22865c1b0695d3caa1ac5ba648b88942aaeee3b05ba4aff2efc87e2cd1944"
+    [storage_backend]
+    type = "postgres-vault"
+    url = "postgresql://siglet:siglet@postgres:5432/sigletdb"
     [[transfer_types]]
     transfer_type = "HttpData-PULL"
     endpoint_type = "HTTP"

@@ -23,7 +23,9 @@ public interface Constants {
     String PM_BASE_URL = "http://pm.localhost:8080";
     String VAULT_URL = "http://vault.localhost:8080";
     String CONTROLPLANE_BASE_URL = "http://cp.localhost:8080";
+    String SIGLET_BASE_URL = "http://siglet.localhost:8080";
     String DATAPLANE_BASE_URL = "http://dp.localhost:8080";
     String IDENTITYHUB_BASE_URL = "http://ih.localhost:8080";
     String KEYCLOAK_URL = "http://keycloak.localhost:8080";
+    String CONTROLPLANE_PROTOCOL_URL = "http://controlplane.edc-v.svc.cluster.local:8082/api/dsp/%s/2025-1";
 }

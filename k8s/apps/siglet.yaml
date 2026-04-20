@@ -66,23 +66,23 @@ spec:
           env:
             - name: RUST_LOG
               value: "info,siglet=debug"
-            - name: SIGLET_SIGLET_API_PORT
+            - name: SIGLET__SIGLET_API_PORT
               value: "8080"
-            - name: SIGLET_SIGNALING_PORT
+            - name: SIGLET__SIGNALING_PORT
               value: "8081"
-            - name: SIGLET_REFRESH_API_PORT
+            - name: SIGLET__REFRESH_API_PORT
               value: "8082"
             - name: SIGLET_CONFIG_FILE
               value: "/config/siglet.toml"
-            - name: SIGLET_VAULT_URL
+            - name: SIGLET__VAULT__URL
               value: "http://vault:8200"
-            - name: SIGLET_VAULT_TOKEN_FILE
+            - name: SIGLET__VAULT__TOKEN_FILE
               value: "/vault/secrets/.vault-token"
-            - name: SIGLET_VAULT_SIGNING_KEY_NAME
+            - name: SIGLET__VAULT__SIGNING_KEY_NAME
               value: "signing-siglet"
-            - name: SIGLET_TOKEN_ISSUER
+            - name: SIGLET__TOKEN__ISSUER
               value: "siglet-issuer"
-            - name: SIGLET_TOKEN_REFRESH_ENDPOINT
+            - name: SIGLET__TOKEN__REFRESH_ENDPOINT
               value: "http://siglet.edc-v.svc.cluster.local:8082/token/refresh"
           volumeMounts:
             - name: siglet-config

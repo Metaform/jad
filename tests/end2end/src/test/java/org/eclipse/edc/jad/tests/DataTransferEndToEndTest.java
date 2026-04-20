@@ -19,27 +19,41 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
-import org.eclipse.edc.jad.tests.model.CatalogResponse;
+import org.eclipse.edc.connector.controlplane.test.system.utils.client.ManagementApiClientV5;
+import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.AssetDto;
+import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.AtomicConstraintDto;
+import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.CelExpressionDto;
+import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.ContractDefinitionDto;
+import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.CriterionDto;
+import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.DataPlaneRegistrationDto;
+import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.PermissionDto;
+import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.PolicyDefinitionDto;
+import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.PolicyDto;
 import org.eclipse.edc.jad.tests.model.ClientCredentials;
 import org.eclipse.edc.junit.annotations.EndToEndTest;
+import org.eclipse.edc.junit.utils.LazySupplier;
 import org.eclipse.edc.spi.monitor.ConsoleMonitor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.edc.jad.tests.Constants.APPLICATION_JSON;
 import static org.eclipse.edc.jad.tests.Constants.CONTROLPLANE_BASE_URL;
+import static org.eclipse.edc.jad.tests.Constants.CONTROLPLANE_PROTOCOL_URL;
 import static org.eclipse.edc.jad.tests.Constants.DATAPLANE_BASE_URL;
+import static org.eclipse.edc.jad.tests.Constants.SIGLET_BASE_URL;
 import static org.eclipse.edc.jad.tests.Constants.TM_BASE_URL;
 import static org.eclipse.edc.jad.tests.KeycloakApi.createKeycloakToken;
 import static org.eclipse.edc.jad.tests.KeycloakApi.getAccessToken;
-import static org.eclipse.edc.jsonld.spi.JsonLdKeywords.ID;
 
 /**
  * This test class executes a series of REST requests against several components to verify that an end-to-end
@@ -54,11 +68,12 @@ public class DataTransferEndToEndTest {
     private static final String VAULT_TOKEN = "root";
 
     private static final ConsoleMonitor MONITOR = new ConsoleMonitor(ConsoleMonitor.Level.DEBUG, true);
+    private static final DynamicTokenProvider DYNAMIC_TOKEN_PROVIDER = new DynamicTokenProvider();
+    private static final ManagementApiClientV5 MANAGEMENT_API_CLIENT = new ManagementApiClientV5(DYNAMIC_TOKEN_PROVIDER, new LazySupplier<>(() -> URI.create(CONTROLPLANE_BASE_URL + "/api/mgmt")));
     private static ClientCredentials providerCredentials;
     private static ClientCredentials consumerCredentials;
     private static String providerContextId;
     private static ClientCredentials manufacturerCredentials;
-
 
     static String loadResourceFile(String resourceName) {
         try (var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName)) {
@@ -82,11 +97,13 @@ public class DataTransferEndToEndTest {
                 }
         ));
 
+
         var slug = Instant.now().getEpochSecond();
 
-        var adminToken = createKeycloakToken("admin", "edc-v-admin-secret", "issuer-admin-api:write", "identity-api:write", "management-api:write", "identity-api:read");
-        createCelExpression(adminToken, "membership_cel_expression.json");
-        createCelExpression(adminToken, "manufacturer_cel_expression.json");
+        DYNAMIC_TOKEN_PROVIDER.setDefaultTokenGenerator(() -> createKeycloakToken("admin", "edc-v-admin-secret", "issuer-admin-api:write", "identity-api:write", "management-api:write", "identity-api:read"));
+
+        createMembershipCelExpression();
+        createManufacturerCelExpression();
 
         MONITOR.info("Create cell and dataspace profile");
         var cellId = getCellId();
@@ -113,23 +130,24 @@ public class DataTransferEndToEndTest {
         manufacturerCredentials = manufacturerPo.execute(cellId, "manufacturer");
     }
 
-    /**
-     * Creates a Common Expression Language (CEL) entry in the control plane
-     *
-     * @param accessToken  OAuth2 token
-     * @param resourceName name of the resource file that contains the CEL expression.
-     */
-    private static void createCelExpression(String accessToken, String resourceName) {
-        var template = loadResourceFile(resourceName);
+    private static void createMembershipCelExpression() {
+        var expr = "ctx.agent.claims.vc.filter(c, c.type.exists(t, t == 'MembershipCredential')).exists(c, c.credentialSubject.exists(cs, timestamp(cs.membershipStartDate) < now))";
+        var celExpression = new CelExpressionDto("MembershipCredential",
+                expr,
+                Set.of("catalog", "contract.negotiation", "transfer.process"),
+                "Expression for evaluating membership credential"
+        );
+        MANAGEMENT_API_CLIENT.expressions().createExpression(celExpression);
+    }
 
-        given()
-                .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(accessToken)
-                .contentType("application/json")
-                .body(template)
-                .post("/api/mgmt/v5beta/celexpressions")
-                .then()
-                .statusCode(200);
+    private static void createManufacturerCelExpression() {
+        var expr = "ctx.agent.claims.vc.filter(c, c.type.exists(t, t == 'ManufacturerCredential')).exists(c, c.credentialSubject.exists(cs, timestamp(cs.since) < now))";
+        var celExpression = new CelExpressionDto("ManufacturerCredential",
+                expr,
+                Set.of("catalog", "contract.negotiation", "transfer.process"),
+                "Expression for evaluating manufacturer credential"
+        );
+        MANAGEMENT_API_CLIENT.expressions().createExpression(celExpression);
     }
 
     /**
@@ -151,40 +169,33 @@ public class DataTransferEndToEndTest {
 
         // seed provider
         MONITOR.info("Seeding provider");
-        var providerAccessToken = getAccessToken(providerCredentials.clientId(), providerCredentials.clientSecret(), "management-api:write").accessToken();
-        var consumerAccessToken = getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write").accessToken();
-        var assetId = createCertAsset(providerCredentials.clientId(), providerAccessToken);
-        var policyDefId = createPolicyDef(providerCredentials.clientId(), providerAccessToken, "policy-def.json");
-        createContractDef(providerCredentials.clientId(), providerAccessToken, policyDefId, policyDefId, assetId);
+
+        DYNAMIC_TOKEN_PROVIDER.registerTokenGenerator(providerCredentials.clientId(), () -> getAccessToken(providerCredentials.clientId(), providerCredentials.clientSecret(), "management-api:write management-api:read").accessToken());
+        DYNAMIC_TOKEN_PROVIDER.registerTokenGenerator(consumerCredentials.clientId(), () -> getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write management-api:read").accessToken());
+
+        var assetId = createCertAsset(providerCredentials.clientId());
+        var policyDefId = createPolicyDef(providerCredentials.clientId(), "MembershipCredential");
+        createContractDef(providerCredentials.clientId(), policyDefId, policyDefId, assetId);
         // Register dataplanes
-        registerDataPlane(providerCredentials.clientId(), providerAccessToken);
-        registerDataPlane(consumerCredentials.clientId(), consumerAccessToken);
+        registerDataPlane(providerCredentials.clientId());
+        registerDataPlane(consumerCredentials.clientId());
 
-        // perform data transfer
-        MONITOR.info("Starting data transfer");
-        var catalog = fetchCatalog(consumerCredentials);
+        MONITOR.info("starting data transfer");
 
-        MONITOR.info("Catalog received, starting data transfer");
-        var offerId = catalog.datasets().stream().filter(dataSet -> dataSet.id().equals(assetId)).findFirst().get().offers().get(0).id();
-        assertThat(offerId).isNotNull();
+        var transferId = MANAGEMENT_API_CLIENT.startTransfer(consumerCredentials.clientId(),
+                providerCredentials.clientId(), CONTROLPLANE_PROTOCOL_URL.formatted(providerCredentials.clientId()), providerContextId, assetId, "HttpData-PULL");
 
-        // trigger transfer
+
+        MONITOR.info("Fetching siglet token for transferId: " + transferId);
+
         var transferResponse = given()
-                .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(consumerAccessToken)
-                .body("""
-                        {
-                            "providerId":"%s",
-                            "policyId": "%s"
-                        }
-                        """.formatted(providerContextId, offerId))
-                .contentType("application/json")
-                .post("/api/mgmt/v1alpha/participants/%s/transfer".formatted(consumerCredentials.clientId()))
+                .baseUri(SIGLET_BASE_URL)
+                .get("/tokens/%s/%s".formatted(consumerCredentials.clientId(), transferId))
                 .then()
                 .statusCode(200)
                 .extract().body().as(Map.class);
 
-        var accessToken = transferResponse.get("authorization");
+        var accessToken = transferResponse.get("token");
 
         var list = given()
                 .baseUri(DATAPLANE_BASE_URL)
@@ -203,61 +214,42 @@ public class DataTransferEndToEndTest {
     void testTransferLimitedAccess() {
         // seed provider
         MONITOR.info("Seeding provider");
-        var providerAccessToken = getAccessToken(providerCredentials.clientId(), providerCredentials.clientSecret(), "management-api:write").accessToken();
-        var consumerAccessToken = getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write").accessToken();
-        var manufacturerAccessToken = getAccessToken(manufacturerCredentials.clientId(), manufacturerCredentials.clientSecret(), "management-api:write").accessToken();
-        var assetId = createAsset(providerCredentials.clientId(), providerAccessToken, "asset-restricted.json");
-        var accessPolicyId = createPolicyDef(providerCredentials.clientId(), providerAccessToken, "policy-def.json");
-        var contractPolicyId = createPolicyDef(providerCredentials.clientId(), providerAccessToken, "policy-def-manufacturer.json");
-        createContractDef(providerCredentials.clientId(), providerAccessToken, accessPolicyId, contractPolicyId, assetId);
 
-        registerDataPlane(providerCredentials.clientId(), providerAccessToken);
-        registerDataPlane(consumerCredentials.clientId(), consumerAccessToken);
-        registerDataPlane(manufacturerCredentials.clientId(), manufacturerAccessToken);
+        DYNAMIC_TOKEN_PROVIDER.registerTokenGenerator(providerCredentials.clientId(), () -> getAccessToken(providerCredentials.clientId(), providerCredentials.clientSecret(), "management-api:write management-api:read").accessToken());
+        DYNAMIC_TOKEN_PROVIDER.registerTokenGenerator(consumerCredentials.clientId(), () -> getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:write management-api:read").accessToken());
+        DYNAMIC_TOKEN_PROVIDER.registerTokenGenerator(manufacturerCredentials.clientId(), () -> getAccessToken(manufacturerCredentials.clientId(), manufacturerCredentials.clientSecret(), "management-api:write management-api:read").accessToken());
 
-        // perform data transfer
-        MONITOR.info("Starting data transfer");
-        var catalog = fetchCatalog(consumerCredentials);
+        var assetId = createAsset(providerCredentials.clientId(), "This asset requires the Manufacturer credential to access");
+        var accessPolicyId = createPolicyDef(providerCredentials.clientId(), "MembershipCredential");
+        var contractPolicyId = createPolicyDef(providerCredentials.clientId(), "ManufacturerCredential");
+        createContractDef(providerCredentials.clientId(), accessPolicyId, contractPolicyId, assetId);
 
-        MONITOR.info("Catalog received, starting data transfer");
-        var offerId = catalog.datasets().stream().filter(dataSet -> dataSet.id().equals(assetId)).findFirst().get().offers().get(0).id();
-        assertThat(offerId).isNotNull();
+        registerDataPlane(providerCredentials.clientId());
+        registerDataPlane(consumerCredentials.clientId());
+        registerDataPlane(manufacturerCredentials.clientId());
+
+        var negotiationId = MANAGEMENT_API_CLIENT.initContractNegotiation(consumerCredentials.clientId(),
+                assetId, CONTROLPLANE_PROTOCOL_URL.formatted(providerCredentials.clientId()), providerContextId);
 
 
-        // attempt download as a normal consumer - should fail due to missing credentials
-        given()
-                .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(consumerAccessToken)
-                .body("""
-                        {
-                            "providerId":"%s",
-                            "policyId": "%s",
-                            "policyType": "manufacturer"
-                        }
-                        """.formatted(providerContextId, offerId))
-                .contentType("application/json")
-                .post("/api/mgmt/v1alpha/participants/%s/transfer".formatted(consumerCredentials.clientId()))
-                .then()
-                .statusCode(500);
+        MANAGEMENT_API_CLIENT.waitForContractNegotiationState(consumerCredentials.clientId(), negotiationId, "TERMINATED");
 
-        // download the asset as manufacturer - should work because the manufacturer has the necessary credentials
+        MONITOR.info("starting data transfer");
+
+        var transferId = MANAGEMENT_API_CLIENT.startTransfer(manufacturerCredentials.clientId(),
+                providerCredentials.clientId(), CONTROLPLANE_PROTOCOL_URL.formatted(providerCredentials.clientId()), providerContextId, assetId, "HttpData-PULL");
+
+
+        MONITOR.info("Fetching siglet token for transferId: " + transferId);
+
         var transferResponse = given()
-                .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(manufacturerAccessToken)
-                .body("""
-                        {
-                            "providerId":"%s",
-                            "policyId": "%s",
-                            "policyType": "manufacturer"
-                        }
-                        """.formatted(providerContextId, offerId))
-                .contentType("application/json")
-                .post("/api/mgmt/v1alpha/participants/%s/transfer".formatted(manufacturerCredentials.clientId()))
+                .baseUri(SIGLET_BASE_URL)
+                .get("/tokens/%s/%s".formatted(manufacturerCredentials.clientId(), transferId))
                 .then()
                 .statusCode(200)
                 .extract().body().as(Map.class);
 
-        var accessToken = transferResponse.get("authorization");
+        var accessToken = transferResponse.get("token");
 
         var list = given()
                 .baseUri(DATAPLANE_BASE_URL)
@@ -273,95 +265,43 @@ public class DataTransferEndToEndTest {
 
     }
 
-    private CatalogResponse fetchCatalog(ClientCredentials consumerCredentials) {
-        var accessToken = getAccessToken(consumerCredentials.clientId(), consumerCredentials.clientSecret(), "management-api:read");
-
-        return given()
-                .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(accessToken.accessToken())
-                .contentType("application/json")
-                .body("""
-                        {
-                          "counterPartyDid": "%s"
-                        }
-                        """.formatted(providerContextId))
-                .post("/api/mgmt/v1alpha/participants/%s/catalog".formatted(consumerCredentials.clientId()))
-                .then()
-                .statusCode(200)
-                .extract().body()
-                .as(CatalogResponse.class);
-    }
-
     /**
      * Registers a data plane for a new participant context. This is a bit of a workaround, until Dataplane Signaling is fully implemented.
      * Check also the {@code DataplaneRegistrationApiController} in the {@code extensions/api/mgmt} directory
      *
      * @param participantContextId Participant context for which the data plane should be registered.
-     * @param accessToken          OAuth2 token
      */
-    private void registerDataPlane(String participantContextId, String accessToken) {
-        given()
-                .baseUri(CONTROLPLANE_BASE_URL)
-                .contentType(APPLICATION_JSON)
-                .auth().oauth2(accessToken)
-                .body("""
-                        {
-                            "id": "dataplane-%s",
-                            "transferTypes": [ "HttpData-PULL" ],
-                            "endpoint": "http://siglet.edc-v.svc.cluster.local:8081/api/v1/%s/dataflows"
-                        }
-                        """.formatted(participantContextId, participantContextId))
-                .put("/api/mgmt/v5beta/participants/%s/dataplanes".formatted(participantContextId))
-                .then()
-                .log().ifValidationFails()
-                .statusCode(200);
+    private void registerDataPlane(String participantContextId) {
+        MANAGEMENT_API_CLIENT.dataplanes().registerDataPlane(participantContextId, new DataPlaneRegistrationDto(
+                "dataplane-%s".formatted(participantContextId),
+                "http://siglet.edc-v.svc.cluster.local:8081/api/v1/%s/dataflows".formatted(participantContextId),
+                Set.of("HttpData-PULL"),
+                Set.of(),
+                null
+        ));
     }
 
-    private String createAsset(String participantContextId, String accessToken, String resourceName) {
-        var template = loadResourceFile(resourceName);
-        return given()
-                .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(accessToken)
-                .contentType("application/json")
-                .body(template)
-                .post("/api/mgmt/v5beta/participants/%s/assets".formatted(participantContextId))
-                .then()
-                .statusCode(200)
-                .extract().jsonPath().getString(ID);
+    private String createAsset(String participantContextId, String description) {
+        var properties = new HashMap<String, Object>();
+        properties.put("description", description);
+        var asset = new AssetDto(properties, null);
+        return MANAGEMENT_API_CLIENT.assets().createAsset(participantContextId, asset);
     }
 
-    private String createCertAsset(String participantContextId, String accessToken) {
-        return createAsset(participantContextId, accessToken, "asset-cert.json");
+    private String createCertAsset(String participantContextId) {
+        return createAsset(participantContextId, "This asset requires the Membership credential to access");
     }
 
-    private String createPolicyDef(String participantContextId, String accessToken, String resourceName) {
-        var template = loadResourceFile(resourceName);
-        return given()
-                .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(accessToken)
-                .contentType("application/json")
-                .body(template)
-                .post("/api/mgmt/v5beta/participants/%s/policydefinitions".formatted(participantContextId))
-                .then()
-                .statusCode(200)
-                .extract().jsonPath().getString(ID);
+    private String createPolicyDef(String participantContextId, String leftOperand) {
+        var constraint = new AtomicConstraintDto(leftOperand, "eq", "active");
+        var permission = new PermissionDto(constraint);
+        var policy = new PolicyDto(List.of(permission));
+        return MANAGEMENT_API_CLIENT.policies().createPolicyDefinition(participantContextId, new PolicyDefinitionDto(policy));
     }
 
-    private String createContractDef(String participantContextId, String accessToken, String accessPolicyId, String contractPolicyId, String assetId) {
-        var template = loadResourceFile("contract-def.json");
-
-        template = template.replace("{{access_policy_id}}", accessPolicyId);
-        template = template.replace("{{contract_policy_id}}", contractPolicyId);
-        template = template.replace("{{asset_id}}", assetId);
-
-        return given()
-                .baseUri(CONTROLPLANE_BASE_URL)
-                .auth().oauth2(accessToken)
-                .contentType("application/json")
-                .body(template)
-                .post("/api/mgmt/v5beta/participants/%s/contractdefinitions".formatted(participantContextId))
-                .then()
-                .statusCode(200)
-                .extract().jsonPath().getString(ID);
+    private String createContractDef(String participantContextId, String accessPolicyId, String contractPolicyId, String assetId) {
+        var selector = new CriterionDto("https://w3id.org/edc/v0.0.1/ns/id", "=", assetId);
+        var contractDef = new ContractDefinitionDto(accessPolicyId, contractPolicyId, List.of(selector));
+        return MANAGEMENT_API_CLIENT.contractDefinitions().createContractDefinition(participantContextId, contractDef);
     }
 }

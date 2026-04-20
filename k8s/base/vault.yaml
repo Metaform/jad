@@ -193,6 +193,11 @@ spec:
               path "sys/health" {
                 capabilities = ["read"]
               }
+              
+              # TODO revisit these permissions, we may want to scope them down further
+              path "secret/*" {
+                capabilities = ["create", "read", "update", "delete", "list"]
+              }
 
               # Allow access to Transit engine for JWT signing
               path "transit/sign/*" {

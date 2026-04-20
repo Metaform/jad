@@ -5,14 +5,20 @@ meta {
 }
 
 post {
-  url: {{cpBaseUrl}}/api/mgmt/v1alpha/participants/{{consumer_id}}/catalog
+  url: {{cpBaseUrl}}/api/mgmt/v5beta/participants/{{consumer_id}}/catalog/request
   body: json
   auth: inherit
 }
 
 body:json {
   {
-    "counterPartyDid": "did:web:identityhub.edc-v.svc.cluster.local%3A7083:provider"
+    "@context": [
+      "https://w3id.org/edc/connector/management/v2"
+    ],
+    "@type": "CatalogRequest",
+    "protocol": "dataspace-protocol-http:2025-1",
+    "counterPartyAddress": "http://controlplane.edc-v.svc.cluster.local:8082/api/dsp/{{provider_id}}/2025-1",
+    "counterPartyId": "did:web:identityhub.edc-v.svc.cluster.local%3A7083:provider"
   }
 }
 
@@ -31,6 +37,7 @@ script:post-response {
   
       if (policyId && typeof policyId === 'string') {
           bru.setVar('POLICY_ID', policyId);
+          bru.setVar("DATASET_ID",assetId);
           console.log('Offer ID (POLICY_ID) is:', policyId);
       } else {
           console.warn('Policy ID not found in response at dataset[0].hasPolicy[0]["@id"]');

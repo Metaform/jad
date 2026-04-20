@@ -1,0 +1,41 @@
+meta {
+  name: Poll Contract Negotiation
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{cpBaseUrl}}/api/mgmt/v5beta/participants/{{consumer_id}}/contractnegotiations/{{NEGOTIATION_ID}}
+  body: json
+  auth: inherit
+}
+
+script:post-response {
+  try {
+      const json = res.getBody();
+      const contractAgreementId = json["contractAgreementId"];
+    
+      if (contractAgreementId && typeof contractAgreementId === 'string') {
+          bru.setVar('AGREEMENT_ID', contractAgreementId);
+          console.log('Agreement ID (AGREEMENT_ID) is:', contractAgreementId);
+      } else {
+          console.warn('Agreement ID not found in response at json["contractAgreementId"]');
+      }
+  
+      // Optional: assertion to ensure it exists
+      test('Agreement ID is present and stored', function () {
+          expect(contractAgreementId, 'Agreement ID should exist').to.be.a('string').and.not.empty;
+      });
+  
+  } catch (e) {
+      console.error('Failed to parse response or set AGREEMENT_ID:', e);
+      test('Response is valid JSON', function () {
+          throw e;
+      });
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

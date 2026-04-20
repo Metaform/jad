@@ -1,0 +1,35 @@
+meta {
+  name: Fetch Token
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{sigletBaseUrl}}/tokens/{{consumer_id}}/{{TRANSFER_ID}}
+  body: json
+  auth: none
+}
+
+script:post-response {
+  try {
+      const json = res.getBody();
+      const accessToken = json['token'];
+    
+      if (accessToken && typeof accessToken === 'string') {
+          bru.setVar('ACCESS_TOKEN', accessToken);
+      } else {
+          console.warn('Access Token not found');
+      }
+  
+  } catch (e) {
+      console.error('Failed to parse response or set Access Token:', e);
+      test('Response is valid JSON', function () {
+          throw e;
+      });
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

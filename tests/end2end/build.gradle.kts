@@ -25,6 +25,8 @@ dependencies {
     testImplementation(libs.jackson.annotations)
     testImplementation(libs.awaitility)
     testImplementation(libs.restAssured)
+    testImplementation(testFixtures(libs.edc.fixtures.mgmtapi))
+
 }
 
 edcBuild {

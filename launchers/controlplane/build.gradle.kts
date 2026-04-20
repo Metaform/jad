@@ -25,15 +25,8 @@ dependencies {
     runtimeOnly(libs.edcv.bom.controlplane.nats)
     runtimeOnly(libs.edcv.bom.controlplane.dcp)
     runtimeOnly(libs.edc.spi.jwt)
-
-    runtimeOnly(libs.edc.core.edrstore)
     runtimeOnly(libs.edc.vault.hashicorp)
-    runtimeOnly(libs.edc.edrstore.receiver)
-
     runtimeOnly(libs.bouncyCastle.bcprovJdk18on)
-
-    runtimeOnly(project(":extensions:api:mgmt"))
-
     runtimeOnly(libs.opentelemetry.exporter.otlp)
 }
 

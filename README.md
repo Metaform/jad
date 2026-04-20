@@ -338,43 +338,9 @@ to select the
 ## Transfer Data
 
 Now that both participants are set up, we can transfer data from the Provider to the Consumer.
-There are two use case supported here:
+The only use case supported here:
 
-- Http proxy
 - Certificates sharing via HTTP
-
-### Http proxy
-
-EDC-V offers a one-stop-shop API to transfer data. This is achieved by two endpoints, one that fetches the catalog (
-`Data Transfer/Http Todo/Get Catalog`) and another endpoint (`Data Transfer/Http Todo/Get Data`) that initiates the
-contract negotiation,
-waits for its successful completion, then starts the data transfer.
-
-Perform the entire sequence by running both requests in the `Data Transfer/Http Todo` folder in Bruno:
-
-![img.png](docs/images/bruno_transfer.png)
-
-This will request the catalog, which contains exactly one dataset, then initiates contract negotiation and data
-transfer for that asset. If everything went well, the output should contain demo output
-from <https://jsonplaceholder.typicode.com/todos>, something like:
-
-```json lines
-[
-  {
-    "userId": 1,
-    "id": 1,
-    "title": "delectus aut autem",
-    "completed": false
-  },
-  {
-    "userId": 1,
-    "id": 2,
-    "title": "quis ut nam facilis et officia qui",
-    "completed": false
-  }
-  //...
-]
-```
 
 ### Certificates sharing via HTTP
 
@@ -396,7 +362,10 @@ Then perform the entire sequence by running both requests in the `Data Transfer/
 which:
 
 - Fetches the catalog from the Provider storing the offer id for the certificate asset
-- Setup the transfer request using the offer id (contract negotiation + transfer initiation) storing the access token
+- Setup the Contract negotiation using the offer id
+- Poll the Contract Negotiation for the agreement id if the negotiation is successful
+- Setup the transfer request for the agreement id of the previous step
+- Fetch the access token for the transfer request (Siglet)
 - Query the provider for listing the available certificates storing the first certificate id
 - Finally, download the certificate using the certificate id
 
