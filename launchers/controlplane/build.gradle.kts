@@ -28,7 +28,6 @@ dependencies {
     runtimeOnly(libs.edc.monitor.console)
     runtimeOnly(libs.edc.monitor.otel)
 
-    runtimeOnly(libs.edc.core.edrstore)
     runtimeOnly(libs.edc.vault.hashicorp)
     runtimeOnly(libs.bouncyCastle.bcprovJdk18on)
     runtimeOnly(libs.opentelemetry.exporter.otlp)
