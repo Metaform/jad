@@ -180,6 +180,42 @@ data:
             "include.in.token.scope": "true",
             "display.on.consent.screen": "true"
           }
+        },
+        {
+          "name": "tenant-manager-api:write",
+          "description": "write access to the CFM Tenant Manager API",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "true",
+            "display.on.consent.screen": "true"
+          }
+        },
+        {
+          "name": "tenant-manager-api:read",
+          "description": "read access to the CFM Tenant Manager API",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "true",
+            "display.on.consent.screen": "true"
+          }
+        },
+        {
+          "name": "provision-manager-api:write",
+          "description": "write access to the CFM Provision Manager API",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "true",
+            "display.on.consent.screen": "true"
+          }
+        },
+        {
+          "name": "provision-manager-api:read",
+          "description": "read access to the CFM Provision Manager API",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "true",
+            "display.on.consent.screen": "true"
+          }
         }
       ],
       "defaultOptionalClientScopes": [
@@ -226,7 +262,11 @@ data:
             "identity-api:write",
             "identity-api:read",
             "management-api:write",
-            "management-api:read"
+            "management-api:read",
+            "provision-manager-api:write",
+            "provision-manager-api:read",
+            "tenant-manager-api:write",
+            "tenant-manager-api:read"
           ]
         },
         {
@@ -263,8 +303,24 @@ data:
             "identity-api:write",
             "identity-api:read",
             "management-api:write",
-            "management-api:read"
+            "management-api:read",
+            "provision-manager-api:write",
+            "provision-manager-api:read",
+            "tenant-manager-api:write",
+            "tenant-manager-api:read"
           ]
+        },
+        {
+          "clientId": "auth-proxy",
+          "name": "Auth Proxy",
+          "description": "Used by the gateway auth-proxy to introspect tokens (RFC 7662)",
+          "enabled": true,
+          "protocol": "openid-connect",
+          "publicClient": false,
+          "serviceAccountsEnabled": false,
+          "secret": "auth-proxy-secret",
+          "standardFlowEnabled": false,
+          "directAccessGrantsEnabled": false
         }
       ],
       "users": [],

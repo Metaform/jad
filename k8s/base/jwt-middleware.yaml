@@ -11,23 +11,79 @@
 #      Metaform Systems, Inc. - initial API and implementation
 #
 
+# Traefik ForwardAuth middlewares that validate Bearer tokens via the auth-proxy
+# service, which calls Keycloak's RFC 7662 token introspection endpoint and
+# checks the required scopes.
+#
+# Each middleware passes ?scope= query params to auth-proxy; the token must
+# carry at least one of the listed scopes for the request to be allowed.
+
 ---
-# Traefik ForwardAuth middleware that validates Bearer tokens by calling
-# Keycloak's userinfo endpoint. A 200 response means the token is valid;
-# any other response causes Traefik to reject the request with 401.
-# The original Authorization header is preserved and forwarded to the
-# backend service so it can perform its own authorization checks.
+# requires that all requests targeting the management API be authenticated and have the appropriate scopes
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: jwt-auth
+  name: jwt-auth-management-api
   namespace: edc-v
 spec:
   forwardAuth:
-    address: http://keycloak.edc-v.svc.cluster.local:8080/realms/edcv/protocol/openid-connect/userinfo
-    # Forward the Bearer token to Keycloak for validation
+    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=management-api:read&scope=management-api:write
     authRequestHeaders:
       - Authorization
-    # Expose selected Keycloak user-info response headers to the backend
-    authResponseHeadersRegex: "^X-"
+    trustForwardHeader: true
+
+---
+# requires that all requests targeting the Identity API be authenticated and have the appropriate scopes
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: jwt-auth-identity-api
+  namespace: edc-v
+spec:
+  forwardAuth:
+    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=identity-api:read&scope=identity-api:write
+    authRequestHeaders:
+      - Authorization
+    trustForwardHeader: true
+
+---
+# requires that all requests targeting the IssuerAdmin API be authenticated and have the appropriate scopes
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: jwt-auth-issuer-admin-api
+  namespace: edc-v
+spec:
+  forwardAuth:
+    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=issuer-admin-api:read&scope=issuer-admin-api:write
+    authRequestHeaders:
+      - Authorization
+    trustForwardHeader: true
+
+---
+# requires all requests to the CFM Tenant Manager to be authenticated and have the appropriate scopes
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: jwt-auth-tenant-manager-api
+  namespace: edc-v
+spec:
+  forwardAuth:
+    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=tenant-manager-api:read&scope=tenant-manager-api:write
+    authRequestHeaders:
+      - Authorization
+    trustForwardHeader: true
+
+---
+# requires all requests to the CFM Provision Manager to be authenticated and have the appropriate scopes
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: jwt-auth-provision-manager-api
+  namespace: edc-v
+spec:
+  forwardAuth:
+    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=provision-manager-api:read&scope=provision-manager-api:write
+    authRequestHeaders:
+      - Authorization
     trustForwardHeader: true

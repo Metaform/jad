@@ -97,7 +97,7 @@ spec:
           extensionRef:
             group: traefik.io
             kind: Middleware
-            name: jwt-auth
+            name: jwt-auth-provision-manager-api
       backendRefs:
         - name: provision-manager
           port: 8080

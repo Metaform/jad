@@ -97,7 +97,7 @@ spec:
           extensionRef:
             group: traefik.io
             kind: Middleware
-            name: jwt-auth
+            name: jwt-auth-tenant-manager-api
       backendRefs:
         - name: tenant-manager
           port: 8080

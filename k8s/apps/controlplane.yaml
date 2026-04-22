@@ -127,7 +127,7 @@ spec:
           extensionRef:
             group: traefik.io
             kind: Middleware
-            name: jwt-auth
+            name: jwt-auth-management-api
       backendRefs:
         - name: controlplane
           port: 8081

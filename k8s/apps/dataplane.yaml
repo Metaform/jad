@@ -125,11 +125,6 @@ spec:
             path:
               type: ReplacePrefixMatch
               replacePrefixMatch: /
-        - type: ExtensionRef
-          extensionRef:
-            group: traefik.io
-            kind: Middleware
-            name: jwt-auth
       backendRefs:
         - name: dataplane
           port: 11002
@@ -146,11 +141,6 @@ spec:
             path:
               type: ReplacePrefixMatch
               replacePrefixMatch: /
-        - type: ExtensionRef
-          extensionRef:
-            group: traefik.io
-            kind: Middleware
-            name: jwt-auth
       backendRefs:
         - name: dataplane
           port: 8083
@@ -167,11 +157,6 @@ spec:
             path:
               type: ReplacePrefixMatch
               replacePrefixMatch: /
-        - type: ExtensionRef
-          extensionRef:
-            group: traefik.io
-            kind: Middleware
-            name: jwt-auth
       backendRefs:
         - name: dataplane
           port: 8186

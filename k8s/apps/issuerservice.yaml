@@ -133,50 +133,8 @@ spec:
           extensionRef:
             group: traefik.io
             kind: Middleware
-            name: jwt-auth
+            name: jwt-auth-issuer-admin-api
       backendRefs:
         - name: issuerservice
           port: 10013
-          weight: 1
-
-    # /issuer/cs → credential service API port 10015
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /issuer/cs
-      filters:
-        - type: URLRewrite
-          urlRewrite:
-            path:
-              type: ReplacePrefixMatch
-              replacePrefixMatch: /
-        - type: ExtensionRef
-          extensionRef:
-            group: traefik.io
-            kind: Middleware
-            name: jwt-auth
-      backendRefs:
-        - name: issuerservice
-          port: 10015
-          weight: 1
-
-    # /issuer → web DID resolution port 10016
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /issuer
-      filters:
-        - type: URLRewrite
-          urlRewrite:
-            path:
-              type: ReplacePrefixMatch
-              replacePrefixMatch: /
-        - type: ExtensionRef
-          extensionRef:
-            group: traefik.io
-            kind: Middleware
-            name: jwt-auth
-      backendRefs:
-        - name: issuerservice
-          port: 10016
           weight: 1
