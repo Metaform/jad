@@ -1,0 +1,23 @@
+meta {
+  name: Get Participant Config
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://jad.localhost/api/management/participants/5cadb8bebfb646308a6d3b7a3f42ffb6/config
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "@context": ["https://w3id.org/edc/connector/management/v2"],
+    "@type":"QuerySpec"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

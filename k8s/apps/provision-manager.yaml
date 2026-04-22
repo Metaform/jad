@@ -86,13 +86,13 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /pm
+            value: /api/pm
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
               type: ReplacePrefixMatch
-              replacePrefixMatch: /
+              replacePrefixMatch: /api/v1alpha
         - type: ExtensionRef
           extensionRef:
             group: traefik.io

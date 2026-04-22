@@ -7,7 +7,7 @@ meta {
 get {
   url: {{sigletBaseUrl}}/tokens/{{consumer_id}}/{{TRANSFER_ID}}
   body: json
-  auth: none
+  auth: inherit
 }
 
 script:post-response {

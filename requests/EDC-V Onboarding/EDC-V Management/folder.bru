@@ -1,6 +1,5 @@
 meta {
   name: EDC-V Management
-  seq: 4
 }
 
 auth {
@@ -16,6 +15,7 @@ auth:oauth2 {
   scope: management-api:read management-api:write
   credentials_placement: body
   credentials_id: credentials
+  token_source: access_token
   token_placement: header
   token_header_prefix: Bearer
   auto_fetch_token: true

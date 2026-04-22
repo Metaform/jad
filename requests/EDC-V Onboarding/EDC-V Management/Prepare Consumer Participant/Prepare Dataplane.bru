@@ -1,11 +1,11 @@
 meta {
   name: Prepare Dataplane
   type: http
-  seq: 5
+  seq: 6
 }
 
 put {
-  url: {{cpBaseUrl}}/api/mgmt/v5beta/participants/{{consumer_id}}/dataplanes
+  url: {{cpBaseUrl}}/participants/{{consumer_id}}/dataplanes
   body: json
   auth: inherit
 }

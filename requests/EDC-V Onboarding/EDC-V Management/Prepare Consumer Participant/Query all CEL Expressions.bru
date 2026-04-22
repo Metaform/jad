@@ -1,0 +1,25 @@
+meta {
+  name: Query all CEL Expressions
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{cpBaseUrl}}/celexpressions/request
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "@context": [
+      "https://w3id.org/edc/connector/management/v2"
+    ],
+    "@type": "QuerySpec"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -119,17 +119,17 @@ spec:
   hostnames:
     - jad.localhost
   rules:
-    # /ih/cs → identity API port 7081
+    # /ih/cs → identity API port 7081 (/ih/cs/** rewrites to /api/identity/**)
     - matches:
         - path:
             type: PathPrefix
-            value: /ih/cs
+            value: /api/identity
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
               type: ReplacePrefixMatch
-              replacePrefixMatch: /
+              replacePrefixMatch: /api/identity/v1alpha
         - type: ExtensionRef
           extensionRef:
             group: traefik.io

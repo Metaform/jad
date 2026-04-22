@@ -122,13 +122,13 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /issuer/admin
+            value: /api/issuer/admin
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
               type: ReplacePrefixMatch
-              replacePrefixMatch: /
+              replacePrefixMatch: /api/admin/v1alpha
         - type: ExtensionRef
           extensionRef:
             group: traefik.io

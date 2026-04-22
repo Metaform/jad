@@ -116,13 +116,13 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /cp
+            value: /api/management
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
               type: ReplacePrefixMatch
-              replacePrefixMatch: /
+              replacePrefixMatch: /api/mgmt/v5beta
         - type: ExtensionRef
           extensionRef:
             group: traefik.io
