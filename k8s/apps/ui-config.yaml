@@ -21,7 +21,7 @@ data:
   config.json: |
     {
       "production": true,
-      "apiUrl": "http://redline.localhost/api/ui",
+      "apiUrl": "http://jad.localhost/redline/api/ui",
       "appName": "Aruba's DataSpace",
       "version": "1.0.0",
       "features": {

@@ -11,6 +11,7 @@
 #      Metaform Systems, Inc. - initial API and implementation
 #
 
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -109,12 +110,24 @@ spec:
       kind: Gateway
       sectionName: http
   hostnames:
-    - cp.localhost
+    - jad.localhost
   rules:
+    # /cp → management API (port 8081, path /api/mgmt)
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /cp
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: jwt-auth
       backendRefs:
         - name: controlplane
           port: 8081

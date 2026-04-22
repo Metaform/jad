@@ -86,12 +86,19 @@ spec:
       kind: Gateway
       sectionName: http
   hostnames:
-    - ui.localhost
+    - jad.localhost
   rules:
+    # No JWT auth — the browser-based UI obtains its own token via Keycloak
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /ui
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
       backendRefs:
         - name: jad-web-ui
           port: 80

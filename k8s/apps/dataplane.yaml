@@ -112,51 +112,66 @@ spec:
     - name: edcv-gateway
       namespace: edc-v
   hostnames:
-    - dp.localhost
+    - jad.localhost
   rules:
-    # /dp/public → public port 11002
+    # /dp/public → public port 11002 (data transfer API)
     - matches:
         - path:
             type: PathPrefix
-            value: /public
+            value: /dp/public
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
               type: ReplacePrefixMatch
               replacePrefixMatch: /
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: jwt-auth
       backendRefs:
         - name: dataplane
           port: 11002
           weight: 1
 
-    # /app/internal → control port 8083
+    # /dp/control → control port 8083 (internal control API)
     - matches:
         - path:
             type: PathPrefix
-            value: /app/internal
+            value: /dp/control
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
               type: ReplacePrefixMatch
               replacePrefixMatch: /
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: jwt-auth
       backendRefs:
         - name: dataplane
           port: 8083
           weight: 1
 
-    # /app/public → certs port 8186
+    # /dp/certs → certs port 8186 (data/certificate API)
     - matches:
         - path:
             type: PathPrefix
-            value: /app/public
+            value: /dp/certs
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
               type: ReplacePrefixMatch
               replacePrefixMatch: /
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: jwt-auth
       backendRefs:
         - name: dataplane
           port: 8186

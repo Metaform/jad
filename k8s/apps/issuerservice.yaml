@@ -116,45 +116,66 @@ spec:
       kind: Gateway
       sectionName: http
   hostnames:
-    - issuer.localhost
+    - jad.localhost
   rules:
-    # Issuer Admin API
+    # /issuer/admin → issuer admin API port 10013
     - matches:
         - path:
             type: PathPrefix
-            value: /admin
+            value: /issuer/admin
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
               type: ReplacePrefixMatch
               replacePrefixMatch: /
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: jwt-auth
       backendRefs:
         - name: issuerservice
           port: 10013
           weight: 1
 
-    # Credential Service API
+    # /issuer/cs → credential service API port 10015
     - matches:
         - path:
             type: PathPrefix
-            value: /cs
+            value: /issuer/cs
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
               type: ReplacePrefixMatch
               replacePrefixMatch: /
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: jwt-auth
       backendRefs:
         - name: issuerservice
           port: 10015
           weight: 1
 
-    # Web DID Resolution endpoint
+    # /issuer → web DID resolution port 10016
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /issuer
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: jwt-auth
       backendRefs:
         - name: issuerservice
           port: 10016

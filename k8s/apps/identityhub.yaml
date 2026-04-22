@@ -117,27 +117,44 @@ spec:
       kind: Gateway
       sectionName: http
   hostnames:
-    - ih.localhost
+    - jad.localhost
   rules:
+    # /ih/cs → identity API port 7081 (credential service)
     - matches:
         - path:
             type: PathPrefix
-            value: /cs
+            value: /ih/cs
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
               type: ReplacePrefixMatch
               replacePrefixMatch: /
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: jwt-auth
       backendRefs:
         - name: identityhub
           port: 7081
 
-    # DID Route
+    # /ih → DID resolution port 7083
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /ih
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: jwt-auth
       backendRefs:
         - name: identityhub
           port: 7083

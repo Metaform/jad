@@ -303,12 +303,19 @@ spec:
       kind: Gateway
       sectionName: http
   hostnames:
-    - keycloak.localhost
+    - jad.localhost
   rules:
+    # /auth → Keycloak — no JWT auth (this IS the auth server)
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /auth
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
       backendRefs:
         - name: keycloak
           port: 8080

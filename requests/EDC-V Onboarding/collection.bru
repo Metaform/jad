@@ -3,7 +3,23 @@ meta {
 }
 
 auth {
-  mode: none
+  mode: oauth2
+}
+
+auth:oauth2 {
+  grant_type: client_credentials
+  access_token_url: http://jad.localhost/auth/realms/edcv/protocol/openid-connect/token
+  refresh_token_url: 
+  client_id: provisioner
+  client_secret: provisioner-secret
+  scope: management-api:write identity-api:read identity-api:write issuer-admin-api:read management-api:read issuer-admin-api:write
+  credentials_placement: body
+  credentials_id: administration-api
+  token_source: access_token
+  token_placement: header
+  token_header_prefix: Bearer
+  auto_fetch_token: true
+  auto_refresh_token: false
 }
 
 vars:pre-request {

@@ -1,0 +1,33 @@
+#
+# Copyright (c) 2025 Metaform Systems, Inc.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Contributors:
+#      Metaform Systems, Inc. - initial API and implementation
+#
+
+---
+# Traefik ForwardAuth middleware that validates Bearer tokens by calling
+# Keycloak's userinfo endpoint. A 200 response means the token is valid;
+# any other response causes Traefik to reject the request with 401.
+# The original Authorization header is preserved and forwarded to the
+# backend service so it can perform its own authorization checks.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: jwt-auth
+  namespace: edc-v
+spec:
+  forwardAuth:
+    address: http://keycloak.edc-v.svc.cluster.local:8080/realms/edcv/protocol/openid-connect/userinfo
+    # Forward the Bearer token to Keycloak for validation
+    authRequestHeaders:
+      - Authorization
+    # Expose selected Keycloak user-info response headers to the backend
+    authResponseHeadersRegex: "^X-"
+    trustForwardHeader: true

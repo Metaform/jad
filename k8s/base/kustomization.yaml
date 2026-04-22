@@ -15,6 +15,7 @@ resources:
   - edcv-namespace.yaml
   - gateway-class.yaml
   - gateway.yaml
+  - jwt-middleware.yaml
   - postgres.yaml
   - nats.yaml
   - keycloak.yaml
