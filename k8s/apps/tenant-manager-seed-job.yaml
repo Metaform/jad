@@ -86,13 +86,13 @@ spec:
                      "credentialSpecs": [{
                         "type": "MembershipCredential",
                         "issuer": "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer",
-                        "format": "VC1_0_JWT",
+                        "format": "VC2_0_JOSE",
                         "id": "membership-credential-def"
                       },
                       {
                         "type": "ManufacturerCredential",
                         "issuer": "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer",
-                        "format": "VC1_0_JWT",
+                        "format": "VC2_0_JOSE",
                         "id": "manufacturer-credential-def",
                         "role": "manufacturer"
                       }

@@ -24,6 +24,6 @@
     }
   ],
   "rules": [],
-  "format": "VC1_0_JWT",
+  "format": "VC2_0_JOSE",
   "validity": "604800"
 }
