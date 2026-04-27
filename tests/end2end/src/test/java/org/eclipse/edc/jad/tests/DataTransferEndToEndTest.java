@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.specification.RequestSpecification;
 import org.eclipse.edc.connector.controlplane.test.system.utils.client.ManagementApiClientV5;
 import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.AssetDto;
 import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.AtomicConstraintDto;
@@ -69,7 +70,7 @@ public class DataTransferEndToEndTest {
 
     private static final ConsoleMonitor MONITOR = new ConsoleMonitor(ConsoleMonitor.Level.DEBUG, true);
     private static final DynamicTokenProvider DYNAMIC_TOKEN_PROVIDER = new DynamicTokenProvider();
-    private static final ManagementApiClientV5 MANAGEMENT_API_CLIENT = new ManagementApiClientV5(DYNAMIC_TOKEN_PROVIDER, new LazySupplier<>(() -> URI.create(CONTROLPLANE_BASE_URL + "/api/mgmt")));
+    private static final ManagementApiClientV5 MANAGEMENT_API_CLIENT = new ManagementApiClientV5(DYNAMIC_TOKEN_PROVIDER, new LazySupplier<>(() -> URI.create(CONTROLPLANE_BASE_URL)));
     private static ClientCredentials providerCredentials;
     private static ClientCredentials consumerCredentials;
     private static String providerContextId;
@@ -156,12 +157,22 @@ public class DataTransferEndToEndTest {
      * @return the Cell ID
      */
     private static String getCellId() {
-        return given()
+        return adminRequest()
                 .contentType(APPLICATION_JSON)
-                .get(TM_BASE_URL + "/api/v1alpha1/cells")
+                .get(TM_BASE_URL + "/cells")
                 .then()
                 .statusCode(200)
                 .extract().jsonPath().getString("[0].id");
+    }
+
+    public static RequestSpecification participantRequest() {
+        return given()
+                .header("Authorization", "Bearer " + DYNAMIC_TOKEN_PROVIDER.createToken(providerCredentials.clientId(), "participant"));
+    }
+
+    public static RequestSpecification adminRequest() {
+        return given()
+                .header("Authorization", "Bearer " + DYNAMIC_TOKEN_PROVIDER.createToken(null, "admin"));
     }
 
     @Test
@@ -299,9 +310,9 @@ public class DataTransferEndToEndTest {
         return MANAGEMENT_API_CLIENT.policies().createPolicyDefinition(participantContextId, new PolicyDefinitionDto(policy));
     }
 
-    private String createContractDef(String participantContextId, String accessPolicyId, String contractPolicyId, String assetId) {
+    private void createContractDef(String participantContextId, String accessPolicyId, String contractPolicyId, String assetId) {
         var selector = new CriterionDto("https://w3id.org/edc/v0.0.1/ns/id", "=", assetId);
         var contractDef = new ContractDefinitionDto(accessPolicyId, contractPolicyId, List.of(selector));
-        return MANAGEMENT_API_CLIENT.contractDefinitions().createContractDefinition(participantContextId, contractDef);
+        MANAGEMENT_API_CLIENT.contractDefinitions().createContractDefinition(participantContextId, contractDef);
     }
 }

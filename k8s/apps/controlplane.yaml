@@ -122,7 +122,7 @@ spec:
           urlRewrite:
             path:
               type: ReplacePrefixMatch
-              replacePrefixMatch: /api/mgmt/v5beta
+              replacePrefixMatch: /api/mgmt
         - type: ExtensionRef
           extensionRef:
             group: traefik.io

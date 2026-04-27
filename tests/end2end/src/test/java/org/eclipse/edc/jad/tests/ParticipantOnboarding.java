@@ -28,6 +28,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.eclipse.edc.jad.tests.Constants.IDENTITYHUB_BASE_URL;
+import static org.eclipse.edc.jad.tests.DataTransferEndToEndTest.adminRequest;
 import static org.eclipse.edc.jad.tests.KeycloakApi.createKeycloakToken;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -86,10 +87,10 @@ public record ParticipantOnboarding(String participantName, String participantCo
     }
 
     private String getDataspaceProfileId() {
-        return given()
+        return adminRequest()
                 .baseUri(Constants.TM_BASE_URL)
                 .contentType(Constants.APPLICATION_JSON)
-                .get("/api/v1alpha1/dataspace-profiles")
+                .get("/dataspace-profiles")
                 .then()
                 .log().ifValidationFails()
                 .statusCode(200)
@@ -115,10 +116,10 @@ public record ParticipantOnboarding(String participantName, String participantCo
      * @return the Orchestration object
      */
     private ParticipantProfile getParticipantProfile(String tenant, String profileId) {
-        return given()
+        return adminRequest()
                 .baseUri(Constants.TM_BASE_URL)
                 .contentType(Constants.APPLICATION_JSON)
-                .get("/api/v1alpha1/tenants/%s/participant-profiles/%s".formatted(tenant, profileId))
+                .get("/tenants/%s/participant-profiles/%s".formatted(tenant, profileId))
                 .then()
                 .log().ifValidationFails()
                 .statusCode(200)
@@ -143,7 +144,7 @@ public record ParticipantOnboarding(String participantName, String participantCo
                                          "predicate": "correlationId = '%s'"
                                     }
                                     """.formatted(participantProfileId))
-                            .post("/api/v1alpha1/orchestrations/query")
+                            .post("/api/orchestrations/query")
                             .then()
                             .log().ifValidationFails()
                             .statusCode(200)
@@ -175,11 +176,11 @@ public record ParticipantOnboarding(String participantName, String participantCo
             body.put("participantRoles", Map.of(dataspaceId, rolesString));
         }
 
-        return given()
+        return adminRequest()
                 .baseUri(Constants.TM_BASE_URL)
                 .contentType(Constants.APPLICATION_JSON)
                 .body(body)
-                .post("/api/v1alpha1/tenants/%s/participant-profiles".formatted(tenantId))
+                .post("/tenants/%s/participant-profiles".formatted(tenantId))
                 .then()
                 .log().ifValidationFails()
                 .statusCode(202)
@@ -194,7 +195,7 @@ public record ParticipantOnboarding(String participantName, String participantCo
      * @return the tenant ID.
      */
     private String createTenant(String tenantName) {
-        return given()
+        return adminRequest()
                 .baseUri(Constants.TM_BASE_URL)
                 .contentType(Constants.APPLICATION_JSON)
                 .body("""
@@ -205,7 +206,7 @@ public record ParticipantOnboarding(String participantName, String participantCo
                             }
                         }
                         """.formatted(tenantName))
-                .post("/api/v1alpha1/tenants")
+                .post("/tenants")
                 .then()
                 .log().ifValidationFails()
                 .statusCode(201)
@@ -216,11 +217,11 @@ public record ParticipantOnboarding(String participantName, String participantCo
     private void waitForCredentialIssuance(String participantContextId, String userToken, String holderPid) {
         await().atMost(20, SECONDS)
                 .pollInterval(1, SECONDS).until(() -> {
-                    var body = given()
+                    var body = adminRequest()
                             .baseUri(IDENTITYHUB_BASE_URL)
                             .contentType("application/json")
                             .auth().oauth2(userToken)
-                            .get("/cs/api/identity/v1alpha/participants/%s/credentials/request/%s".formatted(participantContextId, holderPid))
+                            .get("/participants/%s/credentials/request/%s".formatted(participantContextId, holderPid))
                             .then()
                             .log().ifValidationFails()
                             .statusCode(anyOf(equalTo(200), equalTo(204)))

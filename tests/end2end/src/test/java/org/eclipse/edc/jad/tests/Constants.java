@@ -19,13 +19,13 @@ public interface Constants {
     // make sure that all the following URLs are valid. This is done by port-forwarding the Gateway API Controller (Traefik) port (80) to localhost:8080
 
     String APPLICATION_JSON = "application/json";
-    String TM_BASE_URL = "http://tm.localhost:8080";
-    String PM_BASE_URL = "http://pm.localhost:8080";
+    String TM_BASE_URL = "http://jad.localhost:8080/api/tm";
+    String PM_BASE_URL = "http://jad.localhost:8080/api/pm";
     String VAULT_URL = "http://vault.localhost:8080";
-    String CONTROLPLANE_BASE_URL = "http://cp.localhost:8080";
-    String SIGLET_BASE_URL = "http://siglet.localhost:8080";
-    String DATAPLANE_BASE_URL = "http://dp.localhost:8080";
-    String IDENTITYHUB_BASE_URL = "http://ih.localhost:8080";
-    String KEYCLOAK_URL = "http://keycloak.localhost:8080";
+    String CONTROLPLANE_BASE_URL = "http://jad.localhost:8080/api/management";
+    String SIGLET_BASE_URL = "http://jad.localhost:8080/api/siglet";
+    String DATAPLANE_BASE_URL = "http://jad.localhost:8080/";
+    String IDENTITYHUB_BASE_URL = "http://jad.localhost:8080/api/identity";
+    String KEYCLOAK_URL = "http://jad.localhost:8080/auth";
     String CONTROLPLANE_PROTOCOL_URL = "http://controlplane.edc-v.svc.cluster.local:8082/api/dsp/%s/2025-1";
 }
