@@ -88,9 +88,24 @@ spec:
                 }'
 
               echo "✓ edcv-activity created"
+              
+              echo ""
+              echo "Step 3: Create identityhub-activity ActivityDefinition"
+              echo "------------------------------------------------"
+
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "description": "Provisions IdentityHub entries",
+                  "inputSchema": {},
+                  "outputSchema": {},
+                  "type": "identityhub-activity"
+                }'
+
+              echo "✓ identityhub-activity created"
 
               echo ""
-              echo "Step 3: Create registration-activity ActivityDefinition"
+              echo "Step 4: Create registration-activity ActivityDefinition"
               echo "--------------------------------------------------------"
 
               curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
@@ -105,7 +120,7 @@ spec:
               echo "✓ registration-activity created"
 
               echo ""
-              echo "Step 4: Create keycloak-activity ActivityDefinition"
+              echo "Step 5: Create keycloak-activity ActivityDefinition"
               echo "----------------------------------------------------"
 
               curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
@@ -120,7 +135,7 @@ spec:
               echo "✓ keycloak-activity created"
 
               echo ""
-              echo "Step 5: Create onboarding-activity ActivityDefinition"
+              echo "Step 6: Create onboarding-activity ActivityDefinition"
               echo "------------------------------------------------------"
 
               curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
@@ -135,7 +150,7 @@ spec:
               echo "✓ onboarding-activity created"
 
               echo ""
-              echo "Step 6: Create Orchestration Definition (deploy + dispose)"
+              echo "Step 7: Create Orchestration Definition (deploy + dispose)"
               echo "------------------------------------------------"
 
               DEPLOY_ORCH_ID=$(cat /proc/sys/kernel/random/uuid)
@@ -180,6 +195,14 @@ spec:
                       "id": "connector-provisioner",
                       "type": "edcv-activity",
                       "dependsOn": [
+                        "kc-client-provisioner", 
+                        "identityhub-provisioner"
+                      ]
+                    },
+                    {
+                      "id": "identityhub-provisioner",
+                      "type": "identityhub-activity",
+                      "dependsOn": [
                         "kc-client-provisioner"
                       ]
                     },
@@ -188,6 +211,7 @@ spec:
                       "type": "onboarding-activity",
                       "dependsOn": [
                         "connector-provisioner",
+                        "identityhub-provisioner",
                         "registration-agent"
                       ]
                     }]

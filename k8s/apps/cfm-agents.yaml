@@ -61,6 +61,20 @@ spec:
             - name: edcv-agent-config
               mountPath: /etc/appname
               readOnly: true
+        - name: ih-agent
+          image: ghcr.io/eclipse-cfm/cfm/ihagent:latest
+          imagePullPolicy: Always
+          command: [ "/ihagent" ]
+          args: [
+            "--mode=debug"
+          ]
+          envFrom:
+            - configMapRef:
+                name: telemetry-config
+          volumeMounts:
+            - name: ih-agent-config
+              mountPath: /etc/appname
+              readOnly: true
         - name: registration-agent
           image: ghcr.io/eclipse-cfm/cfm/regagent:latest
           imagePullPolicy: Always
@@ -96,6 +110,9 @@ spec:
         - name: edcv-agent-config
           configMap:
             name: edcv-agent-config
+        - name: ih-agent-config
+          configMap:
+            name: ih-agent-config
         - name: registration-agent-config
           configMap:
             name: reg-agent-config
