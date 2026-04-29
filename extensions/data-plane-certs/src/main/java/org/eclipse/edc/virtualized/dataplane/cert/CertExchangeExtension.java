@@ -14,15 +14,14 @@
 
 package org.eclipse.edc.virtualized.dataplane.cert;
 
-import org.eclipse.edc.api.authentication.JwksResolver;
 import org.eclipse.edc.api.authentication.filter.JwtValidatorFilter;
+import org.eclipse.edc.keys.resolver.JwksPublicKeyResolver;
 import org.eclipse.edc.keys.spi.KeyParserRegistry;
 import org.eclipse.edc.runtime.metamodel.annotation.Configuration;
 import org.eclipse.edc.runtime.metamodel.annotation.Extension;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.runtime.metamodel.annotation.Setting;
 import org.eclipse.edc.runtime.metamodel.annotation.Settings;
-import org.eclipse.edc.spi.EdcException;
 import org.eclipse.edc.spi.system.Hostname;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
@@ -39,8 +38,6 @@ import org.eclipse.edc.web.spi.WebService;
 import org.eclipse.edc.web.spi.configuration.PortMapping;
 import org.eclipse.edc.web.spi.configuration.PortMappingRegistry;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.Clock;
 import java.util.List;
 
@@ -89,15 +86,9 @@ public class CertExchangeExtension implements ServiceExtension {
         var portMapping = new PortMapping(API_CONTEXT, apiConfiguration.port(), apiConfiguration.path());
         portMappingRegistry.register(portMapping);
 
-        URL url;
-        try {
-            url = new URL(sigletConfig.jwksUrl());
-        } catch (MalformedURLException e) {
-            throw new EdcException(e);
-        }
-
         webService.registerResource(API_CONTEXT, new CertExchangePublicController(certStore, transactionContext));
-        webService.registerResource(API_CONTEXT, new JwtValidatorFilter(tokenValidationService, new JwksResolver(url, keyParserRegistry, sigletConfig.cacheValidityInMillis), getRules()));
+        var resolver = JwksPublicKeyResolver.create(keyParserRegistry, sigletConfig.jwksUrl(), context.getMonitor(), sigletConfig.cacheValidityInMillis());
+        webService.registerResource(API_CONTEXT, new JwtValidatorFilter(tokenValidationService, resolver, getRules()));
 
         webService.registerResource("control", new CertInternalExchangeController(certStore, transactionContext));
 

@@ -31,6 +31,7 @@ dependencies {
     implementation(libs.edc.lib.util)
     implementation(libs.edc.lib.sql)
     implementation(libs.edc.lib.token)
+    implementation(libs.edc.lib.keys)
     implementation(libs.edc.lib.oauth2.authn)
     implementation(libs.edc.core.sql.bootstrapper)
     implementation(libs.edc.core.sql)
