@@ -80,7 +80,10 @@ spec:
                 -H "Content-Type: application/json" \
                 -d '{
                   "artifacts": [],
-                  "properties": {},
+                  "properties": {
+                    "name": "Catena-X",
+                    "description": "Catena-X dataspace profile"     
+                  },
                   "dataspaceSpec": {
                      "protocolStack": ["dsp-2025-1", "dcp-2025-1"],
                      "credentialSpecs": [{
@@ -118,7 +121,10 @@ spec:
                 -H "Content-Type: application/json" \
                 -d '{
                   "artifacts": [],
-                  "properties": {},
+                  "properties": {
+                    "name": "Bike-X",
+                    "description": "Bike-X dataspace profile"
+                  },
                   "dataspaceSpec": {
                      "protocolStack": ["dsp-2025-1", "dcp-2025-1"],
                      "credentialSpecs": [{
