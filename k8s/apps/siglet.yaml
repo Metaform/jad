@@ -35,6 +35,10 @@ spec:
     metadata:
       labels:
         app: siglet
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-init-first: "true"
+        vault.hashicorp.com/agent-pre-populate-only: "true"
     spec:
       serviceAccountName: siglet-sa
       volumes:

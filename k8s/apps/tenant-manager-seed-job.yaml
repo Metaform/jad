@@ -31,7 +31,6 @@ spec:
     spec:
       restartPolicy: OnFailure
       initContainers:
-        # Wait for tenant-manager to be ready
         - name: wait-for-tenant-manager
           image: curlimages/curl:latest
           command:
@@ -74,19 +73,28 @@ spec:
               CELL_ID=$(echo "$CELL_RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
               echo "Cell created with ID: $CELL_ID"
 
-              # Create First Dataspace Profile
-              echo "Creating First Dataspace Profile..."
+              # Create First Dataspace Profile (Catena-X)
+              # MembershipCredential (general) is issued to ALL participants for DCP authentication
+              # CatenaMembershipCredential is issued for dataspace-specific authorization
+              echo "Creating Catena-X Dataspace Profile..."
               FIRST_PROFILE_RESPONSE=$(curl -s -X POST "$TM_BASE_URL/api/v1alpha1/dataspace-profiles" \
                 -H "Content-Type: application/json" \
                 -d '{
                   "artifacts": [],
                   "properties": {
                     "name": "Catena-X",
-                    "description": "Catena-X dataspace profile"     
+                    "description": "Catena-X dataspace profile"
                   },
                   "dataspaceSpec": {
-                     "protocolStack": ["dsp-2025-1", "dcp-2025-1"],
-                     "credentialSpecs": [{
+                    "protocolStack": ["dsp-2025-1", "dcp-2025-1"],
+                    "credentialSpecs": [
+                      {
+                        "type": "MembershipCredential",
+                        "issuer": "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer",
+                        "format": "VC2_0_JOSE",
+                        "id": "membership-credential-def"
+                      },
+                      {
                         "type": "CatenaMembershipCredential",
                         "issuer": "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer",
                         "format": "VC2_0_JOSE",
@@ -104,10 +112,10 @@ spec:
                 }')
 
               FIRST_DATASPACE_PROFILE_ID=$(echo "$FIRST_PROFILE_RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
-              echo "Dataspace Profile created with ID: $FIRST_DATASPACE_PROFILE_ID"
+              echo "Catena-X Dataspace Profile created with ID: $FIRST_DATASPACE_PROFILE_ID"
 
               # Deploy First Dataspace Profile
-              echo "Deploying First Dataspace Profile..."
+              echo "Deploying Catena-X Dataspace Profile..."
               curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "$TM_BASE_URL/api/v1alpha1/dataspace-profiles/$FIRST_DATASPACE_PROFILE_ID/deployments" \
                 -H "Content-Type: application/json" \
                 -d '{
@@ -115,8 +123,10 @@ spec:
                   "cellId": "'"$CELL_ID"'"
                 }'
 
-              # Create Second Dataspace Profile
-              echo "Creating Second Dataspace Profile..."
+              # Create Second Dataspace Profile (Bike-X)
+              # MembershipCredential (general) is issued to ALL participants for DCP authentication
+              # BikeMembershipCredential is issued for dataspace-specific authorization
+              echo "Creating Bike-X Dataspace Profile..."
               SECOND_PROFILE_RESPONSE=$(curl -s -X POST "$TM_BASE_URL/api/v1alpha1/dataspace-profiles" \
                 -H "Content-Type: application/json" \
                 -d '{
@@ -126,8 +136,15 @@ spec:
                     "description": "Bike-X dataspace profile"
                   },
                   "dataspaceSpec": {
-                     "protocolStack": ["dsp-2025-1", "dcp-2025-1"],
-                     "credentialSpecs": [{
+                    "protocolStack": ["dsp-2025-1", "dcp-2025-1"],
+                    "credentialSpecs": [
+                      {
+                        "type": "MembershipCredential",
+                        "issuer": "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer",
+                        "format": "VC2_0_JOSE",
+                        "id": "membership-credential-def"
+                      },
+                      {
                         "type": "BikeMembershipCredential",
                         "issuer": "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer",
                         "format": "VC2_0_JOSE",
@@ -145,10 +162,10 @@ spec:
                 }')
 
               SECOND_DATASPACE_PROFILE_ID=$(echo "$SECOND_PROFILE_RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
-              echo "Second Dataspace Profile created with ID: $SECOND_DATASPACE_PROFILE_ID"
+              echo "Bike-X Dataspace Profile created with ID: $SECOND_DATASPACE_PROFILE_ID"
 
               # Deploy Second Dataspace Profile
-              echo "Deploying Second Dataspace Profile..."
+              echo "Deploying Bike-X Dataspace Profile..."
               curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "$TM_BASE_URL/api/v1alpha1/dataspace-profiles/$SECOND_DATASPACE_PROFILE_ID/deployments" \
                 -H "Content-Type: application/json" \
                 -d '{
@@ -156,7 +173,7 @@ spec:
                   "cellId": "'"$CELL_ID"'"
                 }'
 
-              echo "Dataspace Profile deployed successfully"
+              echo "Dataspace Profiles deployed successfully"
               echo "================================================"
               echo "TenantManager Seeding Complete"
               echo "================================================"

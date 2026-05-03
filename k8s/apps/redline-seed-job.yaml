@@ -109,7 +109,8 @@ spec:
                   "name": "Catena-X",
                   "properties": {
                     "description": "A Demo Dataspace for JAD",
-                     "cfmDataspaceProfileId": "'"$CATENAX_PROFILE_ID"'"
+                     "cfmDataspaceProfileId": "'"$CATENAX_PROFILE_ID"'",
+                     "credentialType": "CatenaMembershipCredential"
                   }
                 }')
               DATASPACE_ID=$(echo "$DATASPACE_RESPONSE" | jq -r '.id')
@@ -123,7 +124,8 @@ spec:
                     "name": "Bike-X",
                     "properties": {
                       "description": "A Mock Bicycle-Industry Dataspace",
-                      "cfmDataspaceProfileId": "'"$BIKEX_PROFILE_ID"'"
+                      "cfmDataspaceProfileId": "'"$BIKEX_PROFILE_ID"'",
+                      "credentialType": "BikeMembershipCredential"
                     }
                   }')
               BIKEX_ID=$(echo "$BIKEX_RESPONSE" | jq -r '.id')

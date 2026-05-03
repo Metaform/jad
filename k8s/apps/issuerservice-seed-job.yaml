@@ -24,7 +24,7 @@ metadata:
     platform: edcv
     type: edcv-job
 spec:
-  backoffLimit: 0 
+  backoffLimit: 0
   template:
     metadata:
       labels:
@@ -32,7 +32,7 @@ spec:
         platform: edcv
         type: edcv-job
     spec:
-      restartPolicy: Never 
+      restartPolicy: Never
       initContainers:
         # Wait for issuerservice to be ready
         - name: wait-for-issuerservice
@@ -373,6 +373,43 @@ spec:
                     {
                       "input": "since",
                       "output": "credentialSubject.since",
+                      "required": true
+                    },
+                    {
+                      "input": "id",
+                      "output": "credentialSubject.id",
+                      "required": true
+                    }
+                  ],
+                  "rules": [],
+                  "format": "VC2_0_JOSE",
+                  "validity": "604800"
+                }'
+
+              echo "Creating General Membership CredentialDefinition"
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "http://issuerservice.edc-v.svc.cluster.local:10013/api/admin/v1alpha/participants/issuer/credentialdefinitions" \
+                -H "Authorization: Bearer ${ISSUER_TOKEN}" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "attestations": ["membership-attestation-def-1"],
+                  "credentialType": "MembershipCredential",
+                  "id": "membership-credential-def",
+                  "jsonSchema": "{}",
+                  "jsonSchemaUrl": "https://example.com/schema/membership-credential.json",
+                  "mappings": [
+                    {
+                      "input": "membership",
+                      "output": "credentialSubject.membership",
+                      "required": true
+                    },
+                    {
+                      "input": "membershipType",
+                      "output": "credentialSubject.membershipType",
+                      "required": "true"
+                    },
+                    {
+                      "input": "membershipStartDate",
+                      "output": "credentialSubject.membershipStartDate",
                       "required": true
                     },
                     {

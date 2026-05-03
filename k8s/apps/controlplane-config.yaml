@@ -1,17 +1,3 @@
-#
-# Copyright (c) 2025 Metaform Systems, Inc.
-#
-# This program and the accompanying materials are made available under the
-# terms of the Apache License, Version 2.0 which is available at
-# https://www.apache.org/licenses/LICENSE-2.0
-#
-# SPDX-License-Identifier: Apache-2.0
-#
-# Contributors:
-#      Metaform Systems, Inc. - initial API and implementation
-#
-
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -54,24 +40,42 @@ data:
   edc.encryption.aes.key.alias: "aes-key-alias"
 
   # Oauth2 config
-  # KeyCloak takes the `iss` claim's host from the request URL. For now, this is the URL defined in the ingress route.
-  # to do this properly, we should probably configure the following properties on the ingress route:
-  #    proxy_set_header Host $host;
-  #    proxy_set_header X-Forwarded-Proto $scheme;
   edc.iam.oauth2.issuer: "http://keycloak.edc-v.svc.cluster.local:8080/realms/edcv"
   edc.iam.oauth2.jwks.url: "http://keycloak.edc-v.svc.cluster.local:8080/realms/edcv/protocol/openid-connect/certs"
 
-  # Default scopes config
+  # General membership — DEFAULT, every participant has MembershipCredential
+  # so authentication always succeeds regardless of dataspace
   edc.iam.dcp.scopes.membership.id: "membership-scope"
   edc.iam.dcp.scopes.membership.type: "DEFAULT"
   edc.iam.dcp.scopes.membership.value: "org.eclipse.dspace.dcp.vc.type:MembershipCredential:read"
 
+  # Catena-X specific membership — POLICY, only requested when asset policy requires it
+  edc.iam.dcp.scopes.catenamembership.id: "catena-membership-scope"
+  edc.iam.dcp.scopes.catenamembership.type: "POLICY"
+  edc.iam.dcp.scopes.catenamembership.value: "org.eclipse.dspace.dcp.vc.type:CatenaMembershipCredential:read"
+  edc.iam.dcp.scopes.catenamembership.prefix-mapping: "CatenaMembershipCredential"
+
+  # Bike-X specific membership — POLICY, only requested when asset policy requires it
+  edc.iam.dcp.scopes.bikemembership.id: "bike-membership-scope"
+  edc.iam.dcp.scopes.bikemembership.type: "POLICY"
+  edc.iam.dcp.scopes.bikemembership.value: "org.eclipse.dspace.dcp.vc.type:BikeMembershipCredential:read"
+  edc.iam.dcp.scopes.bikemembership.prefix-mapping: "BikeMembershipCredential"
+
+  # Catena-X manufacturer — POLICY
   edc.iam.dcp.scopes.manufacturer.id: "manufacturer-scope"
   edc.iam.dcp.scopes.manufacturer.type: "POLICY"
-  edc.iam.dcp.scopes.manufacturer.value: "org.eclipse.dspace.dcp.vc.type:ManufacturerCredential:read"
+  edc.iam.dcp.scopes.manufacturer.value: "org.eclipse.dspace.dcp.vc.type:CatenaManufacturerCredential:read"
   edc.iam.dcp.scopes.manufacturer.prefix-mapping: "ManufacturerCredential"
 
+  # Bike-X manufacturer — POLICY
+  edc.iam.dcp.scopes.bikemanufacturer.id: "bike-manufacturer-scope"
+  edc.iam.dcp.scopes.bikemanufacturer.type: "POLICY"
+  edc.iam.dcp.scopes.bikemanufacturer.value: "org.eclipse.dspace.dcp.vc.type:BikeManufacturerCredential:read"
+  edc.iam.dcp.scopes.bikemanufacturer.prefix-mapping: "BikeManufacturerCredential"
+
   # Trusted Issuers
-  edc.iam.trusted-issuer.issuer.id: "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer"
+  edc.iam.trustedissuer.issuer.id: "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer"
+  edc.iam.trustedissuer.issuer.supportedtypes: '["MembershipCredential","CatenaMembershipCredential","CatenaManufacturerCredential","BikeMembershipCredential","BikeManufacturerCredential"]'
+  edc.iam.trustedissuer.issuer.properties: "{}"
 
   JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044"
