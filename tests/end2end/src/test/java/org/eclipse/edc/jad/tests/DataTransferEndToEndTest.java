@@ -284,7 +284,7 @@ public class DataTransferEndToEndTest {
     private String createAsset(String participantContextId, String description) {
         var properties = new HashMap<String, Object>();
         properties.put("description", description);
-        var asset = new AssetDto(properties, null);
+        var asset = new AssetDto(properties, Map.of());
         return MANAGEMENT_API_CLIENT.assets().createAsset(participantContextId, asset);
     }
 

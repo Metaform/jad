@@ -68,10 +68,10 @@ edc-bom-identityhub = { module = "org.eclipse.edc:identityhub-oauth2-bom", versi
 edc-bom-identityhub-sql = { module = "org.eclipse.edc:identityhub-feature-sql-bom", version.ref = "edc" }
 edc-bom-issuerservice = { module = "org.eclipse.edc:issuerservice-oauth2-bom", version.ref = "edc" }
 edc-bom-issuerservice-sql = { module = "org.eclipse.edc:issuerservice-feature-sql-bom", version.ref = "edc" }
-edcv-bom-controlplane = { module = "org.eclipse.edc.virtualized:virtual-controlplane-base-bom", version.ref = "edc" }
-edcv-bom-controlplane-sql = { module = "org.eclipse.edc.virtualized:virtual-controlplane-feature-sql-bom", version.ref = "edc" }
-edcv-bom-controlplane-nats = { module = "org.eclipse.edc.virtualized:virtual-controlplane-feature-nats-bom", version.ref = "edc" }
-edcv-bom-controlplane-dcp = { module = "org.eclipse.edc.virtualized:virtual-controlplane-feature-dcp-bom", version.ref = "edc" }
+edcv-bom-controlplane = { module = "org.eclipse.edc:controlplane-virtual-base-bom", version.ref = "edc" }
+edcv-bom-controlplane-sql = { module = "org.eclipse.edc:controlplane-virtual-feature-sql-bom", version.ref = "edc" }
+edcv-bom-controlplane-dcp = { module = "org.eclipse.edc:controlplane-virtual-feature-dcp-bom", version.ref = "edc" }
+edcv-bom-controlplane-nats = { module = "org.eclipse.edc:controlplane-virtual-feature-nats-bom", version.ref = "edc" }
 
 # Third party deps
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
