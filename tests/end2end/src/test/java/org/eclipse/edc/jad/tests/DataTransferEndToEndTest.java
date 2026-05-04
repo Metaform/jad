@@ -157,7 +157,7 @@ public class DataTransferEndToEndTest {
      * @return the Cell ID
      */
     private static String getCellId() {
-        return adminRequest()
+        return apiRequest()
                 .contentType(APPLICATION_JSON)
                 .get(TM_BASE_URL + "/cells")
                 .then()
@@ -170,7 +170,11 @@ public class DataTransferEndToEndTest {
                 .header("Authorization", "Bearer " + DYNAMIC_TOKEN_PROVIDER.createToken(providerCredentials.clientId(), "participant"));
     }
 
-    public static RequestSpecification adminRequest() {
+
+    /**
+     * Creates an authenticated request for any of the Administration APIs (hitting the "single pane of glass")
+     */
+    public static RequestSpecification apiRequest() {
         return given()
                 .header("Authorization", "Bearer " + DYNAMIC_TOKEN_PROVIDER.createToken(null, "admin"));
     }
