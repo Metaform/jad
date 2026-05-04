@@ -94,6 +94,11 @@ jobs:
             --selector=type=edcv-infra \
             --timeout=300s
 
+      - name: "Build and load the auth-proxy"
+        run: |-
+          docker buildx build -f Dockerfile -t ghcr.io/metaform/jad/auth-proxy:latest authproxy
+          kind load docker-image -n jad ghcr.io/metaform/jad/auth-proxy:latest
+
       - name: "Deploy JAD applications"
         run: |-
           # this is crucial - without it, KinD would take the prebuilt images from GHCR
