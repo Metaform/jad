@@ -205,6 +205,23 @@ and now want to see it in action, please follow the following steps to build and
 
   For this, both the EDC-V and CFM docker images must be built locally!!
 
+#### 2.3 Build and deploy the auth-proxy
+
+The auth-proxy is a small Go application that acts as a reverse proxy for the JAD services and is described in more
+detail in a [later chapter](#jads-apis--a-single-pane-of-glass). It is being deployed as part of the base (or
+infrastructure)
+layer.
+
+For now, we have to build and load it manually using the following commands:
+
+```shell
+docker buildx build -f authproxy/Dockerfile -t ghcr.io/metaform/jad/auth-proxy:latest authproxy
+kind load docker-image -n jad ghcr.io/metaform/jad/auth-proxy:latest
+```
+
+_Note that in a later evolution of JAD the auth-proxy will be moved into its own repository which will make this step
+obsolete._
+
 ### 3. Deploy the services
 
 JAD uses plain Kubernetes manifests to deploy the services. All the manifests are located in the [k8s](./k8s) folder.
@@ -398,6 +415,76 @@ entire base and all apps.
 For example, if a participant onboarding went only through half-way, we recommend to do a clean-slate redeployment.
 
 In some cases, even deleting and re-creating the KinD cluster may be required.
+
+## JAD's APIs – A single pane of glass
+
+All JAD services are exposed through a single Traefik gateway (`edcv-gateway`) on `jad.localhost`, acting as a single
+pane of glass. Each service is reachable via a path prefix that is rewritten before forwarding to the backend.
+
+Authentication is enforced at the gateway level using Traefik `ForwardAuth` middlewares. Each middleware forwards the
+`Authorization` header to the `auth-proxy` service, which validates the Bearer token against Keycloak via RFC 7662
+token introspection and checks for the required OAuth2 scopes. Services without a `middleware` entry listed are
+unauthenticated at the gateway level.
+
+### Application routes (`jad.localhost`)
+
+| Service             | Exposed path        | Rewrites to             | Backend port | Auth middleware                        |
+|---------------------|---------------------|-------------------------|--------------|----------------------------------------|
+| Control Plane       | `/api/management`   | `/api/mgmt`             | `8081`       | `jwt-auth-management-api`              |
+| Identity Hub        | `/api/identity`     | `/api/identity/v1alpha` | `7081`       | `jwt-auth-identity-api`                |
+| Issuer Service      | `/api/issuer/admin` | `/api/admin/v1alpha`    | `10013`      | `jwt-auth-issuer-admin-api`            |
+| Provision Manager   | `/api/pm`           | `/api/v1alpha`          | `8080`       | `jwt-auth-provision-manager-api`       |
+| Tenant Manager      | `/api/tm`           | `/api/v1alpha1`         | `8080`       | `jwt-auth-tenant-manager-api`          |
+| Dataplane (public)  | `/api/dp/public`    | `/`                     | `11002`      | —                                      |
+| Dataplane (control) | `/api/dp/control`   | `/`                     | `8083`       | —                                      |
+| Dataplane (certs)   | `/api/dp/certs`     | `/`                     | `8186`       | —                                      |
+| Siglet              | `/api/siglet`       | `/`                     | `8080`       | —                                      |
+| Redline             | `/redline`          | `/`                     | `8081`       | —                                      |
+| Keycloak            | `/auth`             | `/`                     | `8080`       | — (is the auth server)                 |
+| Web UI              | `/ui`               | `/`                     | `80`         | — (obtains its own token via Keycloak) |
+
+### Auth middleware scopes
+
+Each `jwt-auth-*` middleware enforces a specific pair of OAuth2 scopes (`read` and `write`):
+
+| Middleware                       | Required scopes                                             |
+|----------------------------------|-------------------------------------------------------------|
+| `jwt-auth-management-api`        | `management-api:read`, `management-api:write`               |
+| `jwt-auth-identity-api`          | `identity-api:read`, `identity-api:write`                   |
+| `jwt-auth-issuer-admin-api`      | `issuer-admin-api:read`, `issuer-admin-api:write`           |
+| `jwt-auth-provision-manager-api` | `provision-manager-api:read`, `provision-manager-api:write` |
+| `jwt-auth-tenant-manager-api`    | `tenant-manager-api:read`, `tenant-manager-api:write`       |
+
+### Infrastructure routes (each on their own hostname)
+
+Infrastructure services are not protected by the auth middleware and are only intended for local development access.
+
+| Service    | Hostname               | Remark                                                         |
+|------------|------------------------|----------------------------------------------------------------|
+| Grafana    | `grafana.localhost`    |                                                                |
+| Prometheus | `prometheus.localhost` |                                                                |
+| Jaeger     | `jaeger.localhost`     |                                                                |
+| Loki       | `loki.localhost`       |                                                                |
+| Vault      | `vault.localhost`      | access from outside the cluster is only intended for e2e tests |
+
+### The auth-proxy
+
+The `auth-proxy` is a small sidecar service (`ghcr.io/metaform/jad/auth-proxy`) that acts as the authentication and
+authorization enforcement point for all protected APIs. Traefik's `ForwardAuth` mechanism intercepts every inbound
+request and calls `auth-proxy`'s `/validate` endpoint before forwarding it to the backend.
+
+The proxy performs two checks:
+
+1. **Token validation** — it calls Keycloak's RFC 7662 token introspection endpoint
+   (`/realms/edcv/protocol/openid-connect/token/introspect`) using its own client credentials (`auth-proxy` /
+   `auth-proxy-secret`) to verify that the Bearer token in the `Authorization` header is active.
+2. **Scope check** — the required OAuth2 scopes are passed as `?scope=` query parameters by each Traefik middleware.
+   The proxy checks that the token carries at least those scopes. If either check fails, the request is rejected with
+   `401 Unauthorized` before it ever reaches the backend service.
+
+This design keeps authentication logic out of the individual services and centralizes it in one place, making it easy
+to add or modify access rules by updating the middleware definitions in
+[`k8s/base/jwt-middleware.yaml`](k8s/base/jwt-middleware.yaml).
 
 ## Deploying JAD on a bare-metal/cloud-hosted Kubernetes
 
