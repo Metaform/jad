@@ -213,7 +213,7 @@ public class DataTransferEndToEndTest {
                 .header("Authorization", "Bearer " + accessToken)
                 .body("{}")
                 .contentType("application/json")
-                .post("/app/public/api/data/certs/request")
+                .post("/dp/certs/api/data/certs/request")
                 .then()
                 .statusCode(200)
                 .extract().body().as(List.class);
@@ -267,7 +267,7 @@ public class DataTransferEndToEndTest {
                 .header("Authorization", "Bearer " + accessToken)
                 .body("{}")
                 .contentType("application/json")
-                .post("/app/public/api/data/certs/request")
+                .post("/dp/certs/api/data/certs/request")
                 .then()
                 .statusCode(200)
                 .extract().body().as(List.class);
@@ -295,7 +295,7 @@ public class DataTransferEndToEndTest {
     private String createAsset(String participantContextId, String description) {
         var properties = new HashMap<String, Object>();
         properties.put("description", description);
-        var asset = new AssetDto(properties, null);
+        var asset = new AssetDto(properties, Map.of());
         return MANAGEMENT_API_CLIENT.assets().createAsset(participantContextId, asset);
     }
 
