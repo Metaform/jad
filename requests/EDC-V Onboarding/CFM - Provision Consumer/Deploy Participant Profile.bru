@@ -17,13 +17,22 @@ body:json {
     "properties": {},
     "cellId": "{{cell_id}}",
     "version": 0,
-    "vpaProperties": {},
+    "vpaProperties": {
+      "cfm.issuer":{
+        "key1": "value1",
+        "bar": "baz"
+      }    
+    },
     "participantRoles": {
       "{{dataspace_id}}": [
         "manufacturer"
       ]
+    },
+    "properties": {
     }
   }
+  
+  
 }
 
 vars:pre-request {

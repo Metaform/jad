@@ -10,6 +10,12 @@ get {
   auth: inherit
 }
 
+body:json {
+  
+  
+  
+}
+
 script:post-response {
   let body = res.getBody()
   test("Response contains id", function () {
