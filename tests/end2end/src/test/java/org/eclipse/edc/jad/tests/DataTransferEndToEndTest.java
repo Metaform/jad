@@ -213,7 +213,7 @@ public class DataTransferEndToEndTest {
                 .header("Authorization", "Bearer " + accessToken)
                 .body("{}")
                 .contentType("application/json")
-                .post("/dp/certs/api/data/certs/request")
+                .post("/api/dp/certs/api/data/certs/request")
                 .then()
                 .statusCode(200)
                 .extract().body().as(List.class);
@@ -267,7 +267,7 @@ public class DataTransferEndToEndTest {
                 .header("Authorization", "Bearer " + accessToken)
                 .body("{}")
                 .contentType("application/json")
-                .post("/dp/certs/api/data/certs/request")
+                .post("/api/dp/certs/api/data/certs/request")
                 .then()
                 .statusCode(200)
                 .extract().body().as(List.class);

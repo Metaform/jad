@@ -114,11 +114,11 @@ spec:
   hostnames:
     - jad.localhost
   rules:
-    # /dp/public → public port 11002 (data transfer API)
+    # /api/dp/public → public port 11002 (data transfer API)
     - matches:
         - path:
             type: PathPrefix
-            value: /dp/public
+            value: /api/dp/public
       filters:
         - type: URLRewrite
           urlRewrite:
@@ -130,11 +130,11 @@ spec:
           port: 11002
           weight: 1
 
-    # /dp/control → control port 8083 (internal control API)
+    # /api/dp/control → control port 8083 (internal control API)
     - matches:
         - path:
             type: PathPrefix
-            value: /dp/control
+            value: /api/dp/control
       filters:
         - type: URLRewrite
           urlRewrite:
@@ -146,11 +146,11 @@ spec:
           port: 8083
           weight: 1
 
-    # /dp/certs → certs port 8186 (data/certificate API)
+    # /api/dp/certs → certs port 8186 (data/certificate API)
     - matches:
         - path:
             type: PathPrefix
-            value: /dp/certs
+            value: /api/dp/certs
       filters:
         - type: URLRewrite
           urlRewrite:
