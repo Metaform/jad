@@ -37,7 +37,6 @@ import org.eclipse.edc.spi.monitor.ConsoleMonitor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.net.URI;
 import java.time.Instant;
 import java.util.HashMap;
@@ -64,8 +63,6 @@ import static org.eclipse.edc.jad.tests.KeycloakApi.getAccessToken;
  */
 @EndToEndTest
 public class DataTransferEndToEndTest {
-
-
     private static final String VAULT_TOKEN = "root";
 
     private static final ConsoleMonitor MONITOR = new ConsoleMonitor(ConsoleMonitor.Level.DEBUG, true);
@@ -75,17 +72,6 @@ public class DataTransferEndToEndTest {
     private static ClientCredentials consumerCredentials;
     private static String providerContextId;
     private static ClientCredentials manufacturerCredentials;
-
-    static String loadResourceFile(String resourceName) {
-        try (var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName)) {
-            if (is == null) {
-                throw new RuntimeException("Resource not found: " + resourceName);
-            }
-            return new String(is.readAllBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @BeforeAll
     static void prepare() {
@@ -156,7 +142,7 @@ public class DataTransferEndToEndTest {
      *
      * @return the Cell ID
      */
-    private static String getCellId() {
+    public static String getCellId() {
         return apiRequest()
                 .contentType(APPLICATION_JSON)
                 .get(TM_BASE_URL + "/cells")
@@ -169,7 +155,6 @@ public class DataTransferEndToEndTest {
         return given()
                 .header("Authorization", "Bearer " + DYNAMIC_TOKEN_PROVIDER.createToken(providerCredentials.clientId(), "participant"));
     }
-
 
     /**
      * Creates an authenticated request for any of the Administration APIs (hitting the "single pane of glass")
