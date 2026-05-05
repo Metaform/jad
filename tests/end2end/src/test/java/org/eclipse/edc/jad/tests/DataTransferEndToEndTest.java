@@ -203,7 +203,7 @@ public class DataTransferEndToEndTest {
 
         MONITOR.info("Fetching siglet token for transferId: " + transferId);
 
-        var transferResponse = given()
+        var transferResponse = apiRequest()
                 .baseUri(SIGLET_BASE_URL)
                 .get("/tokens/%s/%s".formatted(consumerCredentials.clientId(), transferId))
                 .then()
@@ -257,7 +257,7 @@ public class DataTransferEndToEndTest {
 
         MONITOR.info("Fetching siglet token for transferId: " + transferId);
 
-        var transferResponse = given()
+        var transferResponse = apiRequest()
                 .baseUri(SIGLET_BASE_URL)
                 .get("/tokens/%s/%s".formatted(manufacturerCredentials.clientId(), transferId))
                 .then()

@@ -216,6 +216,15 @@ data:
             "include.in.token.scope": "true",
             "display.on.consent.screen": "true"
           }
+        },
+        {
+          "name": "siglet-api:read",
+          "description": "read access to the Siglet Token API",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "true",
+            "display.on.consent.screen": "true"
+          }
         }
       ],
       "defaultOptionalClientScopes": [
@@ -225,7 +234,8 @@ data:
         "identity-api:read",
         "identity-api:write",
         "issuer-admin-api:read",
-        "issuer-admin-api:write"
+        "issuer-admin-api:write",
+        "siglet-api:read"
       ],
       "clients": [
         {
@@ -266,7 +276,8 @@ data:
             "provision-manager-api:write",
             "provision-manager-api:read",
             "tenant-manager-api:write",
-            "tenant-manager-api:read"
+            "tenant-manager-api:read",
+            "siglet-api:read"
           ]
         },
         {

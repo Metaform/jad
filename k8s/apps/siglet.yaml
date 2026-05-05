@@ -186,6 +186,11 @@ spec:
             path:
               type: ReplacePrefixMatch
               replacePrefixMatch: /
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: jwt-auth-siglet-api
       backendRefs:
         - name: siglet
           port: 8080

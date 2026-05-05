@@ -87,3 +87,18 @@ spec:
     authRequestHeaders:
       - Authorization
     trustForwardHeader: true
+
+
+---
+# requires all requests to the CFM Provision Manager to be authenticated and have the appropriate scopes
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: jwt-auth-siglet-api
+  namespace: edc-v
+spec:
+  forwardAuth:
+    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=siglet-api:read
+    authRequestHeaders:
+      - Authorization
+    trustForwardHeader: true
