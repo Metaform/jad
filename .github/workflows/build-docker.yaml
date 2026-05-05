@@ -41,9 +41,9 @@ jobs:
           - name: dataplane
             context: launchers/dataplane
             dockerfile: launchers/dataplane/src/main/docker/Dockerfile
-          - name: auth-proxy
-            context: authproxy
-            dockerfile: authproxy/Dockerfile
+          - name: clearglass
+            context: clearglass
+            dockerfile: clearglass/Dockerfile
 
     steps:
       - name: Checkout code

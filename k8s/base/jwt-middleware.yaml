@@ -11,11 +11,11 @@
 #      Metaform Systems, Inc. - initial API and implementation
 #
 
-# Traefik ForwardAuth middlewares that validate Bearer tokens via the auth-proxy
+# Traefik ForwardAuth middlewares that validate Bearer tokens via the clearglass
 # service, which calls Keycloak's RFC 7662 token introspection endpoint and
 # checks the required scopes.
 #
-# Each middleware passes ?scope= query params to auth-proxy; the token must
+# Each middleware passes ?scope= query params to clearglass; the token must
 # carry at least one of the listed scopes for the request to be allowed.
 
 ---
@@ -27,7 +27,7 @@ metadata:
   namespace: edc-v
 spec:
   forwardAuth:
-    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=management-api:read&scope=management-api:write
+    address: http://clearglass.edc-v.svc.cluster.local:8080/validate?scope=management-api:read&scope=management-api:write
     authRequestHeaders:
       - Authorization
     trustForwardHeader: true
@@ -41,7 +41,7 @@ metadata:
   namespace: edc-v
 spec:
   forwardAuth:
-    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=identity-api:read&scope=identity-api:write
+    address: http://clearglass.edc-v.svc.cluster.local:8080/validate?scope=identity-api:read&scope=identity-api:write
     authRequestHeaders:
       - Authorization
     trustForwardHeader: true
@@ -55,7 +55,7 @@ metadata:
   namespace: edc-v
 spec:
   forwardAuth:
-    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=issuer-admin-api:read&scope=issuer-admin-api:write
+    address: http://clearglass.edc-v.svc.cluster.local:8080/validate?scope=issuer-admin-api:read&scope=issuer-admin-api:write
     authRequestHeaders:
       - Authorization
     trustForwardHeader: true
@@ -69,7 +69,7 @@ metadata:
   namespace: edc-v
 spec:
   forwardAuth:
-    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=tenant-manager-api:read&scope=tenant-manager-api:write
+    address: http://clearglass.edc-v.svc.cluster.local:8080/validate?scope=tenant-manager-api:read&scope=tenant-manager-api:write
     authRequestHeaders:
       - Authorization
     trustForwardHeader: true
@@ -83,7 +83,7 @@ metadata:
   namespace: edc-v
 spec:
   forwardAuth:
-    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=provision-manager-api:read&scope=provision-manager-api:write
+    address: http://clearglass.edc-v.svc.cluster.local:8080/validate?scope=provision-manager-api:read&scope=provision-manager-api:write
     authRequestHeaders:
       - Authorization
     trustForwardHeader: true
@@ -98,7 +98,7 @@ metadata:
   namespace: edc-v
 spec:
   forwardAuth:
-    address: http://auth-proxy.edc-v.svc.cluster.local:8080/validate?scope=siglet-api:read
+    address: http://clearglass.edc-v.svc.cluster.local:8080/validate?scope=siglet-api:read
     authRequestHeaders:
       - Authorization
     trustForwardHeader: true

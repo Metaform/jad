@@ -1,10 +1,10 @@
 [package]
-name = "auth-proxy"
+name = "clearglass"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "auth-proxy"
+name = "clearglass"
 path = "src/main.rs"
 
 [dependencies]

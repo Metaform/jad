@@ -16,7 +16,7 @@ resources:
   - gateway-class.yaml
   - gateway.yaml
   - jwt-middleware.yaml
-  - auth-proxy.yaml
+  - clearglass.yaml
   - postgres.yaml
   - nats.yaml
   - keycloak.yaml

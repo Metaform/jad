@@ -205,9 +205,9 @@ and now want to see it in action, please follow the following steps to build and
 
   For this, both the EDC-V and CFM docker images must be built locally!!
 
-#### 2.3 Build and deploy the auth-proxy
+#### 2.3 Build and deploy clearglass
 
-The auth-proxy is a small Go application that acts as a reverse proxy for the JAD services and is described in more
+Clearglass is a small Rust application that acts as a reverse proxy for the JAD services and is described in more
 detail in a [later chapter](#jads-apis--a-single-pane-of-glass). It is being deployed as part of the base (or
 infrastructure)
 layer.
@@ -215,11 +215,11 @@ layer.
 For now, we have to build and load it manually using the following commands:
 
 ```shell
-docker buildx build -f authproxy/Dockerfile -t ghcr.io/metaform/jad/auth-proxy:latest authproxy
-kind load docker-image -n jad ghcr.io/metaform/jad/auth-proxy:latest
+docker buildx build -f clearglass/Dockerfile -t ghcr.io/metaform/jad/clearglass:latest clearglass
+kind load docker-image -n jad ghcr.io/metaform/jad/clearglass:latest
 ```
 
-_Note that in a later evolution of JAD the auth-proxy will be moved into its own repository which will make this step
+_Note that in a later evolution of JAD clearglass will be moved into its own repository which will make this step
 obsolete._
 
 ### 3. Deploy the services
@@ -422,7 +422,7 @@ All JAD services are exposed through a single Traefik gateway (`edcv-gateway`) o
 pane of glass. Each service is reachable via a path prefix that is rewritten before forwarding to the backend.
 
 Authentication is enforced at the gateway level using Traefik `ForwardAuth` middlewares. Each middleware forwards the
-`Authorization` header to the `auth-proxy` service, which validates the Bearer token against Keycloak via RFC 7662
+`Authorization` header to the `clearglass` service, which validates the Bearer token against Keycloak via RFC 7662
 token introspection and checks for the required OAuth2 scopes. Services without a `middleware` entry listed are
 unauthenticated at the gateway level.
 
@@ -467,17 +467,17 @@ Infrastructure services are not protected by the auth middleware and are only in
 | Loki       | `loki.localhost`       |                                                                |
 | Vault      | `vault.localhost`      | access from outside the cluster is only intended for e2e tests |
 
-### The auth-proxy
+### Clearglass
 
-The `auth-proxy` is a small sidecar service (`ghcr.io/metaform/jad/auth-proxy`) that acts as the authentication and
+`clearglass` is a small sidecar service (`ghcr.io/metaform/jad/clearglass`) that acts as the authentication and
 authorization enforcement point for all protected APIs. Traefik's `ForwardAuth` mechanism intercepts every inbound
-request and calls `auth-proxy`'s `/validate` endpoint before forwarding it to the backend.
+request and calls `clearglass`'s `/validate` endpoint before forwarding it to the backend.
 
 The proxy performs two checks:
 
 1. **Token validation** — it calls Keycloak's RFC 7662 token introspection endpoint
-   (`/realms/edcv/protocol/openid-connect/token/introspect`) using its own client credentials (`auth-proxy` /
-   `auth-proxy-secret`) to verify that the Bearer token in the `Authorization` header is active.
+   (`/realms/edcv/protocol/openid-connect/token/introspect`) using its own client credentials (`clearglass` /
+   `clearglass-secret`) to verify that the Bearer token in the `Authorization` header is active.
 2. **Scope check** — the required OAuth2 scopes are passed as `?scope=` query parameters by each Traefik middleware.
    The proxy checks that the token carries at least those scopes. If either check fails, the request is rejected with
    `401 Unauthorized` before it ever reaches the backend service.

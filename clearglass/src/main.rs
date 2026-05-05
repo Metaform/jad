@@ -9,7 +9,7 @@
 // Contributors:
 //      Metaform Systems, Inc. - initial API and implementation
 
-// auth-proxy is a lightweight Traefik ForwardAuth target that validates
+// clearglass is a lightweight Traefik ForwardAuth target that validates
 // Bearer tokens via Keycloak's token introspection endpoint (RFC 7662)
 // and enforces per-route scope requirements.
 //
@@ -32,7 +32,7 @@ use std::time::Duration;
 use tracing::{debug, error, info, warn};
 use tracing_subscriber::EnvFilter;
 
-struct AuthProxy {
+struct ClearGlassProxy {
     introspect_url: String,
     client_id: String,
     client_secret: String,
@@ -46,13 +46,13 @@ fn main() {
 
     let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
     let addr = format!("0.0.0.0:{port}");
-    info!("auth-proxy listening on {addr}");
+    info!("clearglass listening on {addr}");
 
     let mut server = Server::new(None).expect("failed to create server");
     server.bootstrap();
 
-    let app = HttpServer::new_app(AuthProxy::from_env());
-    let mut service = Service::new("auth-proxy".to_string(), app);
+    let app = HttpServer::new_app(ClearGlassProxy::from_env());
+    let mut service = Service::new("clearglass".to_string(), app);
     service.add_tcp(&addr);
     server.add_service(service);
 
@@ -66,9 +66,9 @@ struct IntrospectResponse {
     scope: String,
 }
 
-impl AuthProxy {
+impl ClearGlassProxy {
     fn from_env() -> Self {
-        AuthProxy {
+        ClearGlassProxy {
             introspect_url: must_env("TOKEN_INTROSPECTION_URL"),
             client_id: must_env("INTROSPECT_CLIENT_ID"),
             client_secret: must_env("INTROSPECT_CLIENT_SECRET"),
@@ -156,7 +156,7 @@ impl AuthProxy {
 }
 
 #[async_trait]
-impl ServeHttp for AuthProxy {
+impl ServeHttp for ClearGlassProxy {
     async fn response(&self, http_session: &mut ServerSession) -> Response<Vec<u8>> {
         let path = http_session.req_header().uri.path().to_owned();
         let query = http_session
@@ -204,8 +204,8 @@ mod tests {
     use wiremock::matchers::{method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
-    fn make_proxy(url: &str) -> AuthProxy {
-        AuthProxy {
+    fn make_proxy(url: &str) -> ClearGlassProxy {
+        ClearGlassProxy {
             introspect_url: url.to_string(),
             client_id: "test-client".to_string(),
             client_secret: "test-secret".to_string(),
@@ -216,7 +216,7 @@ mod tests {
         }
     }
 
-    async fn setup_mock(active: bool, scope: &str) -> (MockServer, AuthProxy) {
+    async fn setup_mock(active: bool, scope: &str) -> (MockServer, ClearGlassProxy) {
         let server = MockServer::start().await;
         let body = format!(r#"{{"active":{},"scope":"{}"}}"#, active, scope);
         Mock::given(method("POST"))

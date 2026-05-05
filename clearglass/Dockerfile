@@ -14,11 +14,11 @@ FROM chef AS builder
 COPY --from=planner /build/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-RUN cargo build --release --bin auth-proxy
+RUN cargo build --release --bin clearglass
 
 # --- Runtime: minimal image ---
 FROM gcr.io/distroless/cc-debian12
-COPY --from=builder /build/target/release/auth-proxy /
+COPY --from=builder /build/target/release/clearglass /
 ENV RUST_LOG=info
 EXPOSE 8080
-CMD ["/auth-proxy"]
+CMD ["/clearglass"]

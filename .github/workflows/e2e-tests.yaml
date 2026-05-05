@@ -50,7 +50,7 @@ jobs:
       - name: "Build runtime images"
         run: |-
           ./gradlew dockerize
-          docker buildx build -f authproxy/Dockerfile -t ghcr.io/metaform/jad/auth-proxy:latest authproxy
+          docker buildx build -f clearglass/Dockerfile -t ghcr.io/metaform/jad/clearglass:latest clearglass
 
       - name: "Create k8s Kind Cluster"
         uses: helm/kind-action@v1.14.0
@@ -63,7 +63,7 @@ jobs:
                                 ghcr.io/metaform/jad/dataplane:latest \
                                 ghcr.io/metaform/jad/identity-hub:latest \
                                 ghcr.io/metaform/jad/issuerservice:latest \
-                                ghcr.io/metaform/jad/auth-proxy:latest
+                                ghcr.io/metaform/jad/clearglass:latest
 
 
       - name: "Install Traefik Gateway controller"

@@ -322,14 +322,14 @@ data:
           ]
         },
         {
-          "clientId": "auth-proxy",
-          "name": "Auth Proxy",
-          "description": "Used by the gateway auth-proxy to introspect tokens (RFC 7662)",
+          "clientId": "clearglass",
+          "name": "Clearglass",
+          "description": "Used by the gateway clearglass to introspect tokens (RFC 7662)",
           "enabled": true,
           "protocol": "openid-connect",
           "publicClient": false,
           "serviceAccountsEnabled": false,
-          "secret": "auth-proxy-secret",
+          "secret": "clearglass-secret",
           "standardFlowEnabled": false,
           "directAccessGrantsEnabled": false
         }
