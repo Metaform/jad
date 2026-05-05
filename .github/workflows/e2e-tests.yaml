@@ -83,7 +83,7 @@ jobs:
 
       - name: "Build and load the auth-proxy"
         run: |-
-          docker buildx build -f Dockerfile -t ghcr.io/metaform/jad/auth-proxy:latest authproxy
+          docker buildx build -f authproxy/Dockerfile -t ghcr.io/metaform/jad/auth-proxy:latest authproxy
           kind load docker-image -n jad ghcr.io/metaform/jad/auth-proxy:latest
 
       - name: "Deploy JAD infrastructure"
