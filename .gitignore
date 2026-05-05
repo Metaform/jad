@@ -9,3 +9,5 @@ out/
 
 .terraform*
 *terraform.tfstate*
+**/target
+/authproxy/target/

@@ -1,9 +1,24 @@
-FROM golang:1.22-alpine AS build
-WORKDIR /app
-COPY go.mod ./
-COPY *.go ./
-RUN CGO_ENABLED=0 GOOS=linux go build -o auth-proxy .
+# --- Chef base ---
+FROM rust:bookworm AS chef
+RUN cargo install cargo-chef
+RUN apt-get update && apt-get install -y cmake && rm -rf /var/lib/apt/lists/*
+WORKDIR /build
 
-FROM scratch
-COPY --from=build /app/auth-proxy /auth-proxy
-ENTRYPOINT ["/auth-proxy"]
+# --- Planner: analyze dependencies ---
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
+
+# --- Builder: build deps (cached) then app ---
+FROM chef AS builder
+COPY --from=planner /build/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
+COPY . .
+RUN cargo build --release --bin auth-proxy
+
+# --- Runtime: minimal image ---
+FROM gcr.io/distroless/cc-debian12
+COPY --from=builder /build/target/release/auth-proxy /
+ENV RUST_LOG=info
+EXPOSE 8080
+CMD ["/auth-proxy"]
