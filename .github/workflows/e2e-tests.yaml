@@ -79,7 +79,7 @@ jobs:
           kubectl -n traefik port-forward svc/traefik 8080:80 &
           
           # install Gateway API CRDs
-          kubectl apply --server-side --force-conflicts -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/experimental-install.yaml
+          kubectl apply --server-side --force-conflicts -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/standard-install.yaml
           
           sleep 5 # to be safe
 
