@@ -1,0 +1,38 @@
+meta {
+  name: Query DID documents
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{identityHubUrl}}/participants/{{participantContextId}}/dids/query
+  body: json
+  auth: oauth2
+}
+
+auth:oauth2 {
+  grant_type: client_credentials
+  access_token_url: http://jad.localhost/auth/realms/edcv/protocol/openid-connect/token
+  refresh_token_url: 
+  client_id: {{participantContextId}}
+  client_secret: {{participant_secret}}
+  scope: identity-api:read identity-api:write
+  credentials_placement: body
+  credentials_id: participant_credentials
+  token_source: access_token
+  token_placement: header
+  token_header_prefix: Bearer
+  auto_fetch_token: true
+  auto_refresh_token: false
+}
+
+body:json {
+  {}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+}

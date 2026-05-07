@@ -148,9 +148,57 @@ spec:
                 }'
 
               echo "✓ onboarding-activity created"
+              
+              echo ""
+              echo "Step 7: Create rotate-keys ActivityDefinition"
+              echo "------------------------------------------------------"
+
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/activity-definitions" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "description": "Triggers Key-Rotation in IdentityHub",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12",
+                    "title": "KeyRotationMessage",
+                    "type": "object",
+                    "required": [
+                      "cfm.orchestration.key.rotate"
+                    ],
+                    "properties": {
+                      "cfm.orchestration.key.rotate": {
+                        "title": "KeyRotationRequest",
+                        "description": "Request to rotate a key. Defaults: algorithm=eddsa, curve=ed25519, gracePeriod=P3M.",
+                        "type": "object",
+                        "required": [
+                          "keyId"
+                        ],
+                        "properties": {
+                          "keyId": {
+                            "type": "string"
+                          },
+                          "algorithm": {
+                            "type": "string"
+                          },
+                          "curve": {
+                            "type": "string"
+                          },
+                          "gracePeriod": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                },
+                  "outputSchema": {},
+                  "type": "ih-keyrotation-activity"
+                }'
+
+              echo "✓ key-rotate-activity created"
 
               echo ""
-              echo "Step 7: Create Orchestration Definition (deploy + dispose)"
+              echo "Step 8: Create Orchestration Definition (deploy + dispose)"
               echo "------------------------------------------------"
 
               DEPLOY_ORCH_ID=$(cat /proc/sys/kernel/random/uuid)
@@ -223,6 +271,29 @@ spec:
 
               echo "✓ Orchestration definition created (ID: ${DEPLOY_ORCH_ID})"
               
+              echo ""
+              echo "Step 9: Create Orchestration Definition (rotate-keys)"
+              echo "------------------------------------------------"
+
+              DEPLOY_ORCH_ID=$(cat /proc/sys/kernel/random/uuid)
+
+              curl -sfS -w "\nHTTP_STATUS:%{http_code}\n" -X POST "${PM_BASE_URL}/api/v1alpha1/orchestration-definitions" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "activities": {
+                      "cfm.orchestration.key.rotate": [
+                      {
+                        "id": "identity-hub-key-rotator",
+                        "type": "ih-keyrotation-activity",
+                        "dependsOn": []
+                      }]
+                  },
+                  "description": "Orchestrates the rotation of a users keys",
+                  "schema": {},
+                  "id": "'"${DEPLOY_ORCH_ID}"'"
+                }'
+
+              echo "✓ Orchestration definition created (ID: ${DEPLOY_ORCH_ID})"
               
               echo ""
               echo "================================================"

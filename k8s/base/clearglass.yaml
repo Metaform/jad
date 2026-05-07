@@ -36,7 +36,7 @@ spec:
       containers:
         - name: clearglass
           image: ghcr.io/metaform/jad/clearglass:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http

@@ -1,0 +1,31 @@
+meta {
+  name: Rotate key
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{tmBaseUrl}}/tenants/{{tenant_id}}/participant-profiles/{{participant_profile_id}}/rotate-keys
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "keyPairId": "{{active_key_id}}",
+    
+    "gracePeriod": "P1M",
+    "algorithm": "eddsa",
+    "curve": "ed25519"
+  }
+  
+  
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+}

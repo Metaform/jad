@@ -75,6 +75,20 @@ spec:
             - name: ih-agent-config
               mountPath: /etc/appname
               readOnly: true
+        - name: ih-keyrotate-agent
+          image: ghcr.io/eclipse-cfm/cfm/ihkragent:latest
+          imagePullPolicy: Always
+          command: [ "/ihkragent" ]
+          args: [
+            "--mode=debug"
+          ]
+          envFrom:
+            - configMapRef:
+                name: telemetry-config
+          volumeMounts:
+            - name: ih-keyrotate-agent-config
+              mountPath: /etc/appname
+              readOnly: true
         - name: registration-agent
           image: ghcr.io/eclipse-cfm/cfm/regagent:latest
           imagePullPolicy: Always
@@ -119,4 +133,7 @@ spec:
         - name: onboarding-agent-config
           configMap:
             name: ob-agent-config
+        - name: ih-keyrotate-agent-config
+          configMap:
+            name: ih-keyrotate-agent-config
       restartPolicy: Always

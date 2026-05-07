@@ -23,6 +23,7 @@ resources:
   - identityhub.yaml
   - edcv-agent-config.yaml
   - ih-agent-config.yaml
+  - ih-keyrotate-agent-config.yaml
   - keycloak-agent-config.yaml
   - onboarding-agent-config.yaml
   - registration-agent-config.yaml

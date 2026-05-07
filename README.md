@@ -416,10 +416,13 @@ For example, if a participant onboarding went only through half-way, we recommen
 
 In some cases, even deleting and re-creating the KinD cluster may be required.
 
-## JAD's APIs – A single pane of glass
+## JAD's APIs: GlassAPI - A single pane of glass
 
 All JAD services are exposed through a single Traefik gateway (`edcv-gateway`) on `jad.localhost`, acting as a single
-pane of glass. Each service is reachable via a path prefix that is rewritten before forwarding to the backend.
+pane of glass. Each service is reachable via a path prefix rewritten before forwarding to the backend.
+
+This single pane of glass is called the `GlassAPI`. and is protected by an auth backend called `clearglass`, details
+are [here](#clearglass).
 
 Authentication is enforced at the gateway level using Traefik `ForwardAuth` middlewares. Each middleware forwards the
 `Authorization` header to the `clearglass` service, which validates the Bearer token against Keycloak via RFC 7662
@@ -486,13 +489,45 @@ This design keeps authentication logic out of the individual services and centra
 to add or modify access rules by updating the middleware definitions in
 [`k8s/base/jwt-middleware.yaml`](k8s/base/jwt-middleware.yaml).
 
-## Deploying JAD on a bare-metal/cloud-hosted Kubernetes
+## Advanced topics
+
+### Rotate a participant's key material
+
+Keys should be rotated periodically to reduce the chance of all sorts of attacks such as Lattice attacks or
+side-channel attacks. In practical applications, this would be done by a management application that uses the Glass
+API, like an admin dashboard, that periodically invokes these APIs here to perform the action.
+
+in JAD, there are several places where keys are stored:
+
+- IdentityHub: stores keys to sign self-issued ID tokens and VerifiablePresentations during a DCP Presentation Flow
+- Vault: stores keys to sign JWTs used to grant access to the data plane (via Siglet's API)
+
+Consequently, rotating all active keys is not a synchronous operation; rather, several individual requests must be made.
+CFM is just the tool to perform and coordinate these actions.
+
+#### Requests
+
+The general sequence of operations necessary to collect the required information is:
+
+- query the participant profile using the TenantManager API
+- record participant `participantProfileId`, its `tenantId` and the `participantContextId`. The latter is how we
+  establish a correlation between CFM and dataspace components such as IdentityHub and ControlPlane.
+- query all available KeyPairs owned by the `participantContextId`, select the (first) active one (`state=200`) and
+  record the ID of the key pair.
+- call Tenant Manager's `/rotate-keys` endpoint with the information provided
+- to check the correct execution of the rotation, either check the participant context's DID document and see if the new
+  key is there, or call the Query-Keypair API again
+
+These calls are demonstrated in the "Rotate Participant Key" folder in
+the [Bruno collection](./requests/EDC-V%20Onboarding/Rotate%20Participant%20Key).
+
+### Deploying JAD on a bare-metal/cloud-hosted Kubernetes
 
 KinD is geared towards local development and testing. For example, it comes with a bunch of useful defaults, such as
 storage classes, load balancers, network plugins, etc. If you want to deploy JAD on a bare-metal or cloud-hosted
 Kubernetes cluster, then there are some caveats to keep in mind.
 
-### Configure network access and DNS
+#### Configure network access and DNS
 
 EDC-V, Keycloak and Vault will need to be accessible from outside the cluster. For this, your cluster needs a network
 plugin and an external load balancer. For bare-metal installations, consider using [MetalLB](https://metallb.io).
@@ -518,7 +553,7 @@ Where `194.178.218.88` is the IP address of the Kubernetes host running MetalLB 
 _In actual production deployments, these individual hostnames, and potentially also individual IP addresses, would be
 necessary to isolate security domains and prevent unauthorized access or privilege escalation._
 
-### Tune Traefik gateway controller
+#### Tune Traefik gateway controller
 
 By default, Traefik binds to port 80 and 443 on the host machine. This is useful to enable clean URLs like
 `http://tm.yourdomain.com/api/v1alpha1/cells` etc. without any ports. However, some Linux distributions don't allow
@@ -538,7 +573,7 @@ securityContext:
   runAsUser: 0
 ```
 
-### Create Bruno Environment
+#### Create Bruno Environment
 
 Some of the URL paths used in Bruno are hard coded to `localhost` in a Bruno environment named `KinD Local`. This is
 tailored to running JAD on a local KinD cluster. To make the collection usable for a remote deployment, we recommend
@@ -548,7 +583,7 @@ Create another environment to suit your setup:
 
 ![img.png](docs/images/bruno_custom_env.png)
 
-### Update deployment manifests
+#### Update deployment manifests
 
 in [keycloak.yaml](k8s/base/keycloak.yaml) and [vault.yaml](k8s/base/vault.yaml), update the `hostnames` fields in the
 `HTTPRoute` resources to match your DNS:
@@ -567,7 +602,7 @@ spec:
 Do this for all `HTTPRoute` declarations in all components' manifests. The `hostnames` field should contain entries
 matching your DNS subdomains that you have also used to create the new Bruno environment.
 
-### Update the Keycloak realm
+#### Update the Keycloak realm
 
 In `k8s/base/keycloak.yaml`, find the line that says:
 
@@ -583,7 +618,7 @@ and replace with
 
 This is crucial for Vault authentication to work properly.
 
-### Tune readiness probes
+#### Tune readiness probes
 
 We've set up the readiness probes fairly tight, to avoid long wait times on local KinD clusters. However, in some
 Kubernetes

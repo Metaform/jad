@@ -1,0 +1,56 @@
+meta {
+  name: Query Participant Profiles
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{tmBaseUrl}}/participant-profiles/query
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "predicate": "identifier like '%provider%'"  
+    
+  }
+  
+  
+}
+
+script:post-response {
+  let body = res.getBody()[0]
+  
+  test("Response contains id", function () {
+      expect(body).to.have.property("id");
+  });
+  
+  test("Response contains tenantId", function(){
+    expect(body).to.have.property("tenantId");
+  })
+  
+  test("Response contains participantContextId", function(){
+    expect(body).to.have.nested.property("properties.cfm\\.vpa\\.state.participantContextId")
+  })
+  
+  if (body && body.id) {
+      bru.setVar("participant_profile_id", body.id);
+  }
+  
+  if(body && body.tenantId){
+    bru.setVar("tenant_id", body.tenantId)
+    
+  }
+  
+  if(body && body.properties["cfm.vpa.state"].participantContextId){
+    bru.setVar("participantContextId", body.properties["cfm.vpa.state"].participantContextId)
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+}
