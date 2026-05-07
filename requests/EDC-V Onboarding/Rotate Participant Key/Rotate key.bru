@@ -5,21 +5,20 @@ meta {
 }
 
 post {
-  url: {{tmBaseUrl}}/tenants/{{tenant_id}}/participant-profiles/{{participant_profile_id}}/rotate-keys
+  url: {{identityHubUrl}}/participants/{{participantContextId}}/keypairs/{{active_key_id}}/rotate
   body: json
   auth: inherit
 }
 
 body:json {
   {
-    "keyPairId": "{{active_key_id}}",
-    
-    "gracePeriod": "P1M",
-    "algorithm": "eddsa",
-    "curve": "ed25519"
+    "keyGeneratorParams": {
+      "algorithm": "eddsa",
+      "curve": "ed25519"    
+    },
+    "keyId": "{{participantIdentifier}}#{{$randomUUID}}",
+    "privateKeyAlias": "{{$randomUUID}}" 
   }
-  
-  
   
 }
 

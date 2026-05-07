@@ -22,6 +22,7 @@ dependencies {
     testImplementation(libs.edc.ih.spi.credentials)
     testImplementation(libs.edc.ih.spi.participantcontext)
     testImplementation(libs.edc.junit)
+    testImplementation(libs.edc.spi.keypair)
     testImplementation(libs.jackson.annotations)
     testImplementation(libs.awaitility)
     testImplementation(libs.restAssured)

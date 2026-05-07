@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
-import io.restassured.specification.RequestSpecification;
 import org.eclipse.edc.connector.controlplane.test.system.utils.client.ManagementApiClientV5;
 import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.AssetDto;
 import org.eclipse.edc.connector.controlplane.test.system.utils.client.api.model.AtomicConstraintDto;
@@ -99,21 +98,21 @@ public class DataTransferEndToEndTest {
         MONITOR.info("Onboarding (standard) consumer");
         var consumerName = "consumer-" + slug;
         var consumerContextId = "did:web:identityhub.edc-v.svc.cluster.local%3A7083:" + consumerName;
-        var po = new ParticipantOnboarding(consumerName, consumerContextId, VAULT_TOKEN, MONITOR.withPrefix("Consumer " + slug));
+        var po = new ParticipantOnboarding(consumerName, consumerContextId, VAULT_TOKEN, MONITOR.withPrefix("Consumer " + slug), DYNAMIC_TOKEN_PROVIDER);
         consumerCredentials = po.execute(cellId);
 
         // onboard provider
         MONITOR.info("Onboarding provider");
         var providerName = "provider-" + slug;
         providerContextId = "did:web:identityhub.edc-v.svc.cluster.local%3A7083:" + providerName;
-        var providerPo = new ParticipantOnboarding(providerName, providerContextId, VAULT_TOKEN, MONITOR.withPrefix("Provider " + slug));
+        var providerPo = new ParticipantOnboarding(providerName, providerContextId, VAULT_TOKEN, MONITOR.withPrefix("Provider " + slug), DYNAMIC_TOKEN_PROVIDER);
         providerCredentials = providerPo.execute(cellId);
 
         // onboard manufacturer consumer - only this one will see some assets
         MONITOR.info("Onboarding manufacturer consumer");
         var name = "manufacturer-" + slug;
         var manufacturerContextId = "did:web:identityhub.edc-v.svc.cluster.local%3A7083:" + name;
-        var manufacturerPo = new ParticipantOnboarding(name, manufacturerContextId, VAULT_TOKEN, MONITOR.withPrefix("Manufacturer " + slug));
+        var manufacturerPo = new ParticipantOnboarding(name, manufacturerContextId, VAULT_TOKEN, MONITOR.withPrefix("Manufacturer " + slug), DYNAMIC_TOKEN_PROVIDER);
         manufacturerCredentials = manufacturerPo.execute(cellId, "manufacturer");
     }
 
@@ -143,25 +142,12 @@ public class DataTransferEndToEndTest {
      * @return the Cell ID
      */
     public static String getCellId() {
-        return apiRequest()
+        return DYNAMIC_TOKEN_PROVIDER.apiRequest()
                 .contentType(APPLICATION_JSON)
                 .get(TM_BASE_URL + "/cells")
                 .then()
                 .statusCode(200)
                 .extract().jsonPath().getString("[0].id");
-    }
-
-    public static RequestSpecification participantRequest() {
-        return given()
-                .header("Authorization", "Bearer " + DYNAMIC_TOKEN_PROVIDER.createToken(providerCredentials.clientId(), "participant"));
-    }
-
-    /**
-     * Creates an authenticated request for any of the Administration APIs (hitting the "single pane of glass")
-     */
-    public static RequestSpecification apiRequest() {
-        return given()
-                .header("Authorization", "Bearer " + DYNAMIC_TOKEN_PROVIDER.createToken(null, "admin"));
     }
 
     @Test
@@ -188,7 +174,7 @@ public class DataTransferEndToEndTest {
 
         MONITOR.info("Fetching siglet token for transferId: " + transferId);
 
-        var transferResponse = apiRequest()
+        var transferResponse = DYNAMIC_TOKEN_PROVIDER.apiRequest()
                 .baseUri(SIGLET_BASE_URL)
                 .get("/tokens/%s/%s".formatted(consumerCredentials.clientId(), transferId))
                 .then()
@@ -242,7 +228,7 @@ public class DataTransferEndToEndTest {
 
         MONITOR.info("Fetching siglet token for transferId: " + transferId);
 
-        var transferResponse = apiRequest()
+        var transferResponse = DYNAMIC_TOKEN_PROVIDER.apiRequest()
                 .baseUri(SIGLET_BASE_URL)
                 .get("/tokens/%s/%s".formatted(manufacturerCredentials.clientId(), transferId))
                 .then()
@@ -284,7 +270,7 @@ public class DataTransferEndToEndTest {
     private String createAsset(String participantContextId, String description) {
         var properties = new HashMap<String, Object>();
         properties.put("description", description);
-        var asset = new AssetDto(properties, Map.of());
+        var asset = new AssetDto(properties, Map.of("@type", "DataplaneMetadata"));
         return MANAGEMENT_API_CLIENT.assets().createAsset(participantContextId, asset);
     }
 

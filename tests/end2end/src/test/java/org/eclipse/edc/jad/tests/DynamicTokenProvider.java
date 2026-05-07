@@ -14,12 +14,15 @@
 
 package org.eclipse.edc.jad.tests;
 
+import io.restassured.specification.RequestSpecification;
 import org.eclipse.edc.api.authentication.OauthTokenProvider;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+
+import static io.restassured.RestAssured.given;
 
 public class DynamicTokenProvider implements OauthTokenProvider {
 
@@ -44,5 +47,13 @@ public class DynamicTokenProvider implements OauthTokenProvider {
 
     public void setDefaultTokenGenerator(Supplier<String> defaultTokenGenerator) {
         this.defaultTokenGenerator = defaultTokenGenerator;
+    }
+
+    /**
+     * Creates an authenticated request for any of the Administration APIs (hitting the "single pane of glass")
+     */
+    public RequestSpecification apiRequest() {
+        return given()
+                .header("Authorization", "Bearer " + createToken(null, "admin"));
     }
 }

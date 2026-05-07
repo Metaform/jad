@@ -12,10 +12,8 @@ post {
 
 body:json {
   {
-    "predicate": "identifier like '%provider%'"  
-    
+    "predicate": "identifier like '%provider%'"
   }
-  
   
 }
 
@@ -34,6 +32,11 @@ script:post-response {
     expect(body).to.have.nested.property("properties.cfm\\.vpa\\.state.participantContextId")
   })
   
+  test("Response contains identifier", function(){
+    expect(body).to.have.property("identifier")
+    
+  })
+  
   if (body && body.id) {
       bru.setVar("participant_profile_id", body.id);
   }
@@ -45,6 +48,10 @@ script:post-response {
   
   if(body && body.properties["cfm.vpa.state"].participantContextId){
     bru.setVar("participantContextId", body.properties["cfm.vpa.state"].participantContextId)
+  }
+  
+  if(body && body.identifier){
+    bru.setVar("participantIdentifier", body.identifier)
   }
 }
 

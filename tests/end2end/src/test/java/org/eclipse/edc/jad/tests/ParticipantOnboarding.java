@@ -28,7 +28,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.eclipse.edc.jad.tests.Constants.IDENTITYHUB_BASE_URL;
-import static org.eclipse.edc.jad.tests.DataTransferEndToEndTest.apiRequest;
 import static org.eclipse.edc.jad.tests.KeycloakApi.createKeycloakToken;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -41,8 +40,8 @@ import static org.hamcrest.Matchers.equalTo;
  * @param vaultToken            A token for Hashicorp Vault which grants access to the {@code v1/secret} secret engine.
  * @param monitor               A monitor for some logging
  */
-public record ParticipantOnboarding(String participantName, String participantContextDid,
-                                    String vaultToken, Monitor monitor) {
+public record ParticipantOnboarding(String participantName, String participantContextDid, String vaultToken,
+                                    Monitor monitor, DynamicTokenProvider tokenProvider) {
 
     @SuppressWarnings("unchecked")
     public ClientCredentials execute(String cellId, String... roles) {
@@ -87,7 +86,7 @@ public record ParticipantOnboarding(String participantName, String participantCo
     }
 
     private String getDataspaceProfileId() {
-        return apiRequest()
+        return tokenProvider.apiRequest()
                 .baseUri(Constants.TM_BASE_URL)
                 .contentType(Constants.APPLICATION_JSON)
                 .get("/dataspace-profiles")
@@ -116,7 +115,7 @@ public record ParticipantOnboarding(String participantName, String participantCo
      * @return the Orchestration object
      */
     private ParticipantProfile getParticipantProfile(String tenant, String profileId) {
-        return apiRequest()
+        return tokenProvider.apiRequest()
                 .baseUri(Constants.TM_BASE_URL)
                 .contentType(Constants.APPLICATION_JSON)
                 .get("/tenants/%s/participant-profiles/%s".formatted(tenant, profileId))
@@ -176,7 +175,7 @@ public record ParticipantOnboarding(String participantName, String participantCo
             body.put("participantRoles", Map.of(dataspaceId, rolesString));
         }
 
-        return apiRequest()
+        return tokenProvider.apiRequest()
                 .baseUri(Constants.TM_BASE_URL)
                 .contentType(Constants.APPLICATION_JSON)
                 .body(body)
@@ -195,7 +194,7 @@ public record ParticipantOnboarding(String participantName, String participantCo
      * @return the tenant ID.
      */
     private String createTenant(String tenantName) {
-        return apiRequest()
+        return tokenProvider.apiRequest()
                 .baseUri(Constants.TM_BASE_URL)
                 .contentType(Constants.APPLICATION_JSON)
                 .body("""
@@ -217,7 +216,7 @@ public record ParticipantOnboarding(String participantName, String participantCo
     private void waitForCredentialIssuance(String participantContextId, String userToken, String holderPid) {
         await().atMost(20, SECONDS)
                 .pollInterval(1, SECONDS).until(() -> {
-                    var body = apiRequest()
+                    var body = tokenProvider.apiRequest()
                             .baseUri(IDENTITYHUB_BASE_URL)
                             .contentType("application/json")
                             .auth().oauth2(userToken)

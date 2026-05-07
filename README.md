@@ -493,32 +493,50 @@ to add or modify access rules by updating the middleware definitions in
 
 ### Rotate a participant's key material
 
-Keys should be rotated periodically to reduce the chance of all sorts of attacks such as Lattice attacks or
+Keys should be rotated periodically to reduce the chance of all sorts of nasty attacks such as Lattice attacks or
 side-channel attacks. In practical applications, this would be done by a management application that uses the Glass
 API, like an admin dashboard, that periodically invokes these APIs here to perform the action.
 
-in JAD, there are several places where keys are stored:
+Participant keys are managed by IdentityHub and stored in a secure vault.
 
-- IdentityHub: stores keys to sign self-issued ID tokens and VerifiablePresentations during a DCP Presentation Flow
-- Vault: stores keys to sign JWTs used to grant access to the data plane (via Siglet's API)
-
-Consequently, rotating all active keys is not a synchronous operation; rather, several individual requests must be made.
-CFM is just the tool to perform and coordinate these actions.
+Rotating keys is not a single operation; rather, several individual steps are performed in IdentityHub, such as deleting
+the old private key, updating the DID document, etc. However, all of this is abstracted by a single API call.
 
 #### Requests
 
-The general sequence of operations necessary to collect the required information is:
+The general sequence of operations necessary to collect the required information is as follows.
+
+If the `participantContextId` is not known, perform these steps to obtain it:
 
 - query the participant profile using the TenantManager API
 - record participant `participantProfileId`, its `tenantId` and the `participantContextId`. The latter is how we
   establish a correlation between CFM and dataspace components such as IdentityHub and ControlPlane.
+
+After that, use the `participantContextId` to perform the following steps:
+
+- get the client secret from Vault. We need this to authenticate REST calls against IdentityHub
 - query all available KeyPairs owned by the `participantContextId`, select the (first) active one (`state=200`) and
   record the ID of the key pair.
-- call Tenant Manager's `/rotate-keys` endpoint with the information provided
-- to check the correct execution of the rotation, either check the participant context's DID document and see if the new
-  key is there, or call the Query-Keypair API again
+- call IdentityHub's `/keypairs/rotate` endpoint with the information provided. In that call, please provide in the body
+  a `keyId` and a `privateKeyAlias`. The `keyId` should be the participant's identifier (web:DID) plus the `"#"` sign,
+  followed by a random string:
+  ```json
+  {
+    "keyGeneratorParams": {
+      "algorithm": "eddsa",
+      "curve": "ed25519"    
+     },
+    "keyId": "{{participantIdentifier}}#{{$randomUUID}}",
+    "privateKeyAlias": "{{$randomUUID}}" 
+  }
+  ```
+- verify the correct execution of the rotation, either by checking the participant context's DID document and see if the
+  new key is there, or call the Query-Keypair API again
 
-These calls are demonstrated in the "Rotate Participant Key" folder in
+Programmatically, this sequence is demonstrated in an E2E test in
+[KeyRotationEndToEndTest.java](./tests/end2end/src/test/java/org/eclipse/edc/jad/tests/KeyRotationEndToEndTest.java).
+
+The REST calls are demonstrated in the "Rotate Participant Key" folder in
 the [Bruno collection](./requests/EDC-V%20Onboarding/Rotate%20Participant%20Key).
 
 ### Deploying JAD on a bare-metal/cloud-hosted Kubernetes
