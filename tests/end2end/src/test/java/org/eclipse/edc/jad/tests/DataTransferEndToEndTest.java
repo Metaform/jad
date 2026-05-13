@@ -168,7 +168,7 @@ public class DataTransferEndToEndTest {
 
         MONITOR.info("starting data transfer");
 
-        var transferId = MANAGEMENT_API_CLIENT.startTransfer(consumerCredentials.clientId(),
+        var transferId = MANAGEMENT_API_CLIENT.startTransfer(consumerCredentials.clientId(), "http-dsp-profile-2025-1",
                 providerCredentials.clientId(), CONTROLPLANE_PROTOCOL_URL.formatted(providerCredentials.clientId()), providerContextId, assetId, "HttpData-PULL");
 
 
@@ -214,7 +214,7 @@ public class DataTransferEndToEndTest {
         registerDataPlane(consumerCredentials.clientId());
         registerDataPlane(manufacturerCredentials.clientId());
 
-        var negotiationId = MANAGEMENT_API_CLIENT.initContractNegotiation(consumerCredentials.clientId(),
+        var negotiationId = MANAGEMENT_API_CLIENT.initContractNegotiation(consumerCredentials.clientId(), "http-dsp-profile-2025-1",
                 assetId, CONTROLPLANE_PROTOCOL_URL.formatted(providerCredentials.clientId()), providerContextId);
 
 
@@ -222,7 +222,7 @@ public class DataTransferEndToEndTest {
 
         MONITOR.info("starting data transfer");
 
-        var transferId = MANAGEMENT_API_CLIENT.startTransfer(manufacturerCredentials.clientId(),
+        var transferId = MANAGEMENT_API_CLIENT.startTransfer(manufacturerCredentials.clientId(), "http-dsp-profile-2025-1",
                 providerCredentials.clientId(), CONTROLPLANE_PROTOCOL_URL.formatted(providerCredentials.clientId()), providerContextId, assetId, "HttpData-PULL");
 
 

@@ -5,7 +5,7 @@
   "@type": "ContractRequest",
   "counterPartyAddress": "{{PROVIDER_DSP_URL}}/api/dsp",
   "counterPartyId": "{{PROVIDER_ID}}",
-  "protocol": "dataspace-protocol-http",
+  "protocol": "http-dsp-profile-2025-1",
   "policy": {
     "@type": "Offer",
     "@id": "{{POLICY_ID_ASSET_1}}",

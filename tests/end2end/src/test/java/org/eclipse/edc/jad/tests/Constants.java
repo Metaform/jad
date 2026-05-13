@@ -27,5 +27,5 @@ public interface Constants {
     String DATAPLANE_BASE_URL = "http://jad.localhost:8080/";
     String IDENTITYHUB_BASE_URL = "http://jad.localhost:8080/api/identity";
     String KEYCLOAK_URL = "http://jad.localhost:8080/auth";
-    String CONTROLPLANE_PROTOCOL_URL = "http://controlplane.edc-v.svc.cluster.local:8082/api/dsp/%s/2025-1";
+    String CONTROLPLANE_PROTOCOL_URL = "http://controlplane.edc-v.svc.cluster.local:8082/api/dsp/%s/http-dsp-profile-2025-1";
 }

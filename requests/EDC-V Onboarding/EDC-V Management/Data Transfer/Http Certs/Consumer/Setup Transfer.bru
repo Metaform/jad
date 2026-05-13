@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{cpBaseUrl}}/participants/{{consumer_id}}/transferprocesses
+  url: {{cpBaseUrl}}/v5beta/participants/{{consumer_id}}/transferprocesses
   body: json
   auth: inherit
 }
@@ -16,8 +16,8 @@ body:json {
       "https://w3id.org/edc/connector/management/v2"
     ],
     "@type": "TransferRequest",
-    "protocol": "dataspace-protocol-http:2025-1",
-    "counterPartyAddress": "http://controlplane.edc-v.svc.cluster.local:8082/api/dsp/{{provider_id}}/2025-1",
+    "protocol": "http-dsp-profile-2025-1",
+    "counterPartyAddress": "http://controlplane.edc-v.svc.cluster.local:8082/api/dsp/{{provider_id}}/http-dsp-profile-2025-1",
     "contractId": "{{AGREEMENT_ID}}",
     "transferType": "HttpData-PULL"
   }

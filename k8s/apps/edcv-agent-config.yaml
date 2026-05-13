@@ -41,4 +41,4 @@ data:
     identityhub.sts.url: http://identityhub.edc-v.svc.cluster.local:7084/api/sts/token
     identityhub.cs.url: http://identityhub.edc-v.svc.cluster.local:7082/api/credentials/v1/participants/%s
     controlplane.url: http://controlplane.edc-v.svc.cluster.local:8081/api/mgmt
-    controlplane.protocol.url: http://controlplane.edc-v.svc.cluster.local:8082/api/dsp/%s/2025-1
+    controlplane.protocol.url: http://controlplane.edc-v.svc.cluster.local:8082/api/dsp/%s/http-dsp-profile-2025-1
