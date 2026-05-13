@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{dpBaseUrl}}/app/internal/api/control/certs
+  url: {{dpBaseUrl}}/control/api/control/certs
   body: multipartForm
   auth: inherit
 }
@@ -19,7 +19,7 @@ body:json {
 
 body:multipart-form {
   metadata: {}
-  file: @file(/Users/paullatzelsperger/code/jad/requests/test_document.pdf)
+  file: 
 }
 
 settings {
