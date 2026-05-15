@@ -214,13 +214,7 @@ layer.
 
 For now, we have to build and load it manually using the following commands:
 
-```shell
-docker buildx build -f clearglass/Dockerfile -t ghcr.io/metaform/jad/clearglass:latest clearglass
-kind load docker-image -n jad ghcr.io/metaform/jad/clearglass:latest
-```
-
-_Note that in a later evolution of JAD clearglass will be moved into its own repository which will make this step
-obsolete._
+Clearglass is available in the CFM project: https://github.com/eclipse-cfm/clearglass.
 
 ### 3. Deploy the services
 
@@ -472,7 +466,7 @@ Infrastructure services are not protected by the auth middleware and are only in
 
 ### Clearglass
 
-`clearglass` is a small sidecar service (`ghcr.io/metaform/jad/clearglass`) that acts as the authentication and
+`clearglass` is a small sidecar service (`ghcr.io/eclipse-cfm/clearglass`) that acts as the authentication and
 authorization enforcement point for all protected APIs. Traefik's `ForwardAuth` mechanism intercepts every inbound
 request and calls `clearglass`'s `/validate` endpoint before forwarding it to the backend.
 

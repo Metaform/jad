@@ -52,20 +52,7 @@ jobs:
           version=$(grep '^jadVersion=' gradle.properties | cut -d'=' -f2)
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
-      - name: Build and push image
-        uses: docker/build-push-action@v7
-        with:
-          context: ./clearglass
-          file: ./clearglass/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/${{ steps.repo.outputs.repo_lowercase }}/clearglass:latest
-            ghcr.io/${{ steps.repo.outputs.repo_lowercase }}/clearglass:${{ github.sha }}
-            ghcr.io/${{ steps.repo.outputs.repo_lowercase }}/clearglass:${{ steps.version.outputs.version }}
-          labels: |
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-          platforms: linux/amd64,linux/arm64
-  build-and-push-java-runtimes:
+  build-and-push-runtime-images:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     strategy:

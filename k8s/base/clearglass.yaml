@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: clearglass
-          image: ghcr.io/metaform/jad/clearglass:latest
+          image: ghcr.io/eclipse-cfm/clearglass:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
