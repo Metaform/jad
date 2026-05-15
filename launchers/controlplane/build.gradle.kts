@@ -27,6 +27,7 @@ dependencies {
     runtimeOnly(libs.edc.spi.jwt)
     runtimeOnly(libs.edc.monitor.console)
     runtimeOnly(libs.edc.monitor.otel)
+    runtimeOnly(libs.edc.events.nats)
 
     runtimeOnly(libs.edc.vault.hashicorp)
     runtimeOnly(libs.bouncyCastle.bcprovJdk18on)

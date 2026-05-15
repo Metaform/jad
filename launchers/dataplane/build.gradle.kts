@@ -26,6 +26,8 @@ dependencies {
     runtimeOnly(libs.edc.monitor.console)
     runtimeOnly(libs.edc.monitor.otel)
     runtimeOnly(libs.opentelemetry.exporter.otlp)
+    runtimeOnly(libs.edc.events.nats)
+
 }
 
 tasks.shadowJar {

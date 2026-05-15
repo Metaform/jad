@@ -53,3 +53,9 @@ data:
   #    proxy_set_header X-Forwarded-Proto $scheme;
   edc.iam.oauth2.issuer: "http://keycloak.edc-v.svc.cluster.local:8080/realms/edcv"
   edc.iam.oauth2.jwks.url: "http://keycloak.edc-v.svc.cluster.local:8080/realms/edcv/protocol/openid-connect/certs"
+
+  # NATS config for events
+  edc.events.nats.url: "nats://nats.edc-v.svc.cluster.local:4222"
+  edc.events.nats.stream: "edc-events"
+  edc.events.nats.create: "true"
+  edc.events.nats.create.force: "true"

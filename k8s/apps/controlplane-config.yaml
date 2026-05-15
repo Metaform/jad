@@ -74,4 +74,10 @@ data:
   # Trusted Issuers
   edc.iam.trusted-issuer.issuer.id: "did:web:issuerservice.edc-v.svc.cluster.local%3A10016:issuer"
 
+  # NATS config for events
+  edc.events.nats.url: "nats://nats.edc-v.svc.cluster.local:4222"
+  edc.events.nats.stream: "edc-events"
+  edc.events.nats.create: "true"
+  edc.events.nats.create.force: "true"
+
   JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044"

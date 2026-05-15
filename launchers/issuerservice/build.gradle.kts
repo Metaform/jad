@@ -30,6 +30,7 @@ dependencies {
     runtimeOnly(libs.edc.store.participantcontext.config.sql)
     runtimeOnly(libs.edc.monitor.console)
     runtimeOnly(libs.edc.monitor.otel)
+    runtimeOnly(libs.edc.events.nats)
 
     runtimeOnly(libs.opentelemetry.exporter.otlp)
 }

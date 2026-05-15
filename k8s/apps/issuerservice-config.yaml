@@ -65,3 +65,9 @@ data:
   edc.datasource.membership.url: "jdbc:postgresql://postgres.edc-v.svc.cluster.local:5432/issuerservice"
   edc.datasource.membership.user: "issuer"
   edc.datasource.membership.password: "issuer"
+
+  # NATS config for events
+  edc.events.nats.url: "nats://nats.edc-v.svc.cluster.local:4222"
+  edc.events.nats.stream: "edc-events"
+  edc.events.nats.create: "true"
+  edc.events.nats.create.force: "true"

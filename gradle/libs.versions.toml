@@ -43,6 +43,7 @@ edc-api-observability = { module = "org.eclipse.edc:api-observability", version.
 edc-fixtures-mgmtapi = { module = "org.eclipse.edc:management-api-test-fixtures", version.ref = "edc" }
 edc-monitor-otel = { module = "org.eclipse.edc:otel-monitor", version.ref = "edc" }
 edc-monitor-console = { module = "org.eclipse.edc:console-monitor", version.ref = "edc" }
+edc-events-nats = { module = "org.eclipse.edc:events-nats", version.ref = "edc" }
 
 # EDC spi dependencies
 edc-spi-web = { module = "org.eclipse.edc:web-spi", version.ref = "edc" }
