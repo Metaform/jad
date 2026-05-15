@@ -84,6 +84,52 @@ data:
     trace: false
 
 ---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nats-bootstrap
+  namespace: edc-v
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      labels:
+        type: edcv-job
+    spec:
+      containers:
+        - name: nats-cli
+          image: natsio/nats-box:latest
+          env:
+            - name: NATS_URL
+              value: "nats://nats.edc-v.svc.cluster.local:4222"
+          command: [ "sh", "-ec" ]
+          args:
+            - |
+              echo "Waiting for NATS to be ready..."
+              until curl -sf http://nats.edc-v.svc.cluster.local:8222/healthz > /dev/null 2>&1; do
+                echo "NATS not ready yet, retrying in 2 seconds..."
+                sleep 2
+              done
+              echo "NATS is ready!"
+
+              nats stream add edc-events \
+                --server "$NATS_URL" \
+                --subjects "events.>" \
+                --storage file \
+                --replicas 1 \
+                --retention interest \
+                --discard old \
+                --max-msgs -1 \
+                --max-bytes -1 \
+                --max-age 0 \
+                --dupe-window 2m \
+                --defaults 2>/dev/null \
+              && echo "Stream 'edc-events' created" \
+              || echo "Stream 'edc-events' already exists, skipping"
+
+              echo "NATS bootstrap completed successfully!"
+      restartPolicy: OnFailure
+---
 apiVersion: v1
 kind: Service
 metadata:
