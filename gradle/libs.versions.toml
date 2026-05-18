@@ -13,7 +13,7 @@ rsApi = "4.0.0"
 swagger = "2.2.47"
 jersey = "3.1.11"
 postgres = "42.7.10"
-opentelemetry = "2.26.1"
+opentelemetry = "2.27.0"
 
 [libraries]
 # upstream EDC dependencies
